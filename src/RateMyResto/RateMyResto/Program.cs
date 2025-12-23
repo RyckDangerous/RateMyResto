@@ -1,10 +1,10 @@
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using RateMyResto.Components;
-using RateMyResto.Components.Account;
+using RateMyResto.Features;
+using RateMyResto.Features.Account;
 using RateMyResto.Core.Configurations;
-using RateMyResto.Data;
+using RateMyResto.Features.Data;
 
 
 ILogger? logger = LoggerFactory.Create(builder =>
