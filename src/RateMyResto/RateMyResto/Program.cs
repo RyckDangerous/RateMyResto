@@ -49,7 +49,7 @@ try
 
     builder.Services.AddIdentityCore<ApplicationUser>(options =>
         {
-            options.SignIn.RequireConfirmedAccount = false;
+            options.SignIn.RequireConfirmedAccount = false; // La confirmation de l'email n'est pas requise
             options.Stores.SchemaVersion = IdentitySchemaVersions.Version3;
             options.User.RequireUniqueEmail = false; // L'email n'est pas requis
         })
