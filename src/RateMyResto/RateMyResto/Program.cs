@@ -3,8 +3,10 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using RateMyResto.Features;
 using RateMyResto.Features.Account;
-using RateMyResto.Core.Configurations;
 using RateMyResto.Features.Data;
+using RateMyResto.Features.DbMigration.Configurations;
+using RateMyResto.Features.DbMigration.Services;
+using RateMyResto.Features.Shared.Configurations;
 
 
 ILogger? logger = LoggerFactory.Create(builder =>
@@ -57,6 +59,8 @@ try
 
     builder.Services.AddSingleton<IEmailSender<ApplicationUser>, IdentityNoOpEmailSender>();
 
+    builder.Services.AddDbMigrationServices();
+
     WebApplication app = builder.Build();
 
     // Configure the HTTP request pipeline.
@@ -74,17 +78,17 @@ try
         ApplicationDbContext? db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
         await db.Database.MigrateAsync();
 
-        //// Appliquer les migrations DbUp
-        //IDbMigrationService dbMigrationService = scope.ServiceProvider.GetRequiredService<IDbMigrationService>();
+        // Appliquer les migrations DbUp
+        IDbMigrationService dbMigrationService = scope.ServiceProvider.GetRequiredService<IDbMigrationService>();
 
-        //if (dbMigrationService.UpgradeDatabase())
-        //{
-        //    logger?.LogInformation("Migration de la base de données réussie");
-        //}
-        //else
-        //{
-        //    throw new Exception("Erreur lors de la migration de la base de données");
-        //}
+        if (dbMigrationService.UpgradeDatabase())
+        {
+            logger?.LogInformation("Migration de la base de données réussie");
+        }
+        else
+        {
+            throw new Exception("Erreur lors de la migration de la base de données");
+        }
     }
 
     app.UseStatusCodePagesWithReExecute("/not-found", createScopeForStatusCodePages: true);

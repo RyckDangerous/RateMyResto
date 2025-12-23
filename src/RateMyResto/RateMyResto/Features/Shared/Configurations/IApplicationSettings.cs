@@ -1,4 +1,4 @@
-namespace RateMyResto.Core.Configurations;
+namespace RateMyResto.Features.Shared.Configurations;
 
 public interface IApplicationSettings
 {
