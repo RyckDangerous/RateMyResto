@@ -1,0 +1,234 @@
+/* Container du drawer */
+.drawer {
+    position: fixed;
+    z-index: 9998;
+    background-color: white;
+    box-shadow: -2px 0 8px rgba(0, 0, 0, 0.15);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    transition: transform 0.3s ease-out;
+}
+
+/* Positions */
+.drawer-right {
+    top: 0;
+    right: 0;
+    bottom: 0;
+    transform: translateX(100%);
+}
+
+.drawer-right.show {
+    transform: translateX(0);
+    animation: slideInRight 0.3s ease-out;
+}
+
+.drawer-left {
+    top: 0;
+    left: 0;
+    bottom: 0;
+    transform: translateX(-100%);
+}
+
+.drawer-left.show {
+    transform: translateX(0);
+    animation: slideInLeft 0.3s ease-out;
+}
+
+.drawer-top {
+    top: 0;
+    left: 0;
+    right: 0;
+    transform: translateY(-100%);
+}
+
+.drawer-top.show {
+    transform: translateY(0);
+    animation: slideInTop 0.3s ease-out;
+}
+
+.drawer-bottom {
+    bottom: 0;
+    left: 0;
+    right: 0;
+    transform: translateY(100%);
+}
+
+.drawer-bottom.show {
+    transform: translateY(0);
+    animation: slideInBottom 0.3s ease-out;
+}
+
+/* Animations */
+@keyframes slideInRight {
+    from {
+        transform: translateX(100%);
+    }
+    to {
+        transform: translateX(0);
+    }
+}
+
+@keyframes slideInLeft {
+    from {
+        transform: translateX(-100%);
+    }
+    to {
+        transform: translateX(0);
+    }
+}
+
+@keyframes slideInTop {
+    from {
+        transform: translateY(-100%);
+    }
+    to {
+        transform: translateY(0);
+    }
+}
+
+@keyframes slideInBottom {
+    from {
+        transform: translateY(100%);
+    }
+    to {
+        transform: translateY(0);
+    }
+}
+
+/* Header du drawer */
+.drawer-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1.25rem 1.5rem;
+    border-bottom: 1px solid #dee2e6;
+    background-color: #f8f9fa;
+}
+
+.drawer-title {
+    margin: 0;
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #212529;
+    display: flex;
+    align-items: center;
+}
+
+.drawer-title i {
+    font-size: 1.3rem;
+}
+
+.drawer-header .btn-close {
+    padding: 0.5rem;
+    margin: -0.5rem -0.5rem -0.5rem auto;
+}
+
+/* Body du drawer */
+.drawer-body {
+    flex: 1;
+    padding: 1.5rem;
+    overflow-y: auto;
+    overflow-x: hidden;
+}
+
+/* Scrollbar personnalisée */
+.drawer-body::-webkit-scrollbar {
+    width: 8px;
+}
+
+.drawer-body::-webkit-scrollbar-track {
+    background: #f1f1f1;
+}
+
+.drawer-body::-webkit-scrollbar-thumb {
+    background: #888;
+    border-radius: 4px;
+}
+
+.drawer-body::-webkit-scrollbar-thumb:hover {
+    background: #555;
+}
+
+/* Backdrop */
+.drawer-backdrop {
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 9997;
+    width: 100vw;
+    height: 100vh;
+    background-color: rgba(0, 0, 0, 0.5);
+}
+
+.drawer-backdrop.fade {
+    opacity: 0;
+    transition: opacity 0.3s ease-out;
+}
+
+.drawer-backdrop.fade.show {
+    opacity: 1;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .drawer-right,
+    .drawer-left {
+        width: 85% !important;
+        min-width: auto !important;
+        max-width: none !important;
+    }
+
+    .drawer-top,
+    .drawer-bottom {
+        height: 70% !important;
+        min-height: auto !important;
+        max-height: none !important;
+    }
+
+    .drawer-header {
+        padding: 1rem;
+    }
+
+    .drawer-body {
+        padding: 1rem;
+    }
+
+    .drawer-title {
+        font-size: 1.1rem;
+    }
+}
+
+/* Animations pour le backdrop */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+/* Amélioration de l'accessibilité */
+.drawer:focus {
+    outline: none;
+}
+
+/* Style pour les sections dans le drawer */
+.drawer-section {
+    margin-bottom: 1.5rem;
+}
+
+.drawer-section:last-child {
+    margin-bottom: 0;
+}
+
+.drawer-section-title {
+    font-size: 1rem;
+    font-weight: 600;
+    color: #495057;
+    margin-bottom: 0.75rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid #e9ecef;
+}
+

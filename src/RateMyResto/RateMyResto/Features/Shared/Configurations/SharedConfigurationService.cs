@@ -1,4 +1,5 @@
 using RateMyResto.Features.Shared.Components.SnackbarComponent;
+using RateMyResto.Features.Shared.Components.DrawerComponent;
 
 namespace RateMyResto.Features.Shared.Configurations;
 
@@ -12,6 +13,7 @@ public static class SharedConfigurationService
     public static IServiceCollection AddSharedServices(this IServiceCollection services)
     {
         services.AddScoped<ISnackbarService, SnackbarService>();
+        services.AddScoped<IDrawerService, DrawerService>();
 
         return services;
     }

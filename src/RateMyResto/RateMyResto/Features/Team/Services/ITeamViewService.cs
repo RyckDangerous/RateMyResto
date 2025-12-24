@@ -36,4 +36,12 @@ public interface ITeamViewService
     /// <param name="description"></param>
     /// <returns></returns>
     Task CreateTeamAsync(string nom, string? description);
+
+    /// <summary>
+    /// Retire un membre d'une équipe
+    /// </summary>
+    /// <param name="teamId">ID de l'équipe</param>
+    /// <param name="userId">ID de l'utilisateur à retirer</param>
+    /// <returns></returns>
+    Task RemoveMemberAsync(Guid teamId, string userId);
 }

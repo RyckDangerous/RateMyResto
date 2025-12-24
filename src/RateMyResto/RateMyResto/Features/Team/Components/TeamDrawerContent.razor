@@ -1,0 +1,76 @@
+@using RateMyResto.Features.Shared.Models
+@using RateMyResto.Features.Shared.Components.DrawerComponent
+@using RateMyResto.Features.Shared.Components.SnackbarComponent
+
+@inject IDrawerService DrawerService
+@inject ISnackbarService SnackbarService
+
+<!-- Section Informations de l'équipe -->
+<div class="drawer-section">
+    <h4>@Team.Nom</h4>
+    
+    @if (!string.IsNullOrEmpty(Team.Description))
+    {
+        <p class="text-muted fst-italic mb-3">@Team.Description</p>
+    }
+
+    <div class="d-flex align-items-center text-muted mb-2">
+        <i class="bi bi-person-badge me-2"></i>
+        <small>Code équipe : @Team.Id</small>
+    </div>
+    <p class="text-muted fst-italic small ms-4 mb-3">
+        ID de l'équipe à fournir à ceux qui veulent rejoindre l'équipe.
+    </p>
+    
+    <div class="d-flex align-items-center text-muted mb-2">
+        <i class="bi bi-person-badge me-2"></i>
+        <small>Propriétaire : @Team.OwnerName</small>
+    </div>
+</div>
+
+<!-- Section Membres -->
+<div class="drawer-section">
+    <h6 class="drawer-section-title">
+        <i class="bi bi-people-fill me-2"></i>Membres (@Team.Membres.Count)
+    </h6>
+    
+    @if (Team.Membres.Any())
+    {
+        <ul class="list-group">
+            @foreach (var membre in Team.Membres)
+            {
+                <li class="list-group-item d-flex align-items-center justify-content-between">
+                    <div class="d-flex align-items-center">
+                        <i class="bi bi-person-circle me-2 text-primary"></i>
+                        <span>@membre.Nom</span>
+                    </div>
+                    <button class="btn btn-sm btn-outline-danger" 
+                            @onclick="() => HandleRemoveMember(membre.Id)"
+                            title="Retirer ce membre">
+                        <i class="bi bi-trash"></i>
+                    </button>
+                </li>
+            }
+        </ul>
+    }
+    else
+    {
+        <div class="alert alert-info">
+            <i class="bi bi-info-circle me-2"></i>Aucun membre pour le moment.
+        </div>
+    }
+</div>
+
+<!-- Section Actions -->
+<div class="drawer-section">
+    <h6 class="drawer-section-title">
+        <i class="bi bi-lightning-fill me-2"></i>Actions
+    </h6>
+    
+    <div class="d-grid gap-2">
+       
+        <button class="btn btn-outline-danger" @onclick="HandleDeleteTeam">
+            <i class="bi bi-trash me-2"></i>Supprimer l'équipe
+        </button>
+    </div>
+</div>

@@ -189,4 +189,44 @@ public sealed class TeamViewService : ViewServiceBase, ITeamViewService
         // Recharge les équipes après création
         await LoadViewModelAsync();
     }
+
+    /// <inheritdoc />
+    public async Task RemoveMemberAsync(Guid teamId, string userId)
+    {
+        if (ViewModel.SelectedTeam is null)
+            return;
+
+        string? currentUserId = await GetCurrentUserIdAsync();
+
+        if (string.IsNullOrEmpty(currentUserId))
+        {
+            _snackbarService.ShowError("Utilisateur non authentifié.");
+            ViewModel.IsLoading = false;
+            return;
+        }
+
+        // Vérifier que ce n'est pas le propriétaire
+        if (ViewModel.SelectedTeam.IdOwner == userId)
+        {
+            _snackbarService.ShowWarning("Le propriétaire ne peut pas être retiré de l'équipe.");
+            return;
+        }
+
+        ViewModel.IsLoading = true;
+
+        // Appeler le repository pour retirer le membre
+        ResultOf result = await _teamRepository.DeleteTeamMemberAsync(teamId, userId);
+
+        if (result.HasError)
+        {
+            _snackbarService.ShowError("Une erreur est survenue lors du retrait du membre.");
+            ViewModel.IsLoading = false;
+            return;
+        }
+
+        _snackbarService.ShowSuccess("Le membre a été retiré de l'équipe avec succès.");
+        
+        // Recharge les équipes pour mettre à jour la liste des membres
+        await LoadViewModelAsync();
+    }
 }

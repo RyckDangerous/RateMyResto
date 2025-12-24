@@ -1,0 +1,45 @@
+@using RateMyResto.Features.Shared.Components.DrawerComponent
+@implements IDisposable
+@inject IDrawerService DrawerService
+@rendermode InteractiveServer
+
+@if (_isOpen && _currentSettings != null)
+{
+    <!-- Drawer -->
+    <div class="drawer drawer-@GetPositionClass() show" 
+         style="@GetDrawerStyle()"
+         tabindex="-1">
+        
+        @if (!string.IsNullOrEmpty(_currentSettings.Title) || _currentSettings.ShowCloseButton)
+        {
+            <div class="drawer-header">
+                @if (!string.IsNullOrEmpty(_currentSettings.Title))
+                {
+                    <h5 class="drawer-title">
+                        @if (!string.IsNullOrEmpty(_currentSettings.TitleIcon))
+                        {
+                            <i class="bi @_currentSettings.TitleIcon me-2"></i>
+                        }
+                        @_currentSettings.Title
+                    </h5>
+                }
+                
+                @if (_currentSettings.ShowCloseButton)
+                {
+                    <button type="button" class="btn-close" @onclick="CloseDrawer" aria-label="Fermer"></button>
+                }
+            </div>
+        }
+        
+        <div class="drawer-body">
+            @if (_currentSettings.Content != null)
+            {
+                @_currentSettings.Content
+            }
+        </div>
+    </div>
+    
+    <!-- Backdrop -->
+    <div class="drawer-backdrop fade show" @onclick="HandleBackdropClick"></div>
+}
+

@@ -23,4 +23,9 @@ public sealed record TeamViewModel
     /// Liste des équipes ou l'utilisateur est membre
     /// </summary>
     public List<Equipe> MemberEquipes { get; set; } = new List<Equipe>();
+
+    /// <summary>
+    /// Équipe sélectionnée pour affichage dans le drawer
+    /// </summary>
+    public Equipe? SelectedTeam { get; set; }
 }
