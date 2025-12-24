@@ -108,7 +108,7 @@
         await UserStore.SetUserNameAsync(user, Input.UserLogin, CancellationToken.None);
         
         var emailStore = GetEmailStore();
-        await emailStore.SetEmailAsync(user, Input.UserLogin, CancellationToken.None);
+        await emailStore.SetEmailAsync(user, Input.Email, CancellationToken.None);
         
         var result = await UserManager.CreateAsync(user, Input.Password);
 
