@@ -1,0 +1,103 @@
+@using RateMyResto.Features.Shared.Components.SnackbarComponent
+
+@implements IDisposable
+
+@inject ISnackbarService SnackbarService
+
+<div class="snackbar-container">
+    @foreach (var message in _messages)
+    {
+        <div class="snackbar snackbar-@GetTypeClass(message.Type) snackbar-enter" @key="message.Id">
+            <div class="snackbar-content">
+                <i class="bi @GetIcon(message.Type) me-2"></i>
+                <span class="snackbar-message">@message.Message</span>
+            </div>
+            <button type="button" class="snackbar-close" @onclick="() => RemoveMessage(message.Id)" aria-label="Fermer">
+                <i class="bi bi-x-lg"></i>
+            </button>
+        </div>
+    }
+</div>
+
+@code {
+    private List<SnackbarMessage> _messages = new();
+    private Dictionary<Guid, System.Threading.Timer> _timers = new();
+
+    protected override void OnInitialized()
+    {
+        SnackbarService.OnMessageAdded += HandleMessageAdded;
+        SnackbarService.OnMessageRemoved += HandleMessageRemoved;
+    }
+
+    private void HandleMessageAdded(SnackbarMessage message)
+    {
+        _messages.Add(message);
+        StateHasChanged();
+
+        // Si une durée est définie, programmer la suppression automatique
+        if (message.Duration > 0)
+        {
+            var timer = new System.Threading.Timer(_ =>
+            {
+                RemoveMessage(message.Id);
+            }, null, message.Duration, Timeout.Infinite);
+
+            _timers[message.Id] = timer;
+        }
+    }
+
+    private void HandleMessageRemoved(Guid messageId)
+    {
+        RemoveMessage(messageId);
+    }
+
+    private void RemoveMessage(Guid messageId)
+    {
+        var message = _messages.FirstOrDefault(m => m.Id == messageId);
+        if (message != null)
+        {
+            _messages.Remove(message);
+
+            // Nettoyer le timer
+            if (_timers.TryGetValue(messageId, out var timer))
+            {
+                timer.Dispose();
+                _timers.Remove(messageId);
+            }
+
+            InvokeAsync(StateHasChanged);
+        }
+    }
+
+    private string GetTypeClass(SnackbarType type) => type switch
+    {
+        SnackbarType.Success => "success",
+        SnackbarType.Error => "error",
+        SnackbarType.Warning => "warning",
+        SnackbarType.Info => "info",
+        _ => "info"
+    };
+
+    private string GetIcon(SnackbarType type) => type switch
+    {
+        SnackbarType.Success => "bi-check-circle-fill",
+        SnackbarType.Error => "bi-exclamation-circle-fill",
+        SnackbarType.Warning => "bi-exclamation-triangle-fill",
+        SnackbarType.Info => "bi-info-circle-fill",
+        _ => "bi-info-circle-fill"
+    };
+
+    public void Dispose()
+    {
+        SnackbarService.OnMessageAdded -= HandleMessageAdded;
+        SnackbarService.OnMessageRemoved -= HandleMessageRemoved;
+
+        // Nettoyer tous les timers
+        foreach (var timer in _timers.Values)
+        {
+            timer.Dispose();
+        }
+        _timers.Clear();
+    }
+}
+

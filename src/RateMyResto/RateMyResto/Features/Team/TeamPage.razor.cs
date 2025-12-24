@@ -32,6 +32,10 @@ public partial class TeamPage : ComponentBase
         _newTeamDescription = string.Empty;
     }
 
+    /// <summary>
+    /// Gère la création d'une nouvelle équipe.
+    /// </summary>
+    /// <returns></returns>
     private async Task HandleCreateTeam()
     {
         if (string.IsNullOrWhiteSpace(_newTeamName))
@@ -41,6 +45,17 @@ public partial class TeamPage : ComponentBase
 
         await _viewService.CreateTeamAsync(_newTeamName, _newTeamDescription);
         CloseCreateModal();
+        StateHasChanged();
+    }
+
+    /// <summary>
+    /// Gère le départ d'une équipe.
+    /// </summary>
+    /// <param name="teamId"></param>
+    /// <returns></returns>
+    private async Task HandleLeaveTeam(Guid teamId)
+    {
+        await _viewService.LeaveTeamAsync(teamId);
         StateHasChanged();
     }
 }

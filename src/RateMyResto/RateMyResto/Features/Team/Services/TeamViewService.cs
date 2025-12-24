@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Components.Authorization;
+using RateMyResto.Features.Shared.Components.SnackbarComponent;
 using RateMyResto.Features.Shared.Models;
 using RateMyResto.Features.Shared.Services;
 using RateMyResto.Features.Team.Converters;
@@ -9,18 +10,20 @@ namespace RateMyResto.Features.Team.Services;
 
 public sealed class TeamViewService : ViewServiceBase, ITeamViewService
 {
-
     private readonly ITeamRepository _teamRepository;
+    private readonly ISnackbarService _snackbarService;
 
     /// <inheritdoc />
     public TeamViewModel ViewModel { get; private set; } 
 
 
     public TeamViewService(AuthenticationStateProvider authenticationStateProvider,
-                            ITeamRepository teamRepository)
+                            ITeamRepository teamRepository,
+                            ISnackbarService snackbarService)
         : base(authenticationStateProvider)
     {
         _teamRepository = teamRepository;
+        _snackbarService = snackbarService;
         ViewModel = new();
     }
 
@@ -33,7 +36,7 @@ public sealed class TeamViewService : ViewServiceBase, ITeamViewService
 
         if (string.IsNullOrEmpty(userId))
         {
-            ViewModel.ErrorMessage = "Utilisateur non authentifié.";
+            _snackbarService.ShowError("Utilisateur non authentifié.");
             ViewModel.IsLoading = false;
             return;
         }
@@ -50,7 +53,7 @@ public sealed class TeamViewService : ViewServiceBase, ITeamViewService
             }
             else
             {
-                ViewModel.ErrorMessage = "Une erreur est survenue lors du chargement des équipes.";
+                _snackbarService.ShowError("Une erreur est survenue lors du chargement des équipes.");
             }
         }
         else
@@ -69,7 +72,7 @@ public sealed class TeamViewService : ViewServiceBase, ITeamViewService
             }
             else
             {
-                ViewModel.ErrorMessage = "Une erreur est survenue lors du chargement des équipes.";
+                _snackbarService.ShowError("Une erreur est survenue lors du chargement des équipes.");
             }
         }
         else
@@ -89,7 +92,7 @@ public sealed class TeamViewService : ViewServiceBase, ITeamViewService
 
         if (string.IsNullOrEmpty(userId))
         {
-            ViewModel.ErrorMessage = "Utilisateur non authentifié.";
+            _snackbarService.ShowError("Utilisateur non authentifié.");
             ViewModel.IsLoading = false;
             return;
         }
@@ -98,7 +101,11 @@ public sealed class TeamViewService : ViewServiceBase, ITeamViewService
 
         if (result.HasError)
         {
-            ViewModel.ErrorMessage = "Une erreur est survenue lors de la tentative de rejoindre l'équipe.";
+            _snackbarService.ShowError("Une erreur est survenue lors de la tentative de rejoindre l'équipe.");
+        }
+        else
+        {
+            _snackbarService.ShowSuccess("Vous avez rejoint l'équipe avec succès !");
         }
 
         ViewModel.IsLoading = false;
@@ -107,25 +114,43 @@ public sealed class TeamViewService : ViewServiceBase, ITeamViewService
     /// <inheritdoc />
     public async Task LeaveTeamAsync(Guid teamId)
     {
-        ViewModel.IsLoading = true;
-
         string? userId = await GetCurrentUserIdAsync();
 
         if (string.IsNullOrEmpty(userId))
         {
-            ViewModel.ErrorMessage = "Utilisateur non authentifié.";
-            ViewModel.IsLoading = false;
+            _snackbarService.ShowError("Utilisateur non authentifié.");
             return;
         }
+
+        // Vérifie si l'utilisateur est le propriétaire de l'équipe
+        Equipe? currentTeam = ViewModel.MemberEquipes.Where(e => e.Id == teamId).FirstOrDefault();
+        if (currentTeam is null)
+        {
+            _snackbarService.ShowError("Équipe introuvable.");
+            return;
+        }
+
+        if (currentTeam.IdOwner == userId)
+        {
+            _snackbarService.ShowWarning("Le propriétaire de l'équipe ne peut pas la quitter. Veuillez supprimer l'équipe à la place.");
+            return;
+        }
+
+        ViewModel.IsLoading = true;
 
         ResultOf result = await _teamRepository.DeleteTeamMemberAsync(teamId, userId);
 
         if (result.HasError)
         {
-            ViewModel.ErrorMessage = "Une erreur est survenue lors de la tentative de quitter l'équipe.";
+            _snackbarService.ShowError("Une erreur est survenue lors de la tentative de quitter l'équipe.");
+            ViewModel.IsLoading = false;
         }
-
-        ViewModel.IsLoading = false;
+        else
+        {
+            _snackbarService.ShowSuccess("Vous avez quitté l'équipe avec succès.");
+            // Recharge les équipes après avoir quitté
+            await LoadViewModelAsync();
+        }
     }
 
     /// <inheritdoc />
@@ -138,7 +163,7 @@ public sealed class TeamViewService : ViewServiceBase, ITeamViewService
 
         if (string.IsNullOrEmpty(userId))
         {
-            ViewModel.ErrorMessage = "Utilisateur non authentifié.";
+            _snackbarService.ShowError("Utilisateur non authentifié.");
             ViewModel.IsLoading = false;
             return;
         }
@@ -155,11 +180,12 @@ public sealed class TeamViewService : ViewServiceBase, ITeamViewService
 
         if (result.HasError)
         {
-            ViewModel.ErrorMessage = "Une erreur est survenue lors de la création de l'équipe.";
+            _snackbarService.ShowError("Une erreur est survenue lors de la création de l'équipe.");
             ViewModel.IsLoading = false;
             return;
         }
 
+        _snackbarService.ShowSuccess($"L'équipe '{nom}' a été créée avec succès !");
         // Recharge les équipes après création
         await LoadViewModelAsync();
     }

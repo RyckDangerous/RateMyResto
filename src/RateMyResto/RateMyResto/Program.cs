@@ -60,6 +60,7 @@ try
 
     builder.Services.AddSingleton<IEmailSender<ApplicationUser>, IdentityNoOpEmailSender>();
 
+    builder.Services.AddSharedServices();
     builder.Services.AddDbMigrationServices();
     builder.Services.AddTeamFeatures();
 
