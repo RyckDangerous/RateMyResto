@@ -1,5 +1,8 @@
 namespace RateMyResto.Features.Team.Models;
 
+/// <summary>
+/// Représente une équipe avec son propriétaire et ses membres dans la base de données.
+/// </summary>
 public sealed record TeamDb
 {
     /// <summary>
@@ -20,7 +23,12 @@ public sealed record TeamDb
     /// <summary>
     /// Identifiant unique du propriétaire de l'équipe.
     /// </summary>
-    public required Guid OwnerId { get; init; }
+    public required string OwnerId { get; init; }
+
+    /// <summary>
+    /// Nom du propriétaire de l'équipe.
+    /// </summary>
+    public required string OwnerName { get; set; }
 
     /// <summary>
     /// Liste des membres de l'équipe.

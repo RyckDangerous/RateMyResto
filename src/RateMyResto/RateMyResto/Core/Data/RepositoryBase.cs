@@ -86,17 +86,17 @@ public abstract class RepositoryBase<T>
     /// <summary>
     /// Exécute une procédure stockée et renvoie le model
     /// </summary>
-    /// <typeparam name="T"></typeparam>
+    /// <typeparam name="E">Entité de retour</typeparam>
     /// <param name="procName"></param>
     /// <param name="mapDataDelegate"></param>
     /// <param name="parameters"></param>
     /// <param name="sqlTimeout"></param>
     /// <returns></returns>
-    protected async Task<ResultOf<T>> ExecuteStoredProcedureAsync<T>(string procName,
-                                                                    Func<SqlDataReader, Task<T>> mapDataDelegate,
+    protected async Task<ResultOf<E>> ExecuteStoredProcedureAsync<E>(string procName,
+                                                                    Func<SqlDataReader, Task<E>> mapDataDelegate,
                                                                     IDbDataParameter[]? parameters = null,
                                                                     int sqlTimeout = 0)
-        where T : class
+        where E : class
     {
         try
         {
@@ -127,16 +127,16 @@ public abstract class RepositoryBase<T>
             await using SqlDataReader reader = await sqlCommand.ExecuteReaderAsync()
                                                                .ConfigureAwait(false);
 
-            T result = await mapDataDelegate(reader).ConfigureAwait(false);
+            E result = await mapDataDelegate(reader).ConfigureAwait(false);
 
-            return ResultOf.Success(result);
+            return ResultOf.Success<E>(result);
         }
         catch (Exception ex)
         {
             SqlServerError sqlError = new($"Erreur sur la PS : {procName}", ex);
             _logger.LogError(sqlError);
 
-            return ResultOf.Failure<T>(sqlError);
+            return ResultOf.Failure<E>(sqlError);
         }
     }
 
@@ -199,12 +199,12 @@ public abstract class RepositoryBase<T>
     /// <summary>
     /// Permet d'exécuter une procédure stockée qui retourne le résultat au format JSON.
     /// </summary>
-    /// <typeparam name="T"></typeparam>
+    /// <typeparam name="E">Entité de retour</typeparam>
     /// <param name="procName"></param>
     /// <param name="parameters"></param>
     /// <param name="sqlTimeout"></param>
     /// <returns></returns>
-    protected async Task<ResultOf<T>> ExecuteStoredProcedureWithJsonResult<T>(string procName,
+    protected async Task<ResultOf<E>> ExecuteStoredProcedureWithJsonResult<E>(string procName,
                                                                               IDbDataParameter[]? parameters = null,
                                                                               int sqlTimeout = 0)
     {
@@ -244,20 +244,20 @@ public abstract class RepositoryBase<T>
 
                     if (!string.IsNullOrWhiteSpace(jsonContent))
                     {
-                        T? result = JsonSerializer.Deserialize<T>(jsonContent);
+                        E? result = JsonSerializer.Deserialize<E>(jsonContent);
 
                         if (result is null)
                         {
                             SqlServerError error = new($"Erreur de désérialisation JSON sur la PS : {procName}");
-                            return ResultOf.Failure<T>(error);
+                            return ResultOf.Failure<E>(error);
                         }
 
-                        return ResultOf.Success<T>(result);
+                        return ResultOf.Success<E>(result);
                     }
                 }
 
                 NotFoundError errorNotFound = new($"Aucun résultat JSON sur la PS : {procName}");
-                return ResultOf.Failure<T>(errorNotFound);
+                return ResultOf.Failure<E>(errorNotFound);
             }
         }
         catch (Exception ex)
@@ -265,7 +265,7 @@ public abstract class RepositoryBase<T>
             SqlServerError sqlError = new($"Erreur sur la PS : {procName}", ex);
             _logger.LogError(sqlError);
 
-            return ResultOf.Failure<T>(sqlError);
+            return ResultOf.Failure<E>(sqlError);
         }
     }
 
@@ -431,8 +431,8 @@ public abstract class RepositoryBase<T>
     /// <param name="mapDataDelegate"></param>
     /// <param name="sqlTimeout"></param>
     /// <returns></returns>
-    protected async Task<ResultOf<T>> ExecuteQueryAsync<T>(string query, Func<SqlDataReader, Task<T>> mapDataDelegate, int sqlTimeout = 0)
-        where T : class
+    protected async Task<ResultOf<E>> ExecuteQueryAsync<E>(string query, Func<SqlDataReader, Task<E>> mapDataDelegate, int sqlTimeout = 0)
+        where E : class
     {
         try
         {
@@ -455,7 +455,7 @@ public abstract class RepositoryBase<T>
                 await using var reader = await sqlCommand.ExecuteReaderAsync()
                                                          .ConfigureAwait(false);
 
-                var result = await mapDataDelegate(reader).ConfigureAwait(false);
+                E result = await mapDataDelegate(reader).ConfigureAwait(false);
 
                 return ResultOf.Success(result);
             }
@@ -465,23 +465,23 @@ public abstract class RepositoryBase<T>
             SqlServerError sqlError = new($"Erreur sur l'exécution de la requête dans : {nameof(ExecuteQueryAsync)}", ex);
             _logger.LogError(sqlError);
 
-            return ResultOf.Failure<T>(sqlError);
+            return ResultOf.Failure<E>(sqlError);
         }
     }
 
     /// <summary>
     /// Execute une requête SQL et retourne une class avec un désérialisation JSON
     /// </summary>
-    /// <typeparam name="T"></typeparam>
+    /// <typeparam name="E">Entité de retour</typeparam>
     /// <param name="query"></param>
     /// <param name="sqlTimeout"></param>
     /// <returns></returns>
-    protected async Task<ResultOf<T?>> ExecuteQueryAsync<T>(string query, int sqlTimeout = 0)
-        where T : class
+    protected async Task<ResultOf<E?>> ExecuteQueryAsync<E>(string query, int sqlTimeout = 0)
+        where E : class
     {
         try
         {
-            T? result = null;
+            E? result = null;
 
             await using (SqlConnection sqlConnection = new (_connectionString))
             {
@@ -514,7 +514,7 @@ public abstract class RepositoryBase<T>
 
                     if (!string.IsNullOrWhiteSpace(jsonContent))
                     {
-                        result = JsonSerializer.Deserialize<T>(jsonContent);
+                        result = JsonSerializer.Deserialize<E>(jsonContent);
                     }
                 }
 
@@ -526,7 +526,7 @@ public abstract class RepositoryBase<T>
             SqlServerError sqlError = new($"Erreur sur l'exécution de la requête dans : {nameof(ExecuteQueryAsync)}", ex);
             _logger.LogError(sqlError);
 
-            return ResultOf.Failure<T?>(sqlError);
+            return ResultOf.Failure<E?>(sqlError);
         }
     }
 

@@ -20,5 +20,15 @@ public sealed record Equipe
     /// <summary>
     /// Identifiant unique du propriétaire de l'équipe
     /// </summary>
-    public required Guid IdOwner { get; set; }
+    public required string IdOwner { get; set; }
+
+    /// <summary>
+    /// Nom du propriétaire de l'équipe
+    /// </summary>
+    public required string OwnerName { get; set; }
+
+    /// <summary>
+    /// Liste des membres de l'équipe
+    /// </summary>
+    public required List<Membre> Membres { get; set; }
 }

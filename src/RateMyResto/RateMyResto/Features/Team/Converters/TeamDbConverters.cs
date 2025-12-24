@@ -17,7 +17,24 @@ public static class TeamDbConverters
             Id = teamDb.Id,
             Nom = teamDb.Nom,
             Description = teamDb.Description,
-            IdOwner = teamDb.OwnerId
+            IdOwner = teamDb.OwnerId,
+            OwnerName = teamDb.OwnerName,
+            Membres = teamDb.Members.Select(ToMembre).ToList()
         };
     }
+
+    /// <summary>
+    /// Convertit un TeamMemberDb en Membre.
+    /// </summary>
+    /// <param name="memberDb"></param>
+    /// <returns></returns>
+    public static Membre ToMembre(TeamMemberDb memberDb)
+    {
+        return new Membre()
+        {
+            Id = memberDb.IdUser,
+            Nom = memberDb.UserName
+        };
+    }
+
 }

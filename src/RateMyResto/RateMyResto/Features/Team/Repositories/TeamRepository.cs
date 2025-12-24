@@ -14,7 +14,7 @@ public sealed class TeamRepository : RepositoryBase<TeamRepository>, ITeamReposi
     }
 
     /// <inheritdoc />
-    public async Task<ResultOf> CreateTeam(TeamCommand command)
+    public async Task<ResultOf> CreateTeamAsync(TeamCommand command)
     {
         SqlParameter[] parameters =
         {
@@ -54,7 +54,7 @@ public sealed class TeamRepository : RepositoryBase<TeamRepository>, ITeamReposi
     }
 
     /// <inheritdoc />
-    public async Task<ResultOf<List<TeamDb>>> GetTeamByOwner(string userId)
+    public async Task<ResultOf<List<TeamDb>>> GetTeamByOwnerAsync(string userId)
     {
         SqlParameter[] parameters =
         {
@@ -65,13 +65,38 @@ public sealed class TeamRepository : RepositoryBase<TeamRepository>, ITeamReposi
     }
 
     /// <inheritdoc />
-    public async Task<ResultOf<List<TeamDb>>> GetTeamsByMember(string userId)
+    public async Task<ResultOf<List<TeamDb>>> GetTeamsByMemberAsync(string userId)
     {
         SqlParameter[] parameters =
         {
-            GetSqlParameterNVarchar("@Owner", userId)
+            GetSqlParameterNVarchar("@UserId", userId)
         };
 
-        return await ExecuteStoredProcedureWithJsonResult<List<TeamDb>>("sp_GetTeamByMember", parameters);
+        return await ExecuteStoredProcedureWithJsonResult<List<TeamDb>>("sp_GetTeamsByUser", parameters);
     }
+
+
+    public async Task<ResultOf> JoinTeamAsync(Guid teamId, string userId)
+    {
+        SqlParameter[] parameters =
+        {
+            GetSqlParameterNVarchar("@UserId", userId),
+            GetSqlParameterUniqueIdentifier("@TeamId", teamId)
+        };
+
+        return await ExecuteNonQueryStoredProcedureAsync("sp_AddMemberToTeam", parameters);
+    }
+
+    /// <inheritdoc />
+    public async Task<ResultOf> DeleteTeamMemberAsync(Guid idTeam, string userId)
+    {
+        SqlParameter[] parameters =
+        {
+            GetSqlParameterNVarchar("@UserId", userId),
+            GetSqlParameterUniqueIdentifier("@IdTeam", idTeam)
+        };
+
+        return await ExecuteNonQueryStoredProcedureAsync("sp_RemoveUserFromTeam", parameters);
+    }
+
 }

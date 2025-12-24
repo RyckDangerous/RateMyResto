@@ -14,4 +14,18 @@ public interface ITeamViewService
     /// </summary>
     /// <returns></returns>
     Task LoadViewModelAsync();
+
+    /// <summary>
+    /// Rejoint une équipe
+    /// </summary>
+    /// <param name="teamId"></param>
+    /// <returns></returns>
+    Task JoinTeamAsync(Guid teamId);
+
+    /// <summary>
+    /// Quitte une équipe
+    /// </summary>
+    /// <param name="teamId"></param>
+    /// <returns></returns>
+    Task LeaveTeamAsync(Guid teamId);
 }
