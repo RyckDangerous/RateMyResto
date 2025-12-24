@@ -6,7 +6,7 @@
 @rendermode InteractiveServer
 @attribute [Authorize]
 
-<PageTitle>Mes Équipes</PageTitle>
+<PageTitle>Équipes</PageTitle>
 
 <div class="container-fluid py-4">
     <div class="row mb-4">
@@ -16,10 +16,10 @@
         </div>
 
         <div class="col-auto align-self-center">
-            <button class="btn btn-success btn-lg me-2" @onclick="OpenJoinModal">
+            <button class="btn btn-success btn-lg me-2" @onclick="_viewService.OpenJoinModal">
                 <i class="bi bi-door-open me-2"></i>Rejoindre une équipe
             </button>
-            <button class="btn btn-primary btn-lg" @onclick="OpenCreateModal">
+            <button class="btn btn-primary btn-lg" @onclick="_viewService.OpenCreateModal">
                 <i class="bi bi-plus-circle me-2"></i>Créer une équipe
             </button>
         </div>
@@ -69,7 +69,7 @@
                                 </div>
 
                                 <div class="card-footer bg-transparent">
-                                    <button class="btn btn-outline-primary btn-sm w-100" @onclick="() => OpenTeamDrawer(equipe.Id)">
+                                    <button class="btn btn-outline-primary btn-sm w-100" @onclick="() => _viewService.OpenTeamDrawer(equipe.Id)">
                                         <i class="bi bi-gear me-1"></i>Gérer l'équipe
                                     </button>
                                 </div>
@@ -124,7 +124,7 @@
                                 </div>
 
                                 <div class="card-footer bg-transparent">
-                                    <button class="btn btn-outline-secondary btn-sm w-100" @onclick="() => HandleLeaveTeam(equipe.Id)">
+                                    <button class="btn btn-outline-secondary btn-sm w-100" @onclick="() => _viewService.HandleLeaveTeam(equipe.Id)">
                                         <i class="bi bi-box-arrow-right me-1"></i>Quitter l'équipe
                                     </button>
                                 </div>
@@ -144,7 +144,7 @@
 </div>
 
 <!-- Modale de création d'équipe -->
-@if (_showCreateModal)
+@if (_viewService.ShowCreateModal)
 {
     <div class="modal fade show d-block" tabindex="-1" role="dialog" style="background-color: rgba(0,0,0,0.5);">
         <div class="modal-dialog modal-dialog-centered" role="document">
@@ -155,7 +155,7 @@
                         <i class="bi bi-plus-circle me-2"></i>Créer une nouvelle équipe
                     </h5>
 
-                    <button type="button" class="btn-close" @onclick="CloseCreateModal" aria-label="Close"></button>
+                    <button type="button" class="btn-close" @onclick="_viewService.CloseCreateModal" aria-label="Close"></button>
                 </div>
 
                 <div class="modal-body">
@@ -165,11 +165,13 @@
                             <input type="text" 
                                    class="form-control" 
                                    id="teamName" 
-                                   @bind="_newTeamName" 
+                                   @bind="_viewService.NewTeamName" 
                                    placeholder="Ex: Les Gourmets"
                                    maxlength="100"
                                    required />
-                            @if (string.IsNullOrWhiteSpace(_newTeamName) && _newTeamName != string.Empty)
+
+                            @if (string.IsNullOrWhiteSpace(_viewService.NewTeamName) 
+                                && _viewService.NewTeamName != string.Empty)
                             {
                                 <div class="text-danger small mt-1">Le nom est obligatoire</div>
                             }
@@ -179,24 +181,24 @@
                             <label for="teamDescription" class="form-label">Description</label>
                             <textarea class="form-control" 
                                       id="teamDescription" 
-                                      @bind="_newTeamDescription" 
+                                      @bind="_viewService.NewTeamDescription"
                                       rows="3"
                                       placeholder="Décrivez votre équipe (optionnel)"
                                       maxlength="500"></textarea>
-                            <small class="text-muted">@(_newTeamDescription?.Length ?? 0) / 500 caractères</small>
+                            <small class="text-muted">@(_viewService.NewTeamDescription?.Length ?? 0) / 500 caractères</small>
                         </div>
                     </form>
                 </div>
 
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" @onclick="CloseCreateModal">
+                    <button type="button" class="btn btn-secondary" @onclick="_viewService.CloseCreateModal">
                         <i class="bi bi-x-circle me-1"></i>Annuler
                     </button>
 
                     <button type="button" 
                             class="btn btn-primary" 
-                            @onclick="HandleCreateTeam"
-                            disabled="@(string.IsNullOrWhiteSpace(_newTeamName))">
+                            @onclick="_viewService.HandleCreateTeam"
+                            disabled="@(string.IsNullOrWhiteSpace(_viewService.NewTeamName))">
                         <i class="bi bi-check-circle me-1"></i>Créer l'équipe
                     </button>
                 </div>
@@ -206,7 +208,7 @@
 }
 
 <!-- Modale de rejoindre une équipe -->
-@if (_showJoinModal)
+@if (_viewService.ShowJoinModal)
 {
     <div class="modal fade show d-block" tabindex="-1" role="dialog" style="background-color: rgba(0,0,0,0.5);">
         <div class="modal-dialog modal-dialog-centered" role="document">
@@ -215,7 +217,7 @@
                     <h5 class="modal-title">
                         <i class="bi bi-door-open me-2"></i>Rejoindre une équipe
                     </h5>
-                    <button type="button" class="btn-close" @onclick="CloseJoinModal" aria-label="Close"></button>
+                    <button type="button" class="btn-close" @onclick="_viewService.CloseJoinModal" aria-label="Close"></button>
                 </div>
                 
                 <div class="modal-body">
@@ -225,18 +227,20 @@
                                 Code de l'équipe <span class="text-danger">*</span>
                             </label>
                             <input type="text" 
-                                   class="form-control @(_joinErrorMessage != null ? "is-invalid" : "")" 
+                                   class="form-control @(_viewService.JoinErrorMessage is not null ? "is-invalid" : "")" 
                                    id="teamCode" 
-                                   @bind="_teamCodeToJoin" 
+                                   @bind="_viewService.TeamCodeToJoin"
                                    placeholder="Ex: 12345678-1234-1234-1234-123456789abc"
                                    maxlength="36"
                                    required />
-                            @if (_joinErrorMessage != null)
+                            
+                                   @if (_viewService.JoinErrorMessage is not null)
                             {
                                 <div class="invalid-feedback d-block">
-                                    @_joinErrorMessage
+                                    @_viewService.JoinErrorMessage
                                 </div>
                             }
+
                             <small class="form-text text-muted">
                                 <i class="bi bi-info-circle me-1"></i>
                                 Le code d'équipe est fourni par le propriétaire de l'équipe. C'est un identifiant unique (GUID).
@@ -252,13 +256,15 @@
                 </div>
                 
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" @onclick="CloseJoinModal">
+                    <button type="button" class="btn btn-secondary" 
+                            @onclick="_viewService.CloseJoinModal">
+
                         <i class="bi bi-x-circle me-1"></i>Annuler
                     </button>
                     <button type="button" 
                             class="btn btn-success" 
-                            @onclick="HandleJoinTeam"
-                            disabled="@(string.IsNullOrWhiteSpace(_teamCodeToJoin))">
+                            @onclick="_viewService.HandleJoinTeam"
+                            disabled="@(string.IsNullOrWhiteSpace(_viewService.TeamCodeToJoin))">
                         <i class="bi bi-check-circle me-1"></i>Rejoindre
                     </button>
                 </div>

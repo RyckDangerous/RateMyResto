@@ -7,6 +7,12 @@ public abstract class ViewServiceBase
 {
     private readonly AuthenticationStateProvider _authStateProvider;
 
+    /// <summary>
+    /// Fonction pour rafraîchir l'interface utilisateur
+    /// via le stateHasChanged du composant
+    /// </summary>
+    private Func<Task>? _refreshUi;
+
 
     protected ViewServiceBase(AuthenticationStateProvider authStateProvider)
     {
@@ -30,4 +36,24 @@ public abstract class ViewServiceBase
         return user.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
     }
 
+    /// <summary>
+    /// Enregistre la fonction de rafraîchissement de l'interface utilisateur.
+    /// </summary>
+    /// <param name="refreshUi"></param>
+    protected void RegisterUiRefresh(Func<Task> refreshUi)
+    {
+        _refreshUi = refreshUi;
+    }
+
+    /// <summary>
+    /// Notifie l'interface utilisateur de rafraîchir son état.
+    /// </summary>
+    /// <returns></returns>
+    protected async Task NotifyUiAsync()
+    {
+        if (_refreshUi is not null)
+        {
+            await _refreshUi();
+        }
+    }
 }

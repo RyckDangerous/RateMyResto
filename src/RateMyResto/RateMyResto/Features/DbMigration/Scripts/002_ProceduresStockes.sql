@@ -110,5 +110,6 @@ BEGIN
     SET NOCOUNT ON;
 
     DELETE FROM dbo.UserTeams
-    WHERE UserId = @UserId AND TeamId = @TeamId;
+    WHERE UserId = @UserId
+      AND TeamId = @TeamId;
 END

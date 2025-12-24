@@ -93,7 +93,7 @@ public sealed class TeamRepository : RepositoryBase<TeamRepository>, ITeamReposi
         SqlParameter[] parameters =
         {
             GetSqlParameterNVarchar("@UserId", userId),
-            GetSqlParameterUniqueIdentifier("@IdTeam", idTeam)
+            GetSqlParameterUniqueIdentifier("@TeamId", idTeam)
         };
 
         return await ExecuteNonQueryStoredProcedureAsync("sp_RemoveUserFromTeam", parameters);
