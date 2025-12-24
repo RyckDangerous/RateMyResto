@@ -18,10 +18,15 @@ public partial class TeamPage : ComponentBase
     [Inject]
     private ISnackbarService SnackbarService { get; set; } = default!;
 
-    // État de la modale
+    // État de la modale de création
     private bool _showCreateModal = false;
     private string _newTeamName = string.Empty;
     private string? _newTeamDescription = string.Empty;
+
+    // État de la modale de rejoindre une équipe
+    private bool _showJoinModal = false;
+    private string _teamCodeToJoin = string.Empty;
+    private string? _joinErrorMessage = null;
 
     protected override async Task OnInitializedAsync()
     {
@@ -107,6 +112,8 @@ public partial class TeamPage : ComponentBase
     /// <param name="userId">ID de l'utilisateur à retirer</param>
     private async Task HandleRemoveMember(string userId)
     {
+        if (_viewService.ViewModel.SelectedTeam == null) return;
+
         // Appeler le service pour retirer le membre
         await _viewService.RemoveMemberAsync(_viewService.ViewModel.SelectedTeam.Id, userId);
 
@@ -135,6 +142,55 @@ public partial class TeamPage : ComponentBase
     private async Task HandleLeaveTeam(Guid teamId)
     {
         await _viewService.LeaveTeamAsync(teamId);
+        StateHasChanged();
+    }
+
+    /// <summary>
+    /// Ouvre la modale pour rejoindre une équipe.
+    /// </summary>
+    private void OpenJoinModal()
+    {
+        _showJoinModal = true;
+        _teamCodeToJoin = string.Empty;
+        _joinErrorMessage = null;
+    }
+
+    /// <summary>
+    /// Ferme la modale pour rejoindre une équipe.
+    /// </summary>
+    private void CloseJoinModal()
+    {
+        _showJoinModal = false;
+        _teamCodeToJoin = string.Empty;
+        _joinErrorMessage = null;
+    }
+
+    /// <summary>
+    /// Gère la demande de rejoindre une équipe.
+    /// </summary>
+    private async Task HandleJoinTeam()
+    {
+        _joinErrorMessage = null;
+
+        // Valider que le code n'est pas vide
+        if (string.IsNullOrWhiteSpace(_teamCodeToJoin))
+        {
+            _joinErrorMessage = "Veuillez saisir un code d'équipe.";
+            return;
+        }
+
+        // Valider que c'est un GUID valide
+        if (!Guid.TryParse(_teamCodeToJoin, out Guid teamId))
+        {
+            _joinErrorMessage = "Le code d'équipe n'est pas valide. Il doit être un GUID.";
+            return;
+        }
+
+        // Appeler le service pour rejoindre l'équipe
+        await _viewService.JoinTeamAsync(teamId);
+        
+        // Fermer la modale et rafraîchir
+        CloseJoinModal();
         StateHasChanged();
     }
 }

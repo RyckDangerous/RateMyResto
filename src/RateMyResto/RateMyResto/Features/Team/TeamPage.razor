@@ -16,6 +16,9 @@
         </div>
 
         <div class="col-auto align-self-center">
+            <button class="btn btn-success btn-lg me-2" @onclick="OpenJoinModal">
+                <i class="bi bi-door-open me-2"></i>Rejoindre une équipe
+            </button>
             <button class="btn btn-primary btn-lg" @onclick="OpenCreateModal">
                 <i class="bi bi-plus-circle me-2"></i>Créer une équipe
             </button>
@@ -195,6 +198,68 @@
                             @onclick="HandleCreateTeam"
                             disabled="@(string.IsNullOrWhiteSpace(_newTeamName))">
                         <i class="bi bi-check-circle me-1"></i>Créer l'équipe
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+<!-- Modale de rejoindre une équipe -->
+@if (_showJoinModal)
+{
+    <div class="modal fade show d-block" tabindex="-1" role="dialog" style="background-color: rgba(0,0,0,0.5);">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">
+                        <i class="bi bi-door-open me-2"></i>Rejoindre une équipe
+                    </h5>
+                    <button type="button" class="btn-close" @onclick="CloseJoinModal" aria-label="Close"></button>
+                </div>
+                
+                <div class="modal-body">
+                    <form>
+                        <div class="mb-3">
+                            <label for="teamCode" class="form-label">
+                                Code de l'équipe <span class="text-danger">*</span>
+                            </label>
+                            <input type="text" 
+                                   class="form-control @(_joinErrorMessage != null ? "is-invalid" : "")" 
+                                   id="teamCode" 
+                                   @bind="_teamCodeToJoin" 
+                                   placeholder="Ex: 12345678-1234-1234-1234-123456789abc"
+                                   maxlength="36"
+                                   required />
+                            @if (_joinErrorMessage != null)
+                            {
+                                <div class="invalid-feedback d-block">
+                                    @_joinErrorMessage
+                                </div>
+                            }
+                            <small class="form-text text-muted">
+                                <i class="bi bi-info-circle me-1"></i>
+                                Le code d'équipe est fourni par le propriétaire de l'équipe. C'est un identifiant unique (GUID).
+                            </small>
+                        </div>
+                        
+                        <div class="alert alert-info">
+                            <i class="bi bi-lightbulb me-2"></i>
+                            <strong>Astuce :</strong> Demandez le code d'équipe au propriétaire. 
+                            Vous le trouverez dans la section "Gestion de l'équipe".
+                        </div>
+                    </form>
+                </div>
+                
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" @onclick="CloseJoinModal">
+                        <i class="bi bi-x-circle me-1"></i>Annuler
+                    </button>
+                    <button type="button" 
+                            class="btn btn-success" 
+                            @onclick="HandleJoinTeam"
+                            disabled="@(string.IsNullOrWhiteSpace(_teamCodeToJoin))">
+                        <i class="bi bi-check-circle me-1"></i>Rejoindre
                     </button>
                 </div>
             </div>
