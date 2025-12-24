@@ -1,8 +1,9 @@
 @using RateMyResto.Features.Shared.Components.SnackbarComponent
 
 @implements IDisposable
-
 @inject ISnackbarService SnackbarService
+@rendermode InteractiveServer
+
 
 <div class="snackbar-container">
     @foreach (var message in _messages)
@@ -31,19 +32,22 @@
 
     private void HandleMessageAdded(SnackbarMessage message)
     {
-        _messages.Add(message);
-        StateHasChanged();
-
-        // Si une durée est définie, programmer la suppression automatique
-        if (message.Duration > 0)
+        InvokeAsync(() =>
         {
-            var timer = new System.Threading.Timer(_ =>
-            {
-                RemoveMessage(message.Id);
-            }, null, message.Duration, Timeout.Infinite);
+            _messages.Add(message);
+            StateHasChanged();
 
-            _timers[message.Id] = timer;
-        }
+            // Si une durée est définie, programmer la suppression automatique
+            if (message.Duration > 0)
+            {
+                var timer = new System.Threading.Timer(_ =>
+                {
+                    RemoveMessage(message.Id);
+                }, null, message.Duration, Timeout.Infinite);
+
+                _timers[message.Id] = timer;
+            }
+        });
     }
 
     private void HandleMessageRemoved(Guid messageId)
@@ -54,7 +58,7 @@
     private void RemoveMessage(Guid messageId)
     {
         var message = _messages.FirstOrDefault(m => m.Id == messageId);
-        if (message != null)
+        if (message is not null)
         {
             _messages.Remove(message);
 

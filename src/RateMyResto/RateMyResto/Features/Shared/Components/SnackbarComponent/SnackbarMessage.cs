@@ -3,7 +3,7 @@ namespace RateMyResto.Features.Shared.Components.SnackbarComponent;
 /// <summary>
 /// Représente un message à afficher dans le Snackbar
 /// </summary>
-public sealed class SnackbarMessage
+public sealed record SnackbarMessage
 {
     /// <summary>
     /// Identifiant unique du message
@@ -25,15 +25,3 @@ public sealed class SnackbarMessage
     /// </summary>
     public int Duration { get; set; } = 5000;
 }
-
-/// <summary>
-/// Type de message Snackbar
-/// </summary>
-public enum SnackbarType
-{
-    Success,
-    Error,
-    Warning,
-    Info
-}
-
