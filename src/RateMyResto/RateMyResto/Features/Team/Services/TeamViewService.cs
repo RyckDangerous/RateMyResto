@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Components.Authorization;
+using RateMyResto.Features.Shared.Models;
 using RateMyResto.Features.Shared.Services;
 using RateMyResto.Features.Team.Converters;
 using RateMyResto.Features.Team.Models;
@@ -10,21 +11,16 @@ public sealed class TeamViewService : ViewServiceBase, ITeamViewService
 {
 
     private readonly ITeamRepository _teamRepository;
-    private readonly ILogger<TeamViewService> _logger;
-
 
     /// <inheritdoc />
     public TeamViewModel ViewModel { get; private set; } 
 
 
     public TeamViewService(AuthenticationStateProvider authenticationStateProvider,
-                            ITeamRepository teamRepository, 
-                            ILogger<TeamViewService> logger)
+                            ITeamRepository teamRepository)
         : base(authenticationStateProvider)
     {
         _teamRepository = teamRepository;
-        _logger = logger;
-
         ViewModel = new();
     }
 
@@ -38,6 +34,7 @@ public sealed class TeamViewService : ViewServiceBase, ITeamViewService
         if (string.IsNullOrEmpty(userId))
         {
             ViewModel.ErrorMessage = "Utilisateur non authentifié.";
+            ViewModel.IsLoading = false;
             return;
         }
 
@@ -46,22 +43,40 @@ public sealed class TeamViewService : ViewServiceBase, ITeamViewService
 
         if (ownerTeamsResult.HasError)
         {
-            ViewModel.ErrorMessage = "Une erreur est survenue lors du chargement des équipes.";
-            return;
+            // Si l'erreur est une NotFoundError, cela signifie que l'utilisateur n'est propriétaire d'aucune équipe
+            if (ownerTeamsResult.Error is NotFoundError)
+            {
+                ViewModel.OwnerEquipes = new List<Equipe>();
+            }
+            else
+            {
+                ViewModel.ErrorMessage = "Une erreur est survenue lors du chargement des équipes.";
+            }
         }
-
-        ViewModel.OwnerEquipes = ownerTeamsResult.Value.Select(TeamDbConverters.ToEquipe).ToList();
+        else
+        {
+            ViewModel.OwnerEquipes = ownerTeamsResult.Value.Select(TeamDbConverters.ToEquipe).ToList();
+        }
 
         // Charge les équipes dont l'utilisateur est membre
         ResultOf<List<TeamDb>> memberTeamsResult = await _teamRepository.GetTeamsByMemberAsync(userId);
 
         if (memberTeamsResult.HasError)
         {
-            ViewModel.ErrorMessage = "Une erreur est survenue lors du chargement des équipes.";
-            return;
+            if(memberTeamsResult.Error is NotFoundError)
+            {
+                ViewModel.MemberEquipes = new List<Equipe>();
+            }
+            else
+            {
+                ViewModel.ErrorMessage = "Une erreur est survenue lors du chargement des équipes.";
+            }
+        }
+        else
+        {
+            ViewModel.MemberEquipes = memberTeamsResult.Value.Select(TeamDbConverters.ToEquipe).ToList();
         }
 
-        ViewModel.MemberEquipes = memberTeamsResult.Value.Select(TeamDbConverters.ToEquipe).ToList();
         ViewModel.IsLoading = false;
     }
 
@@ -75,6 +90,7 @@ public sealed class TeamViewService : ViewServiceBase, ITeamViewService
         if (string.IsNullOrEmpty(userId))
         {
             ViewModel.ErrorMessage = "Utilisateur non authentifié.";
+            ViewModel.IsLoading = false;
             return;
         }
 
@@ -83,7 +99,6 @@ public sealed class TeamViewService : ViewServiceBase, ITeamViewService
         if (result.HasError)
         {
             ViewModel.ErrorMessage = "Une erreur est survenue lors de la tentative de rejoindre l'équipe.";
-            return;
         }
 
         ViewModel.IsLoading = false;
@@ -99,6 +114,7 @@ public sealed class TeamViewService : ViewServiceBase, ITeamViewService
         if (string.IsNullOrEmpty(userId))
         {
             ViewModel.ErrorMessage = "Utilisateur non authentifié.";
+            ViewModel.IsLoading = false;
             return;
         }
 
@@ -107,9 +123,44 @@ public sealed class TeamViewService : ViewServiceBase, ITeamViewService
         if (result.HasError)
         {
             ViewModel.ErrorMessage = "Une erreur est survenue lors de la tentative de quitter l'équipe.";
-            return;
         }
 
         ViewModel.IsLoading = false;
+    }
+
+    /// <inheritdoc />
+    public async Task CreateTeamAsync(string nom, string? description)
+    {
+        ViewModel.IsLoading = true;
+        ViewModel.ErrorMessage = null;
+
+        string? userId = await GetCurrentUserIdAsync();
+
+        if (string.IsNullOrEmpty(userId))
+        {
+            ViewModel.ErrorMessage = "Utilisateur non authentifié.";
+            ViewModel.IsLoading = false;
+            return;
+        }
+
+        TeamCommand command = new()
+        {
+            IdTeam = Guid.NewGuid(),
+            Nom = nom,
+            Description = description,
+            Owner = Guid.Parse(userId)
+        };
+
+        ResultOf result = await _teamRepository.CreateTeamAsync(command);
+
+        if (result.HasError)
+        {
+            ViewModel.ErrorMessage = "Une erreur est survenue lors de la création de l'équipe.";
+            ViewModel.IsLoading = false;
+            return;
+        }
+
+        // Recharge les équipes après création
+        await LoadViewModelAsync();
     }
 }

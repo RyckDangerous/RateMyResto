@@ -28,4 +28,12 @@ public interface ITeamViewService
     /// <param name="teamId"></param>
     /// <returns></returns>
     Task LeaveTeamAsync(Guid teamId);
+
+    /// <summary>
+    /// Crée une nouvelle équipe
+    /// </summary>
+    /// <param name="nom"></param>
+    /// <param name="description"></param>
+    /// <returns></returns>
+    Task CreateTeamAsync(string nom, string? description);
 }

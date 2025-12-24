@@ -7,6 +7,7 @@ using RateMyResto.Features.Data;
 using RateMyResto.Features.DbMigration.Configurations;
 using RateMyResto.Features.DbMigration.Services;
 using RateMyResto.Features.Shared.Configurations;
+using RateMyResto.Features.Team.Configurations;
 
 
 ILogger? logger = LoggerFactory.Create(builder =>
@@ -60,6 +61,7 @@ try
     builder.Services.AddSingleton<IEmailSender<ApplicationUser>, IdentityNoOpEmailSender>();
 
     builder.Services.AddDbMigrationServices();
+    builder.Services.AddTeamFeatures();
 
     WebApplication app = builder.Build();
 

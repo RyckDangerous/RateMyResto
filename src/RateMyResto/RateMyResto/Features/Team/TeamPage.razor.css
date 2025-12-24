@@ -1,0 +1,115 @@
+/* Animation pour la modale */
+.modal.fade.show {
+    animation: fadeIn 0.3s ease-in-out;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+.modal-dialog {
+    animation: slideDown 0.3s ease-in-out;
+}
+
+@keyframes slideDown {
+    from {
+        transform: translateY(-50px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+/* Style des cartes */
+.card {
+    transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+    border-radius: 0.5rem;
+}
+
+.card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;
+}
+
+.card.border-primary {
+    border-width: 2px;
+}
+
+/* Style des badges */
+.badge {
+    padding: 0.5em 0.75em;
+    font-weight: 500;
+}
+
+/* Boutons dans les cartes */
+.card-footer .btn {
+    transition: all 0.2s ease-in-out;
+}
+
+.card-footer .btn:hover {
+    transform: scale(1.02);
+}
+
+/* Style du spinner de chargement */
+.spinner-border {
+    width: 3rem;
+    height: 3rem;
+    border-width: 0.3em;
+}
+
+/* Amélioration du style du titre */
+.display-5 {
+    font-weight: 600;
+}
+
+/* Style des icônes dans les titres */
+h2 i {
+    font-size: 1.2rem;
+}
+
+/* Amélioration de l'espacement */
+.container-fluid {
+    max-width: 1400px;
+}
+
+/* Style des alerts */
+.alert {
+    border-radius: 0.5rem;
+    border: none;
+}
+
+.alert-info {
+    background-color: #e7f3ff;
+    color: #084298;
+}
+
+.alert-danger {
+    background-color: #f8d7da;
+    color: #842029;
+}
+
+/* Style pour les inputs dans la modale */
+.modal-body .form-control:focus {
+    border-color: #1b6ec2;
+    box-shadow: 0 0 0 0.25rem rgba(27, 110, 194, 0.25);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .display-5 {
+        font-size: 2rem;
+    }
+    
+    .btn-lg {
+        font-size: 1rem;
+        padding: 0.5rem 1rem;
+    }
+}
+
