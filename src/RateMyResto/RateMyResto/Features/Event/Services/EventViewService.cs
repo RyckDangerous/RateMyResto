@@ -40,20 +40,27 @@ public sealed class EventViewService : ViewServiceBase
     public EventViewService(AuthenticationStateProvider authStateProvider,
                             IEventRepository eventRepository,
                             IRestaurantRepository restaurantRepository,
+                            ITeamRepository teamRepository,
                             ISnackbarService snackbarService,
                             IDrawerService drawerService)
         : base(authStateProvider)
     {
         _eventRepository = eventRepository;
         _restaurantRepository = restaurantRepository;
+        _teamRepository = teamRepository;
         _snackbarService = snackbarService;
         _drawerService = drawerService;
+
+        ViewModel = new()
+        {
+            EventsByTeam = Enumerable.Empty<EventByTeamViewModel>()
+        };
     }
 
     /// <inheritdoc />
     public async Task LoadEventsAsync()
     {
-        string userId = await GetCurrentUserIdAsync();
+        string? userId = await GetCurrentUserIdAsync();
 
         if (string.IsNullOrEmpty(userId))
         {
@@ -65,16 +72,21 @@ public sealed class EventViewService : ViewServiceBase
 
         if (eventsResult.HasError)
         {
-            _snackbarService.ShowError("Erreur sur la récupération des évènements.");
+            if(eventsResult.Error is not NotFoundError)
+            {
+                _snackbarService.ShowError("Erreur sur la récupération des évènements.");
+            }
+
+            ViewModel = new()
+            {
+                EventsByTeam = Enumerable.Empty<EventByTeamViewModel>()
+            };
+
             return;
         }
 
         ViewModel = FillViewModel(eventsResult.Value);
-
-        ViewModel = new()
-        {
-            EventsByTeam = Enumerable.Empty<EventByTeamViewModel>()
-        };
+        await RefreshUI();
     }
 
 
@@ -98,9 +110,16 @@ public sealed class EventViewService : ViewServiceBase
         }
 
         // récupérer l'Id de l'utilisateur courant
+        string? currentUserId = await GetCurrentUserIdAsync();
+        if (string.IsNullOrEmpty(currentUserId))
+        {
+            _snackbarService.ShowError("Utilisateur non authentifié.");
+            return;
+        }
+
         UserQuery query = new()
         {
-            UserId = await GetCurrentUserIdAsync(),
+            UserId = currentUserId,
             TeamId = _currentTeamIdSelected.Value
         };
         ResultOf<int> idUserResult = await _teamRepository.GetUserTeamsIdAsync(query);
@@ -108,6 +127,12 @@ public sealed class EventViewService : ViewServiceBase
         if (idUserResult.HasError)
         {
             _snackbarService.ShowError("Erreur lors de la récupération de l'utilisateur.");
+            return;
+        }
+
+        if (EventInput is null)
+        {
+            _snackbarService.ShowError("Les données de l'événement sont manquantes.");
             return;
         }
 
@@ -137,6 +162,12 @@ public sealed class EventViewService : ViewServiceBase
     /// <returns>true : on peut continuer / false : il y a eu une erreur</returns>
     private async Task<int?> RestoManageAsync()
     {
+        if (EventInput is null)
+        {
+            _snackbarService.ShowError("Les données de l'événement sont manquantes.");
+            return null;
+        }
+
         // Si l'Id est à null, c'est un nouveau restaurant
         if (EventInput.IdRestaurant is null)
         {

@@ -1,5 +1,96 @@
-﻿<h3>EventPage</h3>
+﻿@page "/events"
+@using RateMyResto.Features.Event.Services
+@using Microsoft.AspNetCore.Authorization
 
-@code {
+@rendermode InteractiveServer
+@attribute [Authorize]
 
-}
+<PageTitle>Événements</PageTitle>
+
+<div class="container-fluid py-4">
+    <div class="row mb-4">
+        <div class="col">
+            <h1 class="display-5 mb-3">Mes Événements</h1>
+            <p class="text-muted">Découvrez les sorties restaurants organisées par vos équipes.</p>
+        </div>
+    </div>
+
+    <!-- Liste des événements par équipe -->
+    @if (_viewService.ViewModel.EventsByTeam.Any())
+    {
+        @foreach (var teamEvents in _viewService.ViewModel.EventsByTeam)
+        {
+            <div class="mb-5">
+                <!-- En-tête de l'équipe -->
+                <div class="d-flex align-items-center mb-3">
+                    <i class="bi bi-people-fill text-primary me-2 fs-4"></i>
+                    <h2 class="h4 mb-0">@teamEvents.TeamName</h2>
+                    <span class="badge bg-secondary ms-2">@teamEvents.Events.Count événement@(teamEvents.Events.Count > 1 ? "s" : "")</span>
+                </div>
+
+                <!-- Cartes d'événements -->
+                <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 row-cols-xl-4 g-4">
+                    @foreach (var eventCard in teamEvents.Events)
+                    {
+                        <div class="col">
+                            <div class="card h-100 shadow-sm hover-card">
+                                <!-- Badge de date -->
+                                <div class="position-relative">
+                                    <div class="event-date-badge">
+                                        <div class="event-date-day">@eventCard.DateEvent.Day</div>
+                                        <div class="event-date-month">@eventCard.DateEvent.ToString("MMM", System.Globalization.CultureInfo.GetCultureInfo("fr-FR")).ToUpper()</div>
+                                        <div class="event-date-year">@eventCard.DateEvent.Year</div>
+                                    </div>
+                                </div>
+
+                                <div class="card-body pt-4">
+                                    <!-- Nom du restaurant -->
+                                    <h5 class="card-title">
+                                        <i class="bi bi-shop text-danger me-2"></i>@eventCard.NomDuRestaurant
+                                    </h5>
+
+                                    <!-- Date complète -->
+                                    <p class="text-muted small mb-3">
+                                        <i class="bi bi-calendar-event me-1"></i>
+                                        @eventCard.DateEvent.ToString("dddd d MMMM yyyy", System.Globalization.CultureInfo.GetCultureInfo("fr-FR"))
+                                    </p>
+
+                                    <!-- Statut (à venir - pour l'instant simple) -->
+                                    <div class="mb-2">
+                                        <span class="badge bg-info">
+                                            <i class="bi bi-clock me-1"></i>À venir
+                                        </span>
+                                    </div>
+                                </div>
+
+                                <!-- Footer avec action -->
+                                <div class="card-footer bg-transparent border-top-0">
+                                    <button class="btn btn-outline-primary btn-sm w-100">
+                                        <i class="bi bi-eye me-1"></i>Voir les détails
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+        }
+    }
+    else
+    {
+        <!-- État vide -->
+        <div class="text-center py-5">
+            <div class="mb-4">
+                <i class="bi bi-calendar-x display-1 text-muted"></i>
+            </div>
+            <h3 class="text-muted mb-3">Aucun événement</h3>
+            <p class="text-muted mb-4">
+                Vous n'avez pas encore d'événements prévus.<br />
+                Créez votre premier événement pour organiser une sortie restaurant avec votre équipe !
+            </p>
+            <button class="btn btn-primary btn-lg">
+                <i class="bi bi-plus-circle me-2"></i>Créer un événement
+            </button>
+        </div>
+    }
+</div>

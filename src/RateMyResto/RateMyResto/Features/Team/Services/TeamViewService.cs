@@ -183,7 +183,7 @@ public sealed class TeamViewService : ViewServiceBase, ITeamViewService
         await CreateTeamAsync(NewTeamName, NewTeamDescription);
 
         CloseCreateModal();
-        await NotifyUiAsync();
+        await RefreshUI();
     }
 
     /// <inheritdoc />
@@ -246,7 +246,7 @@ public sealed class TeamViewService : ViewServiceBase, ITeamViewService
 
         // Recharge les équipes après avoir quitté
         await LoadViewModelAsync();
-        await NotifyUiAsync();
+        await RefreshUI();
     }
 
     /// <inheritdoc />
@@ -265,7 +265,7 @@ public sealed class TeamViewService : ViewServiceBase, ITeamViewService
     public async Task HandleLeaveTeam(Guid teamId)
     {
         await LeaveTeamAsync(teamId);
-        await NotifyUiAsync();
+        await RefreshUI();
     }
 
     #region Private methods
@@ -305,7 +305,7 @@ public sealed class TeamViewService : ViewServiceBase, ITeamViewService
             _drawerService.Close();
         }
 
-        await NotifyUiAsync();
+        await RefreshUI();
     }
 
     /// <summary>

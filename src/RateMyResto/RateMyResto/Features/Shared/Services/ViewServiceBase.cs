@@ -40,7 +40,7 @@ public abstract class ViewServiceBase
     /// Enregistre la fonction de rafraîchissement de l'interface utilisateur.
     /// </summary>
     /// <param name="refreshUi"></param>
-    protected void RegisterUiRefresh(Func<Task> refreshUi)
+    public void RegisterUiRefresh(Func<Task> refreshUi)
     {
         _refreshUi = refreshUi;
     }
@@ -49,7 +49,7 @@ public abstract class ViewServiceBase
     /// Notifie l'interface utilisateur de rafraîchir son état.
     /// </summary>
     /// <returns></returns>
-    protected async Task NotifyUiAsync()
+    protected async Task RefreshUI()
     {
         if (_refreshUi is not null)
         {
