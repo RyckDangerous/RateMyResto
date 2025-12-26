@@ -35,6 +35,6 @@ public sealed record NewEventInput
     [Required]
     [DataType(DataType.Date)]
     [DateNotInPast]
-    public required DateOnly DateEvenement { get; set; }
+    public required DateOnly DateEvenement { get; set; } = DateOnly.FromDateTime(DateTime.Today);
 
 }

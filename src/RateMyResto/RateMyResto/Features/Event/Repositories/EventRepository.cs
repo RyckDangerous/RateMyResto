@@ -17,7 +17,7 @@ public sealed class EventRepository : RepositoryBase<EventRepository>, IEventRep
     /// <inheritdoc />
     public async Task<ResultOf<List<EventByUserDb>>> GetEventsAsync(string userId)
     {
-        SqlParameter[] parameters = new SqlParameter[]
+        SqlParameter[] parameters =
         {
             new SqlParameter("@UserId", userId)
         };
@@ -36,11 +36,17 @@ public sealed class EventRepository : RepositoryBase<EventRepository>, IEventRep
     /// <inheritdoc />
     public async Task<ResultOf> CreateEventAsync(NewEventCommand command)
     {
-        // Implementation for creating an event
         // sp_CreateEvent
+        SqlParameter[] parameters =
+        {
+            new SqlParameter("@TeamId", command.IdTeam),
+            new SqlParameter("@InitiateurId", command.IdInitiateur),
+            new SqlParameter("@RestaurantId", (object?)command.IdRestaurant ?? DBNull.Value),
+            new SqlParameter("@DateEvenement", command.DateEvent)
+        };
 
-
-        return ResultOf.Success();
+        return await ExecuteStoredProcedureAsync(procName: "sp_CreateEvent",
+                                                parameters: parameters);
     }
 
     /// <inheritdoc />

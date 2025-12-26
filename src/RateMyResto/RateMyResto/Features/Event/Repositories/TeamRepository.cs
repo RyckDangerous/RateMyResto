@@ -1,5 +1,6 @@
 using Microsoft.Data.SqlClient;
 using RateMyResto.Core.Data;
+using RateMyResto.Features.Event.Models.Dbs;
 using RateMyResto.Features.Event.Models.Queries;
 using RateMyResto.Features.Shared.Configurations;
 
@@ -31,4 +32,21 @@ public sealed class TeamRepository : RepositoryBase<TeamRepository>, ITeamReposi
         return result;
     }
 
+    /// <inheritdoc />
+    public async Task<ResultOf<List<EquipeDb>>> GetTeamsByUserIdAsync(string userId)
+    {
+        SqlParameter[] parameters =
+        {
+            GetSqlParameterNVarchar("@UserId", userId)
+        };
+
+        ResultOf<List<EquipeDb>> result = await ExecuteStoredProcedureWithJsonResultAsync<List<EquipeDb>>("sp_GetTeamsByUser_Light", parameters);
+        
+        if (result.HasError)
+        {
+            _logger.LogError("Erreur lors de la récupération des équipes de l'utilisateur {UserId} : {Error}", userId, result.Error);
+        }
+
+        return result;
+    }
 }

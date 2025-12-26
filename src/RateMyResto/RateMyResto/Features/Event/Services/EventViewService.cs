@@ -36,6 +36,29 @@ public sealed class EventViewService : ViewServiceBase
     /// </summary>
     private Guid? _currentTeamIdSelected;
 
+    // === Gestion de la modale de création d'événement ===
+    
+    /// <summary>
+    /// Indique si la modale de création d'événement est affichée
+    /// </summary>
+    public bool ShowCreateEventModal { get; private set; } = false;
+
+    /// <summary>
+    /// ID de l'équipe sélectionnée dans le formulaire de création
+    /// </summary>
+    public Guid? SelectedTeamId { get; set; }
+
+    /// <summary>
+    /// ID de l'utilisateur courant
+    /// </summary>
+    private string _currentUserId = string.Empty;
+
+    /// <summary>
+    /// Liste des équipes disponibles pour la création d'un événement
+    /// (uniquement les équipes dont l'utilisateur est propriétaire)
+    /// </summary>
+    public List<EquipeViewModel> AvailableTeams { get; private set; } = new();
+
 
     public EventViewService(AuthenticationStateProvider authStateProvider,
                             IEventRepository eventRepository,
@@ -60,15 +83,15 @@ public sealed class EventViewService : ViewServiceBase
     /// <inheritdoc />
     public async Task LoadEventsAsync()
     {
-        string? userId = await GetCurrentUserIdAsync();
+        _currentUserId = await GetCurrentUserIdAsync();
 
-        if (string.IsNullOrEmpty(userId))
+        if (string.IsNullOrEmpty(_currentUserId))
         {
             _snackbarService.ShowError("Utilisateur non authentifié.");
             return;
         }
 
-        ResultOf<List<EventByUserDb>> eventsResult = await _eventRepository.GetEventsAsync(userId);
+        ResultOf<List<EventByUserDb>> eventsResult = await _eventRepository.GetEventsAsync(_currentUserId);
 
         if (eventsResult.HasError)
         {
@@ -89,7 +112,108 @@ public sealed class EventViewService : ViewServiceBase
         await RefreshUI();
     }
 
+    /// <summary>
+    /// Ouvre la modale de création d'événement
+    /// </summary>
+    public async Task OpenCreateEventModalAsync()
+    {
+        ResultOf<List<EquipeDb>> availableTeamsResult = await _teamRepository.GetTeamsByUserIdAsync(_currentUserId);
 
+        if (availableTeamsResult.HasError)
+        {
+            _snackbarService.ShowError("Erreur lors de la récupération des équipes.");
+            return;
+        }
+
+        AvailableTeams = availableTeamsResult.Value
+            .Select(equipe => new EquipeViewModel
+            {
+                Id = equipe.IdEquipe,
+                Nom = equipe.NomEquipe
+            })
+            .ToList();
+
+        if( AvailableTeams.Count == 1)
+        {
+            // Sélectionner la première équipe par défaut
+            SelectedTeamId = AvailableTeams.FirstOrDefault()?.Id;
+        }
+        else
+        {
+            // TODO : gérer le cas où l'utilisateur est dans plusieurs équipes
+        }
+
+        // Initialiser EventInput avec des valeurs par défaut
+        EventInput = new NewEventInput
+        {
+            IdRestaurant = null,
+            NomDuRestaurant = string.Empty,
+            Adresse = string.Empty,
+            UrlGoogleMaps = null,
+            DateEvenement = DateOnly.FromDateTime(DateTime.Today)
+        };
+
+        ShowCreateEventModal = true;
+        await RefreshUI();
+    }
+
+    /// <summary>
+    /// Ferme la modale de création d'événement
+    /// </summary>
+    public async Task CloseCreateEventModalAsync()
+    {
+        ShowCreateEventModal = false;
+        await RefreshUI();
+    }
+
+    /// <summary>
+    /// Gère la création d'un nouvel événement
+    /// </summary>
+    public async Task HandleCreateEventAsync()
+    {
+        if (EventInput is null)
+        {
+            _snackbarService.ShowError("Erreur : les données de l'événement sont introuvables.");
+            return;
+        }
+
+        // Validation des champs
+        if (string.IsNullOrWhiteSpace(EventInput.NomDuRestaurant))
+        {
+            _snackbarService.ShowWarning("Le nom du restaurant est obligatoire.");
+            return;
+        }
+
+        if (string.IsNullOrWhiteSpace(EventInput.Adresse))
+        {
+            _snackbarService.ShowWarning("L'adresse du restaurant est obligatoire.");
+            return;
+        }
+
+        if (!SelectedTeamId.HasValue)
+        {
+            _snackbarService.ShowWarning("Vous devez sélectionner une équipe.");
+            return;
+        }
+
+        if (EventInput.DateEvenement < DateOnly.FromDateTime(DateTime.Today))
+        {
+            _snackbarService.ShowWarning("La date de l'événement ne peut pas être dans le passé.");
+            return;
+        }
+
+        // Définir l'équipe sélectionnée pour la création
+        _currentTeamIdSelected = SelectedTeamId;
+
+        // Appeler la méthode de création
+        await CreateEventAsync();
+
+        // Fermer la modale
+        await CloseCreateEventModalAsync();
+
+        // Recharger les événements
+        await LoadEventsAsync();
+    }
 
     /// <inheritdoc />
     public async Task CreateEventAsync()
@@ -109,17 +233,9 @@ public sealed class EventViewService : ViewServiceBase
             return;
         }
 
-        // récupérer l'Id de l'utilisateur courant
-        string? currentUserId = await GetCurrentUserIdAsync();
-        if (string.IsNullOrEmpty(currentUserId))
-        {
-            _snackbarService.ShowError("Utilisateur non authentifié.");
-            return;
-        }
-
         UserQuery query = new()
         {
-            UserId = currentUserId,
+            UserId = _currentUserId,
             TeamId = _currentTeamIdSelected.Value
         };
         ResultOf<int> idUserResult = await _teamRepository.GetUserTeamsIdAsync(query);
@@ -141,18 +257,14 @@ public sealed class EventViewService : ViewServiceBase
             IdTeam = _currentTeamIdSelected.Value,
             IdInitiateur = idUserResult.Value,
             IdRestaurant = idRestaurant.Value,
-            NomRestaurant = EventInput.NomDuRestaurant,
-            Adresse = EventInput.Adresse,
-            LienGoogleMaps = EventInput.UrlGoogleMaps,
             DateEvent = EventInput.DateEvenement
         };
 
-        var createResult = await _eventRepository.CreateEventAsync(command);
-        //if (createResult.HasError)
-        //{
-        //    // Gérer l'erreur de création d'événement
-        //    throw new Exception("Erreur lors de la création de l'événement.", createResult.Error);
-        //}
+        ResultOf createResult = await _eventRepository.CreateEventAsync(command);
+        if (createResult.HasError)
+        {
+            _snackbarService.ShowError("Erreur lors de la création de l'événement.");
+        }
     }
 
 

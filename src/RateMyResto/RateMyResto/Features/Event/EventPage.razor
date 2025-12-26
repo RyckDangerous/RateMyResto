@@ -1,4 +1,4 @@
-﻿@page "/events"
+@page "/events"
 @using RateMyResto.Features.Event.Services
 @using Microsoft.AspNetCore.Authorization
 
@@ -12,6 +12,11 @@
         <div class="col">
             <h1 class="display-5 mb-3">Mes Événements</h1>
             <p class="text-muted">Découvrez les sorties restaurants organisées par vos équipes.</p>
+        </div>
+        <div class="col-auto align-self-center">
+            <button class="btn btn-primary btn-lg" @onclick="_viewService.OpenCreateEventModalAsync">
+                <i class="bi bi-plus-circle me-2"></i>Créer un événement
+            </button>
         </div>
     </div>
 
@@ -88,9 +93,143 @@
                 Vous n'avez pas encore d'événements prévus.<br />
                 Créez votre premier événement pour organiser une sortie restaurant avec votre équipe !
             </p>
-            <button class="btn btn-primary btn-lg">
-                <i class="bi bi-plus-circle me-2"></i>Créer un événement
-            </button>
         </div>
     }
 </div>
+
+<!-- Modale de création d'événement -->
+@if (_viewService.ShowCreateEventModal)
+{
+    <div class="modal fade show d-block" tabindex="-1" role="dialog" style="background-color: rgba(0,0,0,0.5);">
+        <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title">
+                        <i class="bi bi-calendar-plus me-2"></i>Créer un nouvel événement
+                    </h5>
+                    <button type="button" 
+                            class="btn-close btn-close-white" 
+                            @onclick="_viewService.CloseCreateEventModalAsync" 
+                            aria-label="Close"></button>
+                </div>
+
+                <div class="modal-body">
+                    <form>
+                        <!-- Sélection de l'équipe -->
+                        <div class="mb-4">
+                            <label for="eventTeam" class="form-label fw-bold">
+                                <i class="bi bi-people-fill me-1 text-primary"></i>Équipe
+                            </label>
+                            <select class="form-select" 
+                                    id="eventTeam" 
+                                    @bind="_viewService.SelectedTeamId"
+                                    required>
+                                @if (_viewService.AvailableTeams.Any())
+                                {
+                                    @foreach (var team in _viewService.AvailableTeams)
+                                    {
+                                        <option value="@team.Id">@team.Nom</option>
+                                    }
+                                }
+                                else
+                                {
+                                    <option value="">Aucune équipe disponible</option>
+                                }
+                            </select>
+                            <small class="form-text text-muted">
+                                <i class="bi bi-info-circle me-1"></i>Sélectionnez l'équipe pour laquelle organiser l'événement
+                            </small>
+                        </div>
+
+                        <!-- Nom du restaurant -->
+                        <div class="mb-4">
+                            <label for="restaurantName" class="form-label fw-bold">
+                                <i class="bi bi-shop me-1 text-danger"></i>Nom du restaurant
+                            </label>
+
+                            <input type="text" 
+                                   class="form-control" 
+                                   id="restaurantName" 
+                                   @bind="_viewService.EventInput!.NomDuRestaurant" 
+                                   placeholder="Ex: Le Gourmet"
+                                   maxlength="100"
+                                   required />
+                            @if (string.IsNullOrWhiteSpace(_viewService.EventInput?.NomDuRestaurant) 
+                                && _viewService.EventInput?.NomDuRestaurant != string.Empty)
+                            {
+                                <div class="text-danger small mt-1">Le nom du restaurant est obligatoire</div>
+                            }
+                        </div>
+
+                        <!-- Adresse -->
+                        <div class="mb-4">
+                            <label for="restaurantAddress" class="form-label fw-bold">
+                                <i class="bi bi-geo-alt-fill me-1 text-success"></i>Adresse
+                            </label>
+                            <input type="text" 
+                                   class="form-control" 
+                                   id="restaurantAddress" 
+                                   @bind="_viewService.EventInput!.Adresse" 
+                                   placeholder="Ex: 123 Rue de la Paix, 35000 Rennes"
+                                   maxlength="255"
+                                   required />
+
+                            @if (string.IsNullOrWhiteSpace(_viewService.EventInput?.Adresse) 
+                                && _viewService.EventInput?.Adresse != string.Empty)
+                            {
+                                <div class="text-danger small mt-1">L'adresse est obligatoire</div>
+                            }
+                        </div>
+
+                        <!-- URL Google Maps (optionnelle) -->
+                        <div class="mb-4">
+                            <label for="googleMapsUrl" class="form-label fw-bold">
+                                <i class="bi bi-map me-1 text-info"></i>Lien Google Maps
+                                <span class="text-muted fw-normal">(optionnel)</span>
+                            </label>
+                            <input type="url" 
+                                   class="form-control" 
+                                   id="googleMapsUrl" 
+                                   @bind="_viewService.EventInput!.UrlGoogleMaps" 
+                                   placeholder="https://maps.google.com/..." />
+                            <small class="form-text text-muted">
+                                <i class="bi bi-info-circle me-1"></i>Collez le lien Google Maps pour faciliter l'accès au restaurant
+                            </small>
+                        </div>
+
+                        <!-- Date de l'événement -->
+                        <div class="mb-4">
+                            <label for="eventDate" class="form-label fw-bold">
+                                <i class="bi bi-calendar-event me-1 text-warning"></i>Date de l'événement
+                            </label>
+                            <input type="date" 
+                                   class="form-control" 
+                                   id="eventDate" 
+                                   @bind="_viewService.EventInput!.DateEvenement" 
+                                   min="@DateOnly.FromDateTime(DateTime.Today).ToString("yyyy-MM-dd")"
+                                   required />
+                            <small class="form-text text-muted">
+                                <i class="bi bi-info-circle me-1"></i>La date ne peut pas être dans le passé
+                            </small>
+                        </div>
+                    </form>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" @onclick="_viewService.CloseCreateEventModalAsync">
+                        <i class="bi bi-x-circle me-1"></i>Annuler
+                    </button>
+
+                    <button type="button" 
+                            class="btn btn-primary" 
+                            @onclick="_viewService.HandleCreateEventAsync"
+                            disabled="@(string.IsNullOrWhiteSpace(_viewService.EventInput?.NomDuRestaurant) 
+                                        ||  string.IsNullOrWhiteSpace(_viewService.EventInput?.Adresse) 
+                                        || !_viewService.SelectedTeamId.HasValue)">
+                        <i class="bi bi-check-circle me-1"></i>Créer l'événement
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+}

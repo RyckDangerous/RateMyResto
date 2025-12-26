@@ -106,6 +106,24 @@ END
 GO
 
 -- #################################################
+-- Permet de récupérer les équipes d'un utilisateur
+CREATE PROCEDURE sp_GetTeamsByUser_Light
+    @UserId NVARCHAR(450)
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    SELECT eq.Id AS 'IdEquipe',
+           eq.Nom AS 'NomEquipe'
+    FROM dbo.Teams eq
+    INNER JOIN dbo.UserTeams ut
+        ON eq.Id = ut.TeamId
+    WHERE ut.UserId = @UserId
+    FOR JSON PATH;
+END
+GO
+
+-- #################################################
 -- Permet de supprimer un utilisateur d'une équipe
 CREATE PROCEDURE sp_RemoveUserFromTeam
     @UserId NVARCHAR(450),
