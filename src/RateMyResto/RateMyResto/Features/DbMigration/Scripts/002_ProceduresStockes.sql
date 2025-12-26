@@ -171,8 +171,17 @@ AS
 BEGIN
     SET NOCOUNT ON;
 
+    -- Création de l'évènement
     INSERT INTO dbo.EventRepas (TeamId, InitiateurId, RestaurantId, DateEvenement)
     VALUES (@TeamId, @InitiateurId, @RestaurantId, @DateEvenement);
+
+    -- Ajout de toute l'équipe en tant que participants en invité
+    DECLARE @EventId INT = CAST(SCOPE_IDENTITY() AS INT);
+
+    INSERT INTO dbo.Participants (EventRepasId, UserId, StatusParticipationId)
+    SELECT @EventId, ut.Id, 1 -- 'Invité'
+    FROM dbo.UserTeams ut
+    WHERE ut.TeamId = @TeamId;
 END
 GO
 

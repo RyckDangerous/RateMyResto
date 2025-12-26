@@ -66,6 +66,21 @@ CREATE TABLE dbo.EventRepas
         FOREIGN KEY (RestaurantId) REFERENCES dbo.Restaurants(Id)
 );
 
+-- Table "StatusParticipation"
+CREATE TABLE dbo.StatusParticipation
+(
+    Id TINYINT CONSTRAINT PK_StatusParticipation PRIMARY KEY,
+    Libelle NVARCHAR(50) NOT NULL,
+    -- On s'assure qu'il n'y a pas deux statuts avec le même libellé
+    CONSTRAINT AK_StatusParticipation UNIQUE (Libelle)
+);
+
+INSERT INTO dbo.StatusParticipation (Id, Libelle)
+VALUES (1, 'Invité'),
+       (2, 'Confirmé'),
+       (3, 'Décliné'),
+       (4, 'Absent');
+
 -- Table "Participants"
 CREATE TABLE dbo.Participants
 (
@@ -75,6 +90,7 @@ CREATE TABLE dbo.Participants
     Note DECIMAL(2,1) NULL,
     Commentaire NVARCHAR(1000) NULL,
     DateReview DATE NOT NULL,
+    StatusParticipationId TINYINT NOT NULL,
 
     CONSTRAINT FK_Participants_To_EventRepasId
         FOREIGN KEY (EventRepasId) REFERENCES dbo.EventRepas(Id),
@@ -84,5 +100,9 @@ CREATE TABLE dbo.Participants
 
     -- On s'assure qu'un utilisateur ne peut participer
     -- qu'une seule fois à une sortie donnée
-    CONSTRAINT AK_Participant UNIQUE (EventRepasId, UserId)
+    CONSTRAINT AK_Participant UNIQUE (EventRepasId, UserId),
+
+    CONSTRAINT FK_Participants_To_StatusParticipation
+       FOREIGN KEY (StatusParticipationId)
+       REFERENCES dbo.StatusParticipation(Id)
 );
