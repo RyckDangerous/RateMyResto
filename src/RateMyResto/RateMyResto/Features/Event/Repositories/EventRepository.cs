@@ -24,7 +24,8 @@ public sealed class EventRepository : RepositoryBase<EventRepository>, IEventRep
 
         ResultOf<List<EventByUserDb>> results = await ExecuteStoredProcedureWithJsonResultAsync<List<EventByUserDb>>(procName: "sp_GetEventsByUser",
                                                                                                                     parameters: parameters);
-
+        // JSON deserialization for type 'RateMyResto.Features.Event.Models.Dbs.EventByUserDb'
+        // was missing required properties including: 'ParticipationStatus'; 'IdEquipe'; 'EquipeName'.
         if (results.HasError)
         {
             _logger.LogError("Erreur sur la récupérer des évènements sur l'utilisateur {UserId}: {ErrorMessage}", userId, results.Error?.Message);

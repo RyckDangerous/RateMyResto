@@ -89,7 +89,7 @@ CREATE TABLE dbo.Participants
     UserId INT NOT NULL,
     Note DECIMAL(2,1) NULL,
     Commentaire NVARCHAR(1000) NULL,
-    DateReview DATE NOT NULL,
+    DateReview DATE NULL,
     StatusParticipationId TINYINT NOT NULL,
 
     CONSTRAINT FK_Participants_To_EventRepasId

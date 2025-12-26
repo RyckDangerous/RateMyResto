@@ -198,8 +198,9 @@ BEGIN
            evt.DateEvenement AS 'DateEvent',
            resto.Id AS 'IdRestaurant',
            resto.Nom AS 'RestaurantName',
-           eq.Id AS 'TeamId',
-           eq.Nom AS 'TeamName'
+           part.StatusParticipationId AS 'ParticipationStatus',
+           eq.Id AS 'IdEquipe',
+           eq.Nom AS 'EquipeName'
     FROM dbo.EventRepas evt
     INNER JOIN dbo.Restaurants resto
        ON evt.RestaurantId = resto.Id
@@ -216,43 +217,7 @@ BEGIN
 END
 GO
 
--- #################################################
--- Permet de récupérer la liste des évènements
--- par rapport à l'id d'un utilisateur
---CREATE PROCEDURE sp_GetEventsByUser
---    @UserId NVARCHAR(450)
---AS
---BEGIN
---    SET NOCOUNT ON;
-
---    SELECT evt.Id AS 'IdEvent',
---           evt.DateEvenement AS 'DateEvent',
---           resto.Id AS 'RestaurantId',
---           resto.Nom AS 'RestaurantName',
---           resto.Adresse AS 'RestaurantAddress',
---           resto.LienGoogleMaps AS 'RestaurantGoogleMapsLink',
---           eq.Id AS 'TeamId',
---           eq.Nom AS 'TeamName',
---           initUt.Id AS 'InitiateurUserTeamId',
---           initAu.Id AS 'InitiateurUserId',
---           initAu.UserName AS 'InitiateurUserName'
---    FROM dbo.EventRepas evt
---    INNER JOIN dbo.Teams eq
---       ON evt.TeamId = eq.Id
---    INNER JOIN dbo.UserTeams initUt
---       ON evt.InitiateurId = initUt.Id
---    INNER JOIN dbo.AspNetUsers initAu
---       ON initUt.UserId = initAu.Id
---    INNER JOIN dbo.Restaurants resto
---       ON evt.RestaurantId = resto.Id
---    -- On s'assure que l'utilisateur fait partie de l'équipe
---    INNER JOIN dbo.UserTeams ut
---       ON eq.Id = ut.TeamId
---    WHERE ut.UserId = @UserId
---    FOR JSON PATH;
---END
---GO
-
+-- #####################################################################################
 -- #################################################
 -- ## Gestion des restaurants
 -- #################################################

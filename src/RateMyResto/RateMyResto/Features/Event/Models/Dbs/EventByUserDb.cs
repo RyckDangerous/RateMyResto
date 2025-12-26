@@ -23,6 +23,11 @@ public sealed record EventByUserDb
     public required string RestaurantName { get; init; }
 
     /// <summary>
+    /// Statut de participation de l'utilisateur à l'événement
+    /// </summary>
+    public required short ParticipationStatus { get; init; }
+
+    /// <summary>
     /// Identifiant de l'équipe
     /// </summary>
     public required Guid IdEquipe { get; init; }

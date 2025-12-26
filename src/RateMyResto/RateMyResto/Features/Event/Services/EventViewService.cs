@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Components.Authorization;
+using RateMyResto.Features.Event.Converters;
 using RateMyResto.Features.Event.Models;
 using RateMyResto.Features.Event.Models.Commands;
 using RateMyResto.Features.Event.Models.Dbs;
@@ -338,11 +339,14 @@ public sealed class EventViewService : ViewServiceBase
 
         foreach (EventByUserDb item in value)
         {
+            ParticipationStatus status = StatusConverters.ToStatus(item.ParticipationStatus);
+
             EventCardViewModel cardViewModel = new()
             {
                 IdEvent = item.IdEvent,
                 DateEvent = item.DateEvent,
-                NomDuRestaurant = item.RestaurantName
+                NomDuRestaurant = item.RestaurantName,
+                Status = status
             };
 
             EventByTeamViewModel? currentEvent = eventByTeam.FirstOrDefault(x => x.IdEquipe == item.IdEquipe);
