@@ -1,6 +1,6 @@
 namespace RateMyResto.Features.Shared.Configurations;
 
-public sealed class ApplicationSettings : IApplicationSettings
+public struct ApplicationSettings : IApplicationSettings
 {
     /// <inheritdoc/>
     public required string Dbname { get; init; }

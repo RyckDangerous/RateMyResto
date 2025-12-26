@@ -204,7 +204,7 @@ public abstract class RepositoryBase<T>
     /// <param name="parameters"></param>
     /// <param name="sqlTimeout"></param>
     /// <returns></returns>
-    protected async Task<ResultOf<E>> ExecuteStoredProcedureWithJsonResult<E>(string procName,
+    protected async Task<ResultOf<E>> ExecuteStoredProcedureWithJsonResultAsync<E>(string procName,
                                                                               IDbDataParameter[]? parameters = null,
                                                                               int sqlTimeout = 0)
     {

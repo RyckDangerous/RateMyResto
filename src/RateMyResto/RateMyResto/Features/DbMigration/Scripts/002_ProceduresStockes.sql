@@ -2,6 +2,12 @@
 -- Création des procédures stockées pour RateMyResto
 -- ####################################################
 
+-- #####################################################################################
+
+-- #################################################
+-- ## Gestion des équipes
+-- #################################################
+
 -- #################################################
 -- Permet de créer une nouvelle équipe
 CREATE PROCEDURE sp_CreateTeam
@@ -43,9 +49,9 @@ BEGIN
            ) AS 'Members'
     FROM dbo.Teams eq
     INNER JOIN dbo.UserTeams ut
-        ON eq.Id = ut.TeamId
+       ON eq.Id = ut.TeamId
     INNER JOIN dbo.AspNetUsers au
-        ON au.Id = ut.UserId
+       ON au.Id = ut.UserId
     WHERE eq.OwnerTeamId = @Owner
     FOR JSON PATH
 END
@@ -73,28 +79,27 @@ AS
 BEGIN
     SET NOCOUNT ON;
 
-    SELECT
-        eq.Id,
-        eq.Nom,
-        eq.[Description],
-        own.Id AS 'OwnerId',
-        own.UserName AS 'OwnerName',
-        (
-            SELECT u.Id AS 'IdUser',
-                   u.UserName
-            FROM dbo.UserTeams ut2
-            INNER JOIN dbo.AspNetUsers u
-               ON u.Id = ut2.UserId
-            WHERE ut2.TeamId = eq.Id
-            FOR JSON PATH
-        ) AS 'Members'
+    SELECT eq.Id,
+           eq.Nom,
+           eq.[Description],
+           own.Id AS 'OwnerId',
+           own.UserName AS 'OwnerName',
+           (
+               SELECT u.Id AS 'IdUser',
+                      u.UserName
+               FROM dbo.UserTeams ut2
+               INNER JOIN dbo.AspNetUsers u
+                  ON u.Id = ut2.UserId
+               WHERE ut2.TeamId = eq.Id
+               FOR JSON PATH
+           ) AS 'Members'
     FROM dbo.Teams eq
     -- On cherche les équipes où l'utilisateur est MEMBRE
     INNER JOIN dbo.UserTeams ut
-        ON eq.Id = ut.TeamId
+       ON eq.Id = ut.TeamId
     -- pour trouver le propriétaire
     INNER JOIN dbo.AspNetUsers own
-        ON eq.OwnerTeamId = own.Id
+       ON eq.OwnerTeamId = own.Id
     WHERE ut.UserId = @UserId
     FOR JSON PATH;
 END
@@ -113,3 +118,183 @@ BEGIN
     WHERE UserId = @UserId
       AND TeamId = @TeamId;
 END
+GO
+
+-- #################################################
+-- Permet de récupérer l'ID du UserTeam
+CREATE PROCEDURE sp_GetUserTeamId
+    @UserId NVARCHAR(450),
+    @TeamId UNIQUEIDENTIFIER
+AS
+BEGIN
+SET NOCOUNT ON;
+
+SELECT Id
+FROM dbo.UserTeams
+WHERE UserId = @UserId
+  AND TeamId = @TeamId;
+END
+GO
+
+-- #####################################################################################
+
+-- #################################################
+-- ## Gestion des évènements de repas
+-- #################################################
+
+-- #################################################
+-- Permet de créer un nouvel évènement de repas
+CREATE PROCEDURE sp_CreateEvent
+    @TeamId UNIQUEIDENTIFIER,
+    @InitiateurId INT,
+    @RestaurantId INT,
+    @DateEvenement DATE
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    INSERT INTO dbo.EventRepas (TeamId, InitiateurId, RestaurantId, DateEvenement)
+    VALUES (@TeamId, @InitiateurId, @RestaurantId, @DateEvenement);
+END
+GO
+
+-- #################################################
+-- Permet de récupérer la liste des évènements
+-- par rapport à l'id d'un utilisateur
+CREATE PROCEDURE sp_GetEventsByUser
+    @UserId NVARCHAR(450)
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    SELECT evt.Id AS 'IdEvent',
+           evt.DateEvenement AS 'DateEvent',
+           resto.Id AS 'IdRestaurant',
+           resto.Nom AS 'RestaurantName',
+           eq.Id AS 'TeamId',
+           eq.Nom AS 'TeamName'
+    FROM dbo.EventRepas evt
+    INNER JOIN dbo.Restaurants resto
+       ON evt.RestaurantId = resto.Id
+    INNER JOIN dbo.Participants part
+       ON part.EventRepasId = evt.Id
+    INNER JOIN dbo.UserTeams usrEq
+       ON usrEq.Id = part.UserId
+    INNER JOIN dbo.AspNetUsers usr
+       ON usr.Id = usrEq.UserId
+    INNER JOIN dbo.Teams eq
+       ON eq.Id = usrEq.TeamId
+    WHERE usr.Id = @UserId
+    FOR JSON PATH;
+END
+GO
+
+-- #################################################
+-- Permet de récupérer la liste des évènements
+-- par rapport à l'id d'un utilisateur
+--CREATE PROCEDURE sp_GetEventsByUser
+--    @UserId NVARCHAR(450)
+--AS
+--BEGIN
+--    SET NOCOUNT ON;
+
+--    SELECT evt.Id AS 'IdEvent',
+--           evt.DateEvenement AS 'DateEvent',
+--           resto.Id AS 'RestaurantId',
+--           resto.Nom AS 'RestaurantName',
+--           resto.Adresse AS 'RestaurantAddress',
+--           resto.LienGoogleMaps AS 'RestaurantGoogleMapsLink',
+--           eq.Id AS 'TeamId',
+--           eq.Nom AS 'TeamName',
+--           initUt.Id AS 'InitiateurUserTeamId',
+--           initAu.Id AS 'InitiateurUserId',
+--           initAu.UserName AS 'InitiateurUserName'
+--    FROM dbo.EventRepas evt
+--    INNER JOIN dbo.Teams eq
+--       ON evt.TeamId = eq.Id
+--    INNER JOIN dbo.UserTeams initUt
+--       ON evt.InitiateurId = initUt.Id
+--    INNER JOIN dbo.AspNetUsers initAu
+--       ON initUt.UserId = initAu.Id
+--    INNER JOIN dbo.Restaurants resto
+--       ON evt.RestaurantId = resto.Id
+--    -- On s'assure que l'utilisateur fait partie de l'équipe
+--    INNER JOIN dbo.UserTeams ut
+--       ON eq.Id = ut.TeamId
+--    WHERE ut.UserId = @UserId
+--    FOR JSON PATH;
+--END
+--GO
+
+-- #################################################
+-- ## Gestion des restaurants
+-- #################################################
+
+-- #################################################
+-- Permet de créer un nouveau restaurant
+CREATE PROCEDURE sp_CreateRestaurant
+    @Nom NVARCHAR(100),
+    @Adresse NVARCHAR(255),
+    @LienGoogleMaps NVARCHAR(2048) = NULL
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    INSERT INTO dbo.Restaurants (Nom, Adresse, LienGoogleMaps)
+    VALUES (@Nom, @Adresse, @LienGoogleMaps);
+
+    -- Retourner l'ID inséré
+    -- SCOPE_IDENTITY() retourne un type de données NUMERIC
+    -- https://learn.microsoft.com/fr-fr/sql/t-sql/functions/scope-identity-transact-sql?view=sql-server-ver17
+    -- Conversion en INT pour correspondre au type de données de la colonne IdRestaurant
+    SELECT CAST(SCOPE_IDENTITY() AS INT) AS 'IdRestaurant';
+END
+GO
+
+-- #################################################
+-- Permet de récupérer la liste des restaurants
+CREATE PROCEDURE sp_GetAllRestaurants
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    SELECT Id AS 'IdRestaurant',
+           Nom AS 'RestaurantName',
+           Adresse AS 'RestaurantAddress',
+           LienGoogleMaps AS 'RestaurantGoogleMapsLink'
+    FROM dbo.Restaurants
+    FOR JSON PATH;
+END
+GO
+
+-- #################################################
+-- Permet de récupérer un restaurant par son Id
+CREATE PROCEDURE sp_GetRestaurantById
+    @RestaurantId INT
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    SELECT Id AS 'IdRestaurant',
+           Nom AS 'RestaurantName',
+           Adresse AS 'RestaurantAddress',
+           LienGoogleMaps AS 'RestaurantGoogleMapsLink'
+    FROM dbo.Restaurants
+    WHERE Id = @RestaurantId
+    FOR JSON PATH, WITHOUT_ARRAY_WRAPPER;
+END
+GO
+
+-- #################################################
+-- Permet de vérifer l'existence d'un restaurant par son nom
+CREATE PROCEDURE sp_CheckRestaurantExistByName
+    @Nom NVARCHAR(100)
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    SELECT COUNT(1) AS 'Exists'
+    FROM dbo.Restaurants
+    WHERE Nom = @Nom;
+END
+GO

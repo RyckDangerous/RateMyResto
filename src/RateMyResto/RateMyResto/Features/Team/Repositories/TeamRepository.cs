@@ -61,7 +61,7 @@ public sealed class TeamRepository : RepositoryBase<TeamRepository>, ITeamReposi
             GetSqlParameterNVarchar("@Owner", userId)
         };
 
-        return await ExecuteStoredProcedureWithJsonResult<List<TeamDb>>("sp_GetTeamByOwner", parameters);
+        return await ExecuteStoredProcedureWithJsonResultAsync<List<TeamDb>>("sp_GetTeamByOwner", parameters);
     }
 
     /// <inheritdoc />
@@ -72,7 +72,7 @@ public sealed class TeamRepository : RepositoryBase<TeamRepository>, ITeamReposi
             GetSqlParameterNVarchar("@UserId", userId)
         };
 
-        return await ExecuteStoredProcedureWithJsonResult<List<TeamDb>>("sp_GetTeamsByUser", parameters);
+        return await ExecuteStoredProcedureWithJsonResultAsync<List<TeamDb>>("sp_GetTeamsByUser", parameters);
     }
 
 
