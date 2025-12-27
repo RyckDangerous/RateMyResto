@@ -40,6 +40,7 @@ public sealed class EventRepository : RepositoryBase<EventRepository>, IEventRep
         // sp_CreateEvent
         SqlParameter[] parameters =
         {
+            GetSqlParameterUniqueIdentifier("@IdEvent", Guid.CreateVersion7()),
             GetSqlParameterUniqueIdentifier("@TeamId", command.IdTeam),
             GetSqlParameterInt("@InitiateurId", command.IdInitiateur),
             GetSqlParameterInt("@RestaurantId", command.IdRestaurant),
@@ -63,7 +64,7 @@ public sealed class EventRepository : RepositoryBase<EventRepository>, IEventRep
         SqlParameter[] parameters =
         {
             GetSqlParameterNVarchar("@UserId", command.UserId),
-            GetSqlParameterInt("@EventId", command.EventId),
+            GetSqlParameterUniqueIdentifier("@EventId", command.EventId),
             GetSqlParameterTinyInt("@StatusParticipationId", command.Status)
         };
 

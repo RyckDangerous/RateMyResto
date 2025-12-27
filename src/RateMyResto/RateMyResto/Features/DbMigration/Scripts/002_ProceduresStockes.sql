@@ -37,7 +37,7 @@ BEGIN
            eq.Nom,
            eq.[Description],
            eq.OwnerTeamId AS 'OwnerId',
-           au.UserName AS 'OwnerName',
+           usr.UserName AS 'OwnerName',
            (
                SELECT u.Id AS 'IdUser',
                       u.UserName
@@ -50,8 +50,8 @@ BEGIN
     FROM dbo.Teams eq
     INNER JOIN dbo.UserTeams ut
        ON eq.Id = ut.TeamId
-    INNER JOIN dbo.AspNetUsers au
-       ON au.Id = ut.UserId
+    INNER JOIN dbo.AspNetUsers usr
+       ON usr.Id = ut.UserId
     WHERE eq.OwnerTeamId = @Owner
     FOR JSON PATH
 END
@@ -163,6 +163,7 @@ GO
 -- #################################################
 -- Permet de créer un nouvel évènement de repas
 CREATE PROCEDURE sp_CreateEvent
+    @IdEvent UNIQUEIDENTIFIER,
     @TeamId UNIQUEIDENTIFIER,
     @InitiateurId INT,
     @RestaurantId INT,
@@ -172,14 +173,12 @@ BEGIN
     SET NOCOUNT ON;
 
     -- Création de l'évènement
-    INSERT INTO dbo.EventRepas (TeamId, InitiateurId, RestaurantId, DateEvenement)
-    VALUES (@TeamId, @InitiateurId, @RestaurantId, @DateEvenement);
+    INSERT INTO dbo.EventRepas (Id, TeamId, InitiateurId, RestaurantId, DateEvenement)
+    VALUES (@IdEvent, @TeamId, @InitiateurId, @RestaurantId, @DateEvenement);
 
     -- Ajout de toute l'équipe en tant que participants en invité
-    DECLARE @EventId INT = CAST(SCOPE_IDENTITY() AS INT);
-
     INSERT INTO dbo.Participants (EventRepasId, UserId, StatusParticipationId)
-    SELECT @EventId, ut.Id, 1 -- 'Invité'
+    SELECT @IdEvent, ut.Id, 1 -- 'Invité'
     FROM dbo.UserTeams ut
     WHERE ut.TeamId = @TeamId;
 END
@@ -221,7 +220,7 @@ GO
 -- Permet de mettre à jour le statut de participation d'un utilisateur
 CREATE PROCEDURE sp_UpdateParticipationStatus
     @UserId VARCHAR(450),
-    @EventId INT,
+    @EventId UNIQUEIDENTIFIER,
     @StatusParticipationId TINYINT
 AS
 BEGIN

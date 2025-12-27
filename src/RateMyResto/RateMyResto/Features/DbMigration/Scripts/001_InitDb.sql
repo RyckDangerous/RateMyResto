@@ -50,7 +50,7 @@ CREATE TABLE dbo.UserTeams
 -- Table "EventRepas"
 CREATE TABLE dbo.EventRepas
 (
-    Id INT CONSTRAINT PK_EventRepas PRIMARY KEY IDENTITY(1,1),
+    Id UNIQUEIDENTIFIER CONSTRAINT PK_EventRepas PRIMARY KEY,
     TeamId UNIQUEIDENTIFIER NOT NULL,
     InitiateurId INT NOT NULL, -- Référence à UserTeams.Id
     RestaurantId INT NOT NULL,
@@ -85,7 +85,7 @@ VALUES (1, 'Invité'),
 CREATE TABLE dbo.Participants
 (
     Id INT CONSTRAINT PK_Participants PRIMARY KEY IDENTITY(1,1),
-    EventRepasId INT NOT NULL,
+    EventRepasId UNIQUEIDENTIFIER NOT NULL,
     UserId INT NOT NULL,
     Note DECIMAL(2,1) NULL,
     Commentaire NVARCHAR(1000) NULL,

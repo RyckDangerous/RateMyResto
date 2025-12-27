@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Authorization;
 using RateMyResto.Features.Event.Converters;
 using RateMyResto.Features.Event.Models;
@@ -6,58 +7,43 @@ using RateMyResto.Features.Event.Models.Dbs;
 using RateMyResto.Features.Event.Models.Queries;
 using RateMyResto.Features.Event.Models.ViewModels;
 using RateMyResto.Features.Event.Repositories;
-using RateMyResto.Features.Shared.Components.DrawerComponent;
 using RateMyResto.Features.Shared.Components.SnackbarComponent;
 using RateMyResto.Features.Shared.Services;
 
 namespace RateMyResto.Features.Event.Services;
 
-public sealed class EventViewService : ViewServiceBase
+public sealed class EventViewService : ViewServiceBase, IEventViewService
 {
     private readonly ISnackbarService _snackbarService;
-    private readonly IDrawerService _drawerService;
 
     private readonly IEventRepository _eventRepository;
     private readonly IRestaurantRepository _restaurantRepository;
     private readonly ITeamRepository _teamRepository;
+    private readonly NavigationManager _navigationManager;
 
     /// <summary>
-    /// ViewModel pour les événements
-    /// </summary>
-    public EventsViewModel ViewModel { get; private set; }
-
-    /// <summary>
-    /// Entrée pour la création d'un nouvel événement
-    /// </summary>
-    public NewEventInput? EventInput { get; private set; }
-
-    /// <summary>
-    /// Identifiant de l'équipe actuellement sélectionnée
-    /// dans le cas ou l'utilisateur appartient à plusieurs équipes
+    /// L'Id de l'équipe sélectionnée pour la création d'un événement.
     /// </summary>
     private Guid? _currentTeamIdSelected;
 
+    /// <inheritdoc />
+    public EventsViewModel ViewModel { get; private set; }
+
+    /// <inheritdoc />
+    public NewEventInput? EventInput { get; private set; }
+
     // === Gestion de la modale de création d'événement ===
-    
-    /// <summary>
-    /// Indique si la modale de création d'événement est affichée
-    /// </summary>
+
+    /// <inheritdoc />
     public bool ShowCreateEventModal { get; private set; } = false;
 
-    /// <summary>
-    /// ID de l'équipe sélectionnée dans le formulaire de création
-    /// </summary>
+    /// <inheritdoc />
     public Guid? SelectedTeamId { get; set; }
 
-    /// <summary>
-    /// ID de l'utilisateur courant
-    /// </summary>
+    /// <inheritdoc />
     private string _currentUserId = string.Empty;
 
-    /// <summary>
-    /// Liste des équipes disponibles pour la création d'un événement
-    /// (uniquement les équipes dont l'utilisateur est propriétaire)
-    /// </summary>
+    /// <inheritdoc />
     public List<EquipeViewModel> AvailableTeams { get; private set; } = new();
 
 
@@ -66,14 +52,14 @@ public sealed class EventViewService : ViewServiceBase
                             IRestaurantRepository restaurantRepository,
                             ITeamRepository teamRepository,
                             ISnackbarService snackbarService,
-                            IDrawerService drawerService)
+                            NavigationManager navigationManager)
         : base(authStateProvider)
     {
         _eventRepository = eventRepository;
         _restaurantRepository = restaurantRepository;
         _teamRepository = teamRepository;
         _snackbarService = snackbarService;
-        _drawerService = drawerService;
+        _navigationManager = navigationManager;
 
         ViewModel = new()
         {
@@ -96,7 +82,7 @@ public sealed class EventViewService : ViewServiceBase
 
         if (eventsResult.HasError)
         {
-            if(eventsResult.Error is not NotFoundError)
+            if (eventsResult.Error is not NotFoundError)
             {
                 _snackbarService.ShowError("Erreur sur la récupération des évènements.");
             }
@@ -113,9 +99,7 @@ public sealed class EventViewService : ViewServiceBase
         await RefreshUI();
     }
 
-    /// <summary>
-    /// Ouvre la modale de création d'événement
-    /// </summary>
+    /// <inheritdoc />
     public async Task OpenCreateEventModalAsync()
     {
         ResultOf<List<EquipeDb>> availableTeamsResult = await _teamRepository.GetTeamsByUserIdAsync(_currentUserId);
@@ -134,7 +118,7 @@ public sealed class EventViewService : ViewServiceBase
             })
             .ToList();
 
-        if( AvailableTeams.Count == 1)
+        if (AvailableTeams.Count == 1)
         {
             // Sélectionner la première équipe par défaut
             SelectedTeamId = AvailableTeams.FirstOrDefault()?.Id;
@@ -158,18 +142,14 @@ public sealed class EventViewService : ViewServiceBase
         await RefreshUI();
     }
 
-    /// <summary>
-    /// Ferme la modale de création d'événement
-    /// </summary>
+    /// <inheritdoc />
     public async Task CloseCreateEventModalAsync()
     {
         ShowCreateEventModal = false;
         await RefreshUI();
     }
 
-    /// <summary>
-    /// Gère la création d'un nouvel événement
-    /// </summary>
+    /// <inheritdoc />
     public async Task HandleCreateEventAsync()
     {
         if (EventInput is null)
@@ -216,17 +196,14 @@ public sealed class EventViewService : ViewServiceBase
         await LoadEventsAsync();
     }
 
-    /// <summary>
-    /// Confirme la participation de l'utilisateur à un événement
-    /// </summary>
-    /// <param name="eventId">Identifiant de l'événement</param>
-    public async Task ConfirmParticipationAsync(int eventId)
+    /// <inheritdoc />
+    public async Task ConfirmParticipationAsync(Guid eventId)
     {
         UpdateStatusCommand command = new()
         {
             UserId = _currentUserId,
             EventId = eventId,
-            Status = (byte) ParticipationStatus.Confirme
+            Status = (byte)ParticipationStatus.Confirme
         };
 
         ResultOf updateResult = await _eventRepository.UpdateParticipationStatusAsync(command);
@@ -241,17 +218,14 @@ public sealed class EventViewService : ViewServiceBase
         await LoadEventsAsync();
     }
 
-    /// <summary>
-    /// Décline la participation de l'utilisateur à un événement
-    /// </summary>
-    /// <param name="eventId">Identifiant de l'événement</param>
-    public async Task DeclineParticipationAsync(int eventId)
+    /// <inheritdoc />
+    public async Task DeclineParticipationAsync(Guid eventId)
     {
         UpdateStatusCommand command = new()
         {
             UserId = _currentUserId,
             EventId = eventId,
-            Status = (byte) ParticipationStatus.Decline
+            Status = (byte)ParticipationStatus.Decline
         };
 
         ResultOf updateResult = await _eventRepository.UpdateParticipationStatusAsync(command);
@@ -263,7 +237,7 @@ public sealed class EventViewService : ViewServiceBase
         }
 
         _snackbarService.ShowInfo("Participation déclinée.");
-        
+
         // Recharger les événements pour mettre à jour l'affichage
         await LoadEventsAsync();
     }
@@ -320,6 +294,13 @@ public sealed class EventViewService : ViewServiceBase
         }
     }
 
+    /// <inheritdoc />
+    public async Task OpenDetailPageAsync(Guid eventId)
+    {
+        _navigationManager.NavigateTo($"/event/detail/{eventId}");
+    }
+
+    #region Private methods
 
     /// <summary>
     /// Gère la création ou la mise à jour d'un restaurant
@@ -404,7 +385,7 @@ public sealed class EventViewService : ViewServiceBase
             EventByTeamViewModel? currentEvent = eventByTeam.FirstOrDefault(x => x.IdEquipe == item.IdEquipe);
 
             // S'il existe déjà l'équipe dans le retour du viewModel
-            if(currentEvent is not null)
+            if (currentEvent is not null)
             {
                 currentEvent.Events.Add(cardViewModel);
             }
@@ -430,4 +411,7 @@ public sealed class EventViewService : ViewServiceBase
             EventsByTeam = eventByTeam
         };
     }
+
+    #endregion
+
 }

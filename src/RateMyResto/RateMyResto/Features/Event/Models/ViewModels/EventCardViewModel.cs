@@ -8,7 +8,7 @@ public sealed record EventCardViewModel
     /// <summary>
     /// Identifiant de l'événement
     /// </summary>
-    public required int IdEvent { get; init; }
+    public required Guid IdEvent { get; init; }
 
     /// <summary>
     /// Nom du restaurant

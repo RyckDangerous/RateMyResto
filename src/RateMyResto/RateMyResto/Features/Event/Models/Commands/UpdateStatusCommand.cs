@@ -12,7 +12,7 @@ public sealed record UpdateStatusCommand
     /// <summary>
     /// Id de l'événement
     /// </summary>
-    public required int EventId { get; init; }
+    public required Guid EventId { get; init; }
 
     /// <summary>
     /// Nouveau statut de l'événement

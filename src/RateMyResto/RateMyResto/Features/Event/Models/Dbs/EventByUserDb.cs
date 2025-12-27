@@ -5,7 +5,7 @@ public sealed record EventByUserDb
     /// <summary>
     /// Identifiant de l'événement
     /// </summary>
-    public required int IdEvent { get; init; }
+    public required Guid IdEvent { get; init; }
 
     /// <summary>
     /// Date de l'événement
