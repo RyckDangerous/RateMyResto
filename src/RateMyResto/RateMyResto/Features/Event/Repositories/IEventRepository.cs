@@ -13,13 +13,6 @@ public interface IEventRepository
     Task<ResultOf> CreateEventAsync(NewEventCommand command);
 
     /// <summary>
-    /// Récupère le détail d'un événement
-    /// </summary>
-    /// <param name="idEvent"></param>
-    /// <returns></returns>
-    Task<ResultOf> GetDetailEventAsync(int idEvent);
-
-    /// <summary>
     /// Récupère la liste des événements
     /// <paramref name="userId"/></param>
     /// </summary>

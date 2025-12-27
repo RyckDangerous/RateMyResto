@@ -1,3 +1,5 @@
+using RateMyResto.Features.Shared.Models;
+
 namespace RateMyResto.Features.Event.Models.ViewModels;
 
 /// <summary>

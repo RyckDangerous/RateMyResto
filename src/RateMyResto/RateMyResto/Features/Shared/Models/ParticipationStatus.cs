@@ -1,4 +1,4 @@
-namespace RateMyResto.Features.Event.Models.ViewModels;
+namespace RateMyResto.Features.Shared.Models;
 
 public enum ParticipationStatus
 {

@@ -1,6 +1,5 @@
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Authorization;
-using RateMyResto.Features.Event.Converters;
 using RateMyResto.Features.Event.Models;
 using RateMyResto.Features.Event.Models.Commands;
 using RateMyResto.Features.Event.Models.Dbs;
@@ -8,6 +7,8 @@ using RateMyResto.Features.Event.Models.Queries;
 using RateMyResto.Features.Event.Models.ViewModels;
 using RateMyResto.Features.Event.Repositories;
 using RateMyResto.Features.Shared.Components.SnackbarComponent;
+using RateMyResto.Features.Shared.Converters;
+using RateMyResto.Features.Shared.Models;
 using RateMyResto.Features.Shared.Services;
 
 namespace RateMyResto.Features.Event.Services;
@@ -40,7 +41,9 @@ public sealed class EventViewService : ViewServiceBase, IEventViewService
     /// <inheritdoc />
     public Guid? SelectedTeamId { get; set; }
 
-    /// <inheritdoc />
+    /// <summary>
+    /// L'Id de l'utilisateur courant.
+    /// </summary>
     private string _currentUserId = string.Empty;
 
     /// <inheritdoc />

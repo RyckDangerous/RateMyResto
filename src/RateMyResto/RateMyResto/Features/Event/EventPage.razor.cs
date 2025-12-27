@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Components;
-using RateMyResto.Features.Event.Models.ViewModels;
 using RateMyResto.Features.Event.Services;
+using RateMyResto.Features.Shared.Models;
 
 namespace RateMyResto.Features.Event;
 

@@ -215,7 +215,7 @@ BEGIN
 END
 GO
 
---
+-- #################################################
 -- Permet de mettre à jour le statut de participation d'un utilisateur
 CREATE PROCEDURE sp_UpdateParticipationStatus
     @UserId VARCHAR(450),
@@ -235,6 +235,65 @@ BEGIN
       AND ut.TeamId = evt.TeamId
     WHERE ut.UserId = @UserId
       AND p.EventRepasId = @EventId;
+END
+GO
+
+-- #################################################
+-- Permet de récupérer le détail d'un évènement par son Id
+CREATE PROCEDURE sp_GetEventById
+    @IdEvent UNIQUEIDENTIFIER
+AS
+BEGIN
+    SET NOCOUNT ON;
+    -- Informations sur les participants
+    WITH Participants_CTE (IdUser, UserName, Note, Commentaire, DateReview, StatusId)
+    AS
+    (
+        SELECT p.UserId,
+               usr.UserName,
+               p.Note,
+               p.Commentaire,
+               p.DateReview,
+               p.StatusParticipationId
+        FROM dbo.Participants p
+        INNER JOIN dbo.UserTeams ut
+           ON ut.Id = p.UserId
+        INNER JOIN dbo.AspNetUsers usr
+           ON usr.Id = ut.UserId
+        WHERE p.EventRepasId = @IdEvent
+    ),
+    -- Informations sur l'initiateur de l'évènement
+    InfoInitiateur_CTE (InitiateurName) AS
+    (
+        SELECT usr.UserName
+        FROM dbo.EventRepas evt
+        INNER JOIN dbo.UserTeams ut 
+	       ON ut.Id = evt.InitiateurId
+        INNER JOIN dbo.AspNetUsers usr 
+	       ON usr.Id = ut.UserId
+        WHERE evt.Id = @IdEvent
+    )
+    -- Récupération des informations de l'évènement
+    SELECT evt.Id,
+           evt.DateEvenement,
+           rt.Nom AS 'NomRestaurant',
+           rt.Adresse AS 'Adresse',
+           rt.LienGoogleMaps AS 'LienGoogleMaps',
+           eq.Nom AS 'NomEquipe',
+           (
+               SELECT IdUser, UserName, Note, Commentaire, DateReview, StatusId
+               FROM Participants_CTE
+               FOR JSON PATH, INCLUDE_NULL_VALUES
+           ) AS 'InfoParticipants',
+           (SELECT TOP 1 InitiateurName 
+	          FROM InfoInitiateur_CTE) AS 'Initiateur'
+    FROM dbo.EventRepas evt
+    INNER JOIN dbo.Restaurants rt 
+       ON rt.Id = evt.RestaurantId
+    INNER JOIN dbo.Teams eq 
+       ON eq.Id = evt.TeamId
+    WHERE evt.Id = @IdEvent
+    FOR JSON PATH, WITHOUT_ARRAY_WRAPPER, INCLUDE_NULL_VALUES;
 END
 GO
 

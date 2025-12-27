@@ -52,13 +52,6 @@ public sealed class EventRepository : RepositoryBase<EventRepository>, IEventRep
     }
 
     /// <inheritdoc />
-    public async Task<ResultOf> GetDetailEventAsync(int idEvent)
-    {
-        // Implementation for retrieving events
-        return ResultOf.Success();
-    }
-
-    /// <inheritdoc />
     public async Task<ResultOf> UpdateParticipationStatusAsync(UpdateStatusCommand command)
     {
         SqlParameter[] parameters =

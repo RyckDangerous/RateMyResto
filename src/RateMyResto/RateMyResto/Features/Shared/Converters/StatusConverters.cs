@@ -1,6 +1,6 @@
-using RateMyResto.Features.Event.Models.ViewModels;
+using RateMyResto.Features.Shared.Models;
 
-namespace RateMyResto.Features.Event.Converters;
+namespace RateMyResto.Features.Shared.Converters;
 
 public static class StatusConverters
 {
