@@ -12,6 +12,12 @@ public partial class TeamDrawerContent : ComponentBase
     public required Equipe Team { get; set; }
 
     /// <summary>
+    /// Indique si l'utilisateur est le propriétaire de l'équipe
+    /// </summary>
+    [Parameter]
+    public bool IsOwner { get; set; } = false;
+
+    /// <summary>
     /// Callback quand l'utilisateur veut supprimer l'équipe
     /// </summary>
     [Parameter]

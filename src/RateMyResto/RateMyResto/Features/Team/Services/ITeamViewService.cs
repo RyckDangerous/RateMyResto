@@ -77,6 +77,12 @@ public interface ITeamViewService : IViewServiceBase
     void OpenTeamDrawer(Guid teamId);
 
     /// <summary>
+    /// Ouvre le drawer d'une équipe en mode membre (lecture seule)
+    /// </summary>
+    /// <param name="teamId"></param>
+    void OpenMemberTeamDrawer(Guid teamId);
+
+    /// <summary>
     /// Ouvre la modale de rejoindre une équipe
     /// </summary>
     void OpenJoinModal();

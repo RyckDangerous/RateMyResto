@@ -217,11 +217,36 @@ public sealed class TeamViewService : ViewServiceBase, ITeamViewService
             builder.AddAttribute(1, "Team", ViewModel.SelectedTeam);
             builder.AddAttribute(2, "OnDeleteTeam", EventCallback.Factory.Create<Guid>(this, HandleDeleteTeam));
             builder.AddAttribute(3, "OnRemoveMember", EventCallback.Factory.Create<string>(this, HandleRemoveMember));
+            builder.AddAttribute(4, "IsOwner", true);
             builder.CloseComponent();
         };
 
         // Ouvrir le drawer avec le composant TeamDrawerContent
         _drawerService.Open("Gestion de l'équipe", "bi-gear", content);
+    }
+
+    /// <inheritdoc />
+    public void OpenMemberTeamDrawer(Guid teamId)
+    {
+        ViewModel.SelectedTeam = ViewModel.MemberEquipes.FirstOrDefault(e => e.Id == teamId);
+
+        if (ViewModel.SelectedTeam is null)
+        {
+            _snackbarService.ShowError("Équipe introuvable.");
+            return;
+        }
+
+        // Créer le RenderFragment pour le contenu du drawer (mode lecture seule pour les membres)
+        RenderFragment content = builder =>
+        {
+            builder.OpenComponent<TeamDrawerContent>(0);
+            builder.AddAttribute(1, "Team", ViewModel.SelectedTeam);
+            builder.AddAttribute(2, "IsOwner", false);
+            builder.CloseComponent();
+        };
+
+        // Ouvrir le drawer avec le composant TeamDrawerContent
+        _drawerService.Open("Détails de l'équipe", "bi-info-circle", content);
     }
 
     /// <inheritdoc />
@@ -371,7 +396,7 @@ public sealed class TeamViewService : ViewServiceBase, ITeamViewService
         }
 
         // Vérifie si l'utilisateur est le propriétaire de l'équipe
-        Equipe? currentTeam = ViewModel.MemberEquipes.Where(e => e.Id == teamId).FirstOrDefault();
+        Equipe? currentTeam = ViewModel.MemberEquipes.FirstOrDefault(e => e.Id == teamId);
         if (currentTeam is null)
         {
             _snackbarService.ShowError("Équipe introuvable.");
