@@ -48,10 +48,9 @@ BEGIN
                FOR JSON PATH
            ) AS 'Members'
     FROM dbo.Teams eq
-    INNER JOIN dbo.UserTeams ut
-       ON eq.Id = ut.TeamId
+    -- JOINTURE SEULEMENT AVEC LE OWNER
     INNER JOIN dbo.AspNetUsers usr
-       ON usr.Id = ut.UserId
+       ON usr.Id = eq.OwnerTeamId
     WHERE eq.OwnerTeamId = @Owner
     FOR JSON PATH
 END

@@ -110,7 +110,12 @@ public sealed class TeamViewService : ViewServiceBase, ITeamViewService
         }
         else
         {
-            ViewModel.MemberEquipes = memberTeamsResult.Value.Select(TeamDbConverters.ToEquipe).ToList();
+            // Filtrer les équipes pour exclure celles où l'utilisateur est propriétaire
+            // (pour éviter les doublons entre OwnerEquipes et MemberEquipes)
+            ViewModel.MemberEquipes = memberTeamsResult.Value
+                .Where(team => team.OwnerId != userId)
+                .Select(TeamDbConverters.ToEquipe)
+                .ToList();
         }
 
         ViewModel.IsLoading = false;
