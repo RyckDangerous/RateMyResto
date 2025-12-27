@@ -1,0 +1,116 @@
+/* Styles pour les cartes de participants */
+.participant-card {
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.participant-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1) !important;
+}
+
+.bg-light-success {
+    background-color: #d4edda;
+}
+
+.bg-light-danger {
+    background-color: #f8d7da;
+}
+
+.bg-light-warning {
+    background-color: #fff3cd;
+}
+
+/* Styles pour l'affichage de la notation */
+.rating-display {
+    font-size: 1.2rem;
+}
+
+.rating-input input[type="number"] {
+    max-width: 150px;
+}
+
+/* Styles pour les photos */
+.photo-card {
+    position: relative;
+    overflow: hidden;
+    cursor: pointer;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    border-radius: 0.5rem;
+}
+
+.photo-card:hover {
+    transform: scale(1.05);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+}
+
+.photo-card img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: opacity 0.3s ease;
+}
+
+.photo-card:hover img {
+    opacity: 0.9;
+}
+
+.object-fit-cover {
+    object-fit: cover;
+}
+
+/* Styles pour les cards restaurant et participants */
+.card-body {
+    min-height: 200px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 991px) {
+    .col-lg-5, .col-lg-7 {
+        margin-bottom: 1rem;
+    }
+}
+
+@media (max-width: 768px) {
+    .display-6 {
+        font-size: 1.5rem;
+    }
+    
+    .participant-card {
+        margin-bottom: 1rem;
+    }
+    
+    .card-body {
+        min-height: auto;
+    }
+}
+
+/* Animations */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.card {
+    animation: fadeIn 0.3s ease;
+}
+
+/* Style pour la galerie de photos */
+.photo-card .ratio {
+    border: 1px solid #dee2e6;
+    overflow: hidden;
+}
+
+.photo-card .ratio img {
+    transition: transform 0.3s ease;
+}
+
+.photo-card:hover .ratio img {
+    transform: scale(1.1);
+}
+

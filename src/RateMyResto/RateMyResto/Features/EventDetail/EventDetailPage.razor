@@ -1,7 +1,312 @@
-@page "/eventdetail"
+@page "/event/detail/{EventId:guid}"
+@using RateMyResto.Features.EventDetail.Services
+@using RateMyResto.Features.EventDetail.Models
+@using RateMyResto.Features.Shared.Models
+@using Microsoft.AspNetCore.Authorization
 
-<h3>EventDetailPage</h3>
+@rendermode InteractiveServer
+@attribute [Authorize]
 
-@code {
+<PageTitle>Détail de l'événement</PageTitle>
 
-}
+<div class="container-fluid py-4">
+    @if (_viewService.ViewModel is null)
+    {
+        <div class="text-center py-5">
+            <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Chargement...</span>
+            </div>
+            <p class="mt-3 text-muted">Chargement des détails de l'événement...</p>
+        </div>
+    }
+    else
+    {
+        var viewModel = _viewService.ViewModel;
+        var isEventPastOrToday = viewModel.DateEvenement <= DateOnly.FromDateTime(DateTime.Today);
+        var currentUserParticipant = viewModel.ParticipantsInfo.FirstOrDefault(p => p.ParticipantName == _currentUserName);
+        var hasUserRated = currentUserParticipant?.Note.HasValue ?? false;
+
+        <!-- Header avec informations principales -->
+        <div class="row mb-4">
+            <div class="col">
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb">
+                        <li class="breadcrumb-item"><a href="/events">Événements</a></li>
+                        <li class="breadcrumb-item active" aria-current="page">Détail</li>
+                    </ol>
+                </nav>
+                
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h1 class="display-6 mb-2">
+                            <i class="bi bi-calendar-event text-primary me-2"></i>
+                            @viewModel.RestaurantInfo.Name
+                        </h1>
+                        <p class="text-muted mb-1">
+                            <i class="bi bi-people-fill me-2"></i>Équipe : <strong>@viewModel.EquipeInfo.TeamName</strong>
+                        </p>
+                        <p class="text-muted">
+                            <i class="bi bi-calendar3 me-2"></i>Date : <strong>@viewModel.DateEvenement.ToString("dd MMMM yyyy", new System.Globalization.CultureInfo("fr-FR"))</strong>
+                        </p>
+                    </div>
+                    
+                    <div>
+                        @if (isEventPastOrToday)
+                        {
+                            <span class="badge bg-success fs-6">
+                                <i class="bi bi-check-circle me-1"></i>Événement terminé
+                            </span>
+                        }
+                        else
+                        {
+                            <span class="badge bg-info fs-6">
+                                <i class="bi bi-clock me-1"></i>À venir
+                            </span>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Informations du restaurant et Participants en colonnes -->
+        <div class="row mb-4">
+            <!-- Informations du restaurant (Gauche) -->
+            <div class="col-lg-5 mb-4 mb-lg-0">
+                <div class="card shadow-sm h-100">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="mb-0">
+                            <i class="bi bi-shop me-2"></i>Informations du restaurant
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <p class="mb-3">
+                            <i class="bi bi-geo-alt-fill text-primary me-2"></i>
+                            <strong>Adresse :</strong><br />
+                            <span class="ms-4">@viewModel.RestaurantInfo.Adresse</span>
+                        </p>
+                        
+                        @if (!string.IsNullOrEmpty(viewModel.RestaurantInfo.LienGoogleMaps))
+                        {
+                            <a href="@viewModel.RestaurantInfo.LienGoogleMaps" target="_blank" class="btn btn-outline-primary btn-sm w-100">
+                                <i class="bi bi-map me-1"></i>Voir sur Google Maps
+                            </a>
+                        }
+                    </div>
+                </div>
+            </div>
+
+            <!-- Participants (Droite) -->
+            <div class="col-lg-7">
+                <div class="card shadow-sm h-100">
+                    <div class="card-header bg-success text-white">
+                        <h5 class="mb-0">
+                            <i class="bi bi-people-fill me-2"></i>Participants (@viewModel.ParticipantsInfo.Count)
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row g-3">
+                            @foreach (var participant in viewModel.ParticipantsInfo)
+                            {
+                                <div class="col-12">
+                                    <div class="participant-card p-3 border rounded @GetParticipantCardClass(participant.Status)">
+                                        <div class="d-flex align-items-center justify-content-between">
+                                            <div class="d-flex align-items-center">
+                                                <i class="@GetParticipantStatusIcon(participant.Status) fs-4 me-2"></i>
+                                                <div>
+                                                    <h6 class="mb-0">
+                                                        @if (participant.ParticipantName == viewModel.NomIniateur)
+                                                        {
+                                                            <i class="bi bi-star-fill text-warning me-1" title="Initiateur"></i>
+                                                        }
+                                                        @participant.ParticipantName
+                                                    </h6>
+                                                    <small class="text-muted">@GetStatusText(participant.Status)</small>
+                                                </div>
+                                            </div>
+                                            
+                                            @if (participant.Note.HasValue)
+                                            {
+                                                <div class="text-end">
+                                                    <div class="rating-display">
+                                                        <span class="badge bg-warning text-dark fs-6">
+                                                            <i class="bi bi-star-fill me-1"></i>@participant.Note!.Value.ToString("0.0")
+                                                        </span>
+                                                    </div>
+                                                    @if (participant.DateReview.HasValue)
+                                                    {
+                                                        <small class="text-muted d-block mt-1">
+                                                            Noté le @participant.DateReview.Value.ToString("dd/MM/yyyy")
+                                                        </small>
+                                                    }
+                                                </div>
+                                            }
+                                        </div>
+                                        
+                                        @if (!string.IsNullOrEmpty(participant.Commentaire))
+                                        {
+                                            <div class="mt-2 pt-2 border-top">
+                                                <small class="text-muted fst-italic">
+                                                    <i class="bi bi-chat-left-quote me-1"></i>@participant.Commentaire
+                                                </small>
+                                            </div>
+                                        }
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Section pour noter l'événement -->
+        @if (currentUserParticipant is not null 
+            && currentUserParticipant.Status is ParticipationStatus.Confirme)
+        {
+            <div class="row mb-4">
+                <div class="col-12">
+                    <div class="card shadow-sm border-primary">
+                        <div class="card-header bg-light">
+                            <h5 class="mb-0">
+                                <i class="bi bi-star me-2"></i>Ma notation
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            @if (!isEventPastOrToday)
+                            {
+                                <div class="alert alert-info mb-0">
+                                    <i class="bi bi-info-circle me-2"></i>
+                                    Vous pourrez noter ce restaurant une fois l'événement passé ou en cours.
+                                </div>
+                            }
+                            else if (hasUserRated)
+                            {
+                                <div class="alert alert-success mb-0">
+                                    <i class="bi bi-check-circle me-2"></i>
+                                    Vous avez déjà noté cet événement avec une note de <strong>@currentUserParticipant!.Note!.Value.ToString("0.0")</strong>/5.
+                                    <br />
+                                    <small class="text-muted">Il n'est pas possible de modifier votre note.</small>
+                                </div>
+                            }
+                            else
+                            {
+                                <form>
+                                    <div class="mb-3">
+                                        <label for="rating" class="form-label">Note <span class="text-danger">*</span></label>
+                                        <div class="rating-input">
+                                            <input type="number" 
+                                                   class="form-control" 
+                                                   id="rating" 
+                                                   @bind="_userRating"
+                                                   min="0" 
+                                                   max="5" 
+                                                   step="0.5"
+                                                   placeholder="Ex: 4.5" />
+                                            <small class="form-text text-muted">Note entre 0 et 5 (par demi-point)</small>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="mb-3">
+                                        <label for="comment" class="form-label">Commentaire</label>
+                                        <textarea class="form-control" 
+                                                  id="comment" 
+                                                  @bind="_userComment"
+                                                  rows="3"
+                                                  placeholder="Partagez votre expérience..."
+                                                  maxlength="500"></textarea>
+                                        <small class="text-muted">@(_userComment?.Length ?? 0) / 500 caractères</small>
+                                    </div>
+                                    
+                                    <button type="button" 
+                                            class="btn btn-primary" 
+                                            @onclick="HandleSubmitRating"
+                                            disabled="@(!_userRating.HasValue || _userRating < 0 || _userRating > 5)">
+                                        <i class="bi bi-send me-1"></i>Envoyer ma notation
+                                    </button>
+                                </form>
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+
+        <!-- Section photos -->
+        @if (viewModel.Photos.Any())
+        {
+            <div class="row mb-4">
+                <div class="col-12">
+                    <div class="card shadow-sm">
+                        <div class="card-header bg-warning text-dark">
+                            <h5 class="mb-0">
+                                <i class="bi bi-images me-2"></i>Photos de l'événement (@viewModel.Photos.Count())
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            @if (isEventPastOrToday 
+                                && currentUserParticipant?.Status is ParticipationStatus.Confirme)
+                            {
+                                <div class="alert alert-info mb-3">
+                                    <i class="bi bi-info-circle me-2"></i>
+                                    <strong>Fonctionnalité à venir :</strong> Vous pourrez bientôt ajouter vos propres photos de cette sortie !
+                                </div>
+                                
+                                <button class="btn btn-outline-primary mb-3" disabled>
+                                    <i class="bi bi-plus-circle me-1"></i>Ajouter une photo
+                                </button>
+                            }
+                            
+                            <!-- Galerie de photos -->
+                            <div class="row g-3">
+                                @foreach (var photoUrl in viewModel.Photos)
+                                {
+                                    <div class="col-md-4 col-lg-3">
+                                        <div class="photo-card">
+                                            <div class="ratio ratio-1x1">
+                                                <img src="@photoUrl" 
+                                                     alt="Photo de l'événement" 
+                                                     class="img-fluid rounded object-fit-cover"
+                                                     loading="lazy" />
+                                            </div>
+                                        </div>
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+        else if (isEventPastOrToday
+                && currentUserParticipant?.Status is ParticipationStatus.Confirme)
+        {
+            <!-- Aucune photo pour le moment -->
+            <div class="row mb-4">
+                <div class="col-12">
+                    <div class="card shadow-sm">
+                        <div class="card-header bg-warning text-dark">
+                            <h5 class="mb-0">
+                                <i class="bi bi-images me-2"></i>Photos de l'événement
+                            </h5>
+                        </div>
+                        <div class="card-body text-center py-5">
+                            <i class="bi bi-camera fs-1 text-muted mb-3 d-block"></i>
+                            <p class="text-muted mb-3">Aucune photo n'a encore été ajoutée pour cet événement.</p>
+                            
+                            <div class="alert alert-info d-inline-block">
+                                <i class="bi bi-info-circle me-2"></i>
+                                <strong>Fonctionnalité à venir :</strong> Vous pourrez bientôt ajouter des photos !
+                            </div>
+                            
+                            <div class="mt-3">
+                                <button class="btn btn-outline-primary" disabled>
+                                    <i class="bi bi-plus-circle me-1"></i>Ajouter une photo
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    }
+</div>

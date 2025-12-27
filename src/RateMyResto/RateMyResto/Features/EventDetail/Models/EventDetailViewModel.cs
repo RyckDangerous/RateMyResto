@@ -26,4 +26,9 @@ public sealed record EventDetailViewModel
     /// Nom de l'initiateur de l'événement.
     /// </summary>
     public required string NomIniateur { get; init; }
+
+    /// <summary>
+    /// Photos de l'événement.
+    /// </summary>
+    public required IEnumerable<string> Photos { get; init; }
 }

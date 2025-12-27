@@ -7,6 +7,7 @@ using RateMyResto.Features.Data;
 using RateMyResto.Features.DbMigration.Configurations;
 using RateMyResto.Features.DbMigration.Services;
 using RateMyResto.Features.Event.Configurations;
+using RateMyResto.Features.EventDetail.Configurations;
 using RateMyResto.Features.Shared.Configurations;
 using RateMyResto.Features.Team.Configurations;
 
@@ -65,6 +66,7 @@ try
     builder.Services.AddDbMigrationServices();
     builder.Services.AddTeamFeatures();
     builder.Services.AddEventFeatures();
+    builder.Services.AddEventDetailFeatures();
 
     WebApplication app = builder.Build();
 

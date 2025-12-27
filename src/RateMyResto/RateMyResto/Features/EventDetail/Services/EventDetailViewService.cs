@@ -27,13 +27,11 @@ public sealed class EventDetailViewService : ViewServiceBase, IEventDetailViewSe
         _eventDetailRepository = eventDetailRepository;
     }
 
-
-    public EventDetailViewModel ViewModel { get; private set; }
-
-
+    /// <inheritdoc />
+    public EventDetailViewModel? ViewModel { get; private set; }
 
 
-
+    /// <inheritdoc />
     public async Task LoadEvent(Guid idEvent)
     {
         _currentUserId = await GetCurrentUserIdAsync();
@@ -53,6 +51,37 @@ public sealed class EventDetailViewService : ViewServiceBase, IEventDetailViewSe
         }
 
         ViewModel = FillViewModel(resultDb.Value);
+        await RefreshUI();
+    }
+
+    /// <inheritdoc />
+    public async Task SubmitRatingAsync(Guid eventId, decimal rating, string? comment)
+    {
+        if (string.IsNullOrEmpty(_currentUserId))
+        {
+            _snackbarService.ShowError("Utilisateur non authentifié.");
+            return;
+        }
+
+        if (rating < 0 || rating > 5)
+        {
+            _snackbarService.ShowError("La note doit être comprise entre 0 et 5.");
+            return;
+        }
+
+        // TODO: Implémenter la méthode dans le repository pour sauvegarder la notation
+        // ResultOf result = await _eventDetailRepository.SaveRatingAsync(eventId, _currentUserId, rating, comment);
+        // 
+        // if (result.HasError)
+        // {
+        //     _snackbarService.ShowError("Erreur lors de l'enregistrement de votre notation.");
+        //     return;
+        // }
+
+        _snackbarService.ShowSuccess("Votre notation a été enregistrée avec succès !");
+        
+        // Recharger les données pour afficher la nouvelle notation
+        await LoadEvent(eventId);
     }
 
 
@@ -90,6 +119,17 @@ public sealed class EventDetailViewService : ViewServiceBase, IEventDetailViewSe
             })
             .ToList();
 
+        // TODO : Remplacer par la récupération réelle des photos
+        // Récupération des photos de l'événement
+        List<string> photos = new()
+        {
+            "https://woody.cloudly.space/app/uploads/bretagne-35/2020/06/thumbs/restaurant-jason-leung-unsplash-1920x960.jpg",
+            "https://woody.cloudly.space/app/uploads/bretagne-35/2020/06/thumbs/restaurant-jason-leung-unsplash-1920x960.jpg",
+            "https://woody.cloudly.space/app/uploads/bretagne-35/2020/06/thumbs/restaurant-jason-leung-unsplash-1920x960.jpg",
+            "https://woody.cloudly.space/app/uploads/bretagne-35/2020/06/thumbs/restaurant-jason-leung-unsplash-1920x960.jpg",
+            "https://woody.cloudly.space/app/uploads/bretagne-35/2020/06/thumbs/restaurant-jason-leung-unsplash-1920x960.jpg"
+        };
+
         // Création du ViewModel final
         EventDetailViewModel eventDetailViewModel = new()
         {
@@ -97,7 +137,8 @@ public sealed class EventDetailViewService : ViewServiceBase, IEventDetailViewSe
             RestaurantInfo = restaurantViewModel,
             ParticipantsInfo = participantViewModels,
             DateEvenement = value.DateEvenement,
-            NomIniateur = value.Initiateur
+            NomIniateur = value.Initiateur,
+            Photos = photos
         };
 
         return eventDetailViewModel;
