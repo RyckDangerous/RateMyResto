@@ -216,6 +216,58 @@ public sealed class EventViewService : ViewServiceBase
         await LoadEventsAsync();
     }
 
+    /// <summary>
+    /// Confirme la participation de l'utilisateur à un événement
+    /// </summary>
+    /// <param name="eventId">Identifiant de l'événement</param>
+    public async Task ConfirmParticipationAsync(int eventId)
+    {
+        UpdateStatusCommand command = new()
+        {
+            UserId = _currentUserId,
+            EventId = eventId,
+            Status = (byte) ParticipationStatus.Confirme
+        };
+
+        ResultOf updateResult = await _eventRepository.UpdateParticipationStatusAsync(command);
+
+        if (updateResult.HasError)
+        {
+            _snackbarService.ShowError("Erreur lors de la confirmation de la participation.");
+            return;
+        }
+
+        _snackbarService.ShowSuccess("Participation confirmée !");
+        await LoadEventsAsync();
+    }
+
+    /// <summary>
+    /// Décline la participation de l'utilisateur à un événement
+    /// </summary>
+    /// <param name="eventId">Identifiant de l'événement</param>
+    public async Task DeclineParticipationAsync(int eventId)
+    {
+        UpdateStatusCommand command = new()
+        {
+            UserId = _currentUserId,
+            EventId = eventId,
+            Status = (byte) ParticipationStatus.Decline
+        };
+
+        ResultOf updateResult = await _eventRepository.UpdateParticipationStatusAsync(command);
+
+        if (updateResult.HasError)
+        {
+            _snackbarService.ShowError("Erreur lors de la confirmation de la participation.");
+            return;
+        }
+
+        _snackbarService.ShowInfo("Participation déclinée.");
+        
+        // Recharger les événements pour mettre à jour l'affichage
+        await LoadEventsAsync();
+    }
+
     /// <inheritdoc />
     public async Task CreateEventAsync()
     {

@@ -217,6 +217,29 @@ BEGIN
 END
 GO
 
+--
+-- Permet de mettre à jour le statut de participation d'un utilisateur
+CREATE PROCEDURE sp_UpdateParticipationStatus
+    @UserId VARCHAR(450),
+    @EventId INT,
+    @StatusParticipationId TINYINT
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    UPDATE p
+    SET p.StatusParticipationId = @StatusParticipationId
+    FROM dbo.Participants p
+    INNER JOIN dbo.UserTeams ut
+       ON ut.Id = p.UserId
+    INNER JOIN dbo.EventRepas evt
+       ON evt.Id = @EventId
+      AND ut.TeamId = evt.TeamId
+    WHERE ut.UserId = @UserId
+      AND p.EventRepasId = @EventId;
+END
+GO
+
 -- #####################################################################################
 -- #################################################
 -- ## Gestion des restaurants

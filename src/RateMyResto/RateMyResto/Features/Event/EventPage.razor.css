@@ -24,6 +24,53 @@
     z-index: 10;
 }
 
+/* Badge de date - Variantes par statut */
+.badge-invite {
+    background: linear-gradient(135deg, #ffc107 0%, #ff9800 100%) !important;
+}
+
+.badge-confirme {
+    background: linear-gradient(135deg, #28a745 0%, #20c997 100%) !important;
+}
+
+.badge-decline {
+    background: linear-gradient(135deg, #dc3545 0%, #c82333 100%) !important;
+}
+
+.badge-absent {
+    background: linear-gradient(135deg, #6c757d 0%, #5a6268 100%) !important;
+}
+
+/* Bordures colorées des cartes par statut */
+.card-status-invite {
+    border-left: 4px solid #ffc107 !important;
+}
+
+.card-status-confirme {
+    border-left: 4px solid #28a745 !important;
+}
+
+.card-status-decline {
+    border-left: 4px solid #dc3545 !important;
+    opacity: 0.8;
+}
+
+.card-status-absent {
+    border-left: 4px solid #6c757d !important;
+    opacity: 0.75;
+}
+
+/* Effet supplémentaire pour les cartes déclinées/absentes */
+.card-status-decline .card-body,
+.card-status-absent .card-body {
+    background-color: #f8f9fa;
+}
+
+.card-status-decline .card-title,
+.card-status-absent .card-title {
+    opacity: 0.7;
+}
+
 .event-date-day {
     font-size: 1.75rem;
     font-weight: 700;

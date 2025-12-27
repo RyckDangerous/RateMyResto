@@ -19,7 +19,7 @@ public sealed class EventRepository : RepositoryBase<EventRepository>, IEventRep
     {
         SqlParameter[] parameters =
         {
-            new SqlParameter("@UserId", userId)
+            GetSqlParameterNVarchar("@UserId", userId)
         };
 
         ResultOf<List<EventByUserDb>> results = await ExecuteStoredProcedureWithJsonResultAsync<List<EventByUserDb>>(procName: "sp_GetEventsByUser",
@@ -40,10 +40,10 @@ public sealed class EventRepository : RepositoryBase<EventRepository>, IEventRep
         // sp_CreateEvent
         SqlParameter[] parameters =
         {
-            new SqlParameter("@TeamId", command.IdTeam),
-            new SqlParameter("@InitiateurId", command.IdInitiateur),
-            new SqlParameter("@RestaurantId", (object?)command.IdRestaurant ?? DBNull.Value),
-            new SqlParameter("@DateEvenement", command.DateEvent)
+            GetSqlParameterUniqueIdentifier("@TeamId", command.IdTeam),
+            GetSqlParameterInt("@InitiateurId", command.IdInitiateur),
+            GetSqlParameterInt("@RestaurantId", command.IdRestaurant),
+            GetSqlParameterDate("@DateEvenement", command.DateEvent)
         };
 
         return await ExecuteStoredProcedureAsync(procName: "sp_CreateEvent",
@@ -55,5 +55,20 @@ public sealed class EventRepository : RepositoryBase<EventRepository>, IEventRep
     {
         // Implementation for retrieving events
         return ResultOf.Success();
+    }
+
+    /// <inheritdoc />
+    public async Task<ResultOf> UpdateParticipationStatusAsync(UpdateStatusCommand command)
+    {
+        SqlParameter[] parameters =
+        {
+            GetSqlParameterNVarchar("@UserId", command.UserId),
+            GetSqlParameterInt("@EventId", command.EventId),
+            GetSqlParameterTinyInt("@StatusParticipationId", command.Status)
+        };
+
+        return await ExecuteStoredProcedureAsync(procName: "sp_UpdateParticipationStatus",
+                                                parameters: parameters);
+
     }
 }

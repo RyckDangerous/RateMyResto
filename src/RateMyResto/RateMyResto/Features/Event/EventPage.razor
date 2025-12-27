@@ -1,5 +1,6 @@
 @page "/events"
 @using RateMyResto.Features.Event.Services
+@using RateMyResto.Features.Event.Models.ViewModels
 @using Microsoft.AspNetCore.Authorization
 
 @rendermode InteractiveServer
@@ -38,10 +39,10 @@
                     @foreach (var eventCard in teamEvents.Events)
                     {
                         <div class="col">
-                            <div class="card h-100 shadow-sm hover-card">
+                            <div class="card h-100 shadow-sm hover-card @GetCardStatusClass(eventCard.Status)">
                                 <!-- Badge de date -->
                                 <div class="position-relative">
-                                    <div class="event-date-badge">
+                                    <div class="event-date-badge @GetDateBadgeClass(eventCard.Status)">
                                         <div class="event-date-day">@eventCard.DateEvent.Day</div>
                                         <div class="event-date-month">@eventCard.DateEvent.ToString("MMM", System.Globalization.CultureInfo.GetCultureInfo("fr-FR")).ToUpper()</div>
                                         <div class="event-date-year">@eventCard.DateEvent.Year</div>
@@ -60,19 +61,55 @@
                                         @eventCard.DateEvent.ToString("dddd d MMMM yyyy", System.Globalization.CultureInfo.GetCultureInfo("fr-FR"))
                                     </p>
 
-                                    <!-- Statut (à venir - pour l'instant simple) -->
+                                    <!-- Statut de participation -->
                                     <div class="mb-2">
-                                        <span class="badge bg-info">
-                                            <i class="bi bi-clock me-1"></i>À venir
-                                        </span>
+                                        @switch (eventCard.Status)
+                                        {
+                                            case ParticipationStatus.Invite:
+                                                <span class="badge bg-warning text-dark">
+                                                    <i class="bi bi-envelope me-1"></i>En attente de réponse
+                                                </span>
+                                                break;
+                                            case ParticipationStatus.Confirme:
+                                                <span class="badge bg-success">
+                                                    <i class="bi bi-check-circle me-1"></i>Confirmé
+                                                </span>
+                                                break;
+                                            case ParticipationStatus.Decline:
+                                                <span class="badge bg-danger">
+                                                    <i class="bi bi-x-circle me-1"></i>Décliné
+                                                </span>
+                                                break;
+                                            case ParticipationStatus.Absent:
+                                                <span class="badge bg-secondary">
+                                                    <i class="bi bi-dash-circle me-1"></i>Absent
+                                                </span>
+                                                break;
+                                        }
                                     </div>
                                 </div>
 
                                 <!-- Footer avec action -->
                                 <div class="card-footer bg-transparent border-top-0">
-                                    <button class="btn btn-outline-primary btn-sm w-100">
-                                        <i class="bi bi-eye me-1"></i>Voir les détails
-                                    </button>
+                                    @if (eventCard.Status == ParticipationStatus.Invite)
+                                    {
+                                        <div class="d-grid gap-2">
+                                            <button class="btn btn-success btn-sm" 
+                                                    @onclick="() => _viewService.ConfirmParticipationAsync(eventCard.IdEvent)">
+                                                <i class="bi bi-check-lg me-1"></i>Confirmer
+                                            </button>
+                                            <button class="btn btn-outline-danger btn-sm"
+                                                    @onclick="() => _viewService.DeclineParticipationAsync(eventCard.IdEvent)">
+                                                <i class="bi bi-x-lg me-1"></i>Décliner
+                                            </button>
+                                        </div>
+                                    }
+                                    else
+                                    {
+                                        <button class="btn btn-outline-primary btn-sm w-100">
+                                            <i class="bi bi-eye me-1"></i>Voir les détails
+                                        </button>
+                                    }
                                 </div>
                             </div>
                         </div>

@@ -655,6 +655,17 @@ public abstract class RepositoryBase<T>
     }
 
     /// <summary>
+    /// Permet de retourner un SqlParamter de type Short
+    /// </summary>
+    /// <param name="parameterName"></param>
+    /// <param name="value"></param>
+    /// <returns></returns>
+    protected SqlParameter GetSqlParameterTinyInt(string parameterName, short? value)
+    {
+        return new SqlParameter(parameterName, SqlDbType.TinyInt) { Value = value };
+    }
+
+    /// <summary>
     /// Permet de retourner un SqlParamter de type Varchar
     /// </summary>
     /// <param name="parameterName"></param>
@@ -729,6 +740,17 @@ public abstract class RepositoryBase<T>
     protected SqlParameter GetSqlParameterDateTime2(string parameterName, DateTime? value)
     {
         return new SqlParameter(parameterName, SqlDbType.DateTime2) { Value = value };
+    }
+
+    /// <summary>
+    /// Permet de retourner un SqlParameter de type DateTime2
+    /// </summary>
+    /// <param name="parameterName"></param>
+    /// <param name="value"></param>
+    /// <returns></returns>
+    protected SqlParameter GetSqlParameterDate(string parameterName, DateOnly? value)
+    {
+        return new SqlParameter(parameterName, SqlDbType.Date) { Value = value };
     }
 
     #endregion
