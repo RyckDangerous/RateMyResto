@@ -113,4 +113,23 @@ public partial class EventDetailPage : ComponentBase
             _ => "Inconnu"
         };
     }
+
+    /// <summary>
+    /// Obtient le texte de qualité en fonction de la note globale.
+    /// </summary>
+    /// <param name="rating"></param>
+    /// <returns></returns>
+    private static string GetRatingQuality(decimal rating)
+    {
+        return rating switch
+        {
+            >= 4.5m => "Excellente sortie ! 🎉",
+            >= 4.0m => "Très bonne expérience ! 😊",
+            >= 3.5m => "Bonne sortie ! 👍",
+            >= 3.0m => "Expérience correcte",
+            >= 2.5m => "Moyenne",
+            >= 2.0m => "Décevant",
+            _ => "À éviter"
+        };
+    }
 }

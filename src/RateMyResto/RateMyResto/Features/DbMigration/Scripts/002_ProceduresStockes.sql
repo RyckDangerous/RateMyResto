@@ -194,6 +194,7 @@ BEGIN
 
     SELECT evt.Id AS 'IdEvent',
            evt.DateEvenement AS 'DateEvent',
+           evt.Note AS 'NoteGlobale',
            resto.Id AS 'IdRestaurant',
            resto.Nom AS 'RestaurantName',
            part.StatusParticipationId AS 'ParticipationStatus',
@@ -211,7 +212,7 @@ BEGIN
     INNER JOIN dbo.Teams eq
        ON eq.Id = usrEq.TeamId
     WHERE usr.Id = @UserId
-    FOR JSON PATH;
+    FOR JSON PATH, INCLUDE_NULL_VALUES;
 END
 GO
 
@@ -276,6 +277,7 @@ BEGIN
     -- Récupération des informations de l'évènement
     SELECT evt.Id,
            evt.DateEvenement,
+           evt.Note AS 'NoteGlobale',
            rt.Nom AS 'NomRestaurant',
            rt.Adresse AS 'Adresse',
            rt.LienGoogleMaps AS 'LienGoogleMaps',
@@ -319,6 +321,22 @@ BEGIN
        ON ut.Id = p.UserId
     WHERE ut.UserId = @UserId
       AND p.EventRepasId = @EventId;
+END
+GO
+
+-- #################################################
+-- Permet de sauvegarder la note globale d'un évènement
+CREATE PROCEDURE sp_UpdateEventGlobalRating
+    @EventId UNIQUEIDENTIFIER,
+    @NoteGlobale DECIMAL(2,1)
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    UPDATE evt
+    SET evt.Note = @NoteGlobale
+    FROM dbo.EventRepas evt
+    WHERE evt.Id = @EventId;
 END
 GO
 

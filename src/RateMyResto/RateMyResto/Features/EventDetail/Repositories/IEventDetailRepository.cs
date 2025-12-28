@@ -18,4 +18,11 @@ public interface IEventDetailRepository
     /// <param name="ratingCommand"></param>
     /// <returns></returns>
     Task<ResultOf> SaveRatingAsync(RatingCommand ratingCommand);
+
+    /// <summary>
+    /// Met à jour la note globale d'un événement
+    /// </summary>
+    /// <param name="globalRatingCommand"></param>
+    /// <returns></returns>
+    Task<ResultOf> UpdateGlobalRatingAsync(GlobalRatingCommand globalRatingCommand);
 }

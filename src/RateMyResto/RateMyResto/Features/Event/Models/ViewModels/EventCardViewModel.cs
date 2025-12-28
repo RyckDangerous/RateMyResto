@@ -26,4 +26,9 @@ public sealed record EventCardViewModel
     /// Statut de participation de l'utilisateur à l'événement
     /// </summary>
     public required ParticipationStatus Status { get; set; }
+
+    /// <summary>
+    /// Note globale de l'événement
+    /// </summary>
+    public required decimal? NoteEvenement { get; init; }
 }

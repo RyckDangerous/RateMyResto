@@ -13,6 +13,11 @@ public sealed record EventByUserDb
     public required DateOnly DateEvent { get; init; }
 
     /// <summary>
+    /// Note globale de l'événement
+    /// </summary>
+    public required decimal? NoteGlobale { get; init; }
+
+    /// <summary>
     /// Identifiant du restaurant
     /// </summary>
     public required int IdRestaurant { get; init; }

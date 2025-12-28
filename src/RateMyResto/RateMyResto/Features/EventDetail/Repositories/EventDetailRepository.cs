@@ -41,4 +41,17 @@ public sealed class EventDetailRepository : RepositoryBase<EventDetailRepository
         return await ExecuteStoredProcedureAsync(procName: "sp_SaveParticipantReview",
                                                 parameters: sqlParameters);
     }
+
+    /// <inheritdoc />
+    public async Task<ResultOf> UpdateGlobalRatingAsync(GlobalRatingCommand globalRatingCommand)
+    {
+        SqlParameter[] sqlParameters =
+        {
+            GetSqlParameterUniqueIdentifier("@EventId", globalRatingCommand.EventId),
+            GetSqlParameterDecimal("@NoteGlobale", globalRatingCommand.Rating)
+        };
+
+        return await ExecuteStoredProcedureAsync(procName: "sp_UpdateEventGlobalRating",
+                                                parameters: sqlParameters);
+    }
 }

@@ -8,6 +8,7 @@ using RateMyResto.Features.EventDetail.Repositories;
 using RateMyResto.Features.Shared.Components.SnackbarComponent;
 using RateMyResto.Features.Shared.Converters;
 using RateMyResto.Features.Shared.Services;
+using System.Threading.Tasks;
 
 namespace RateMyResto.Features.EventDetail.Services;
 
@@ -65,7 +66,7 @@ public sealed class EventDetailViewService : ViewServiceBase, IEventDetailViewSe
             return;
         }
 
-        ViewModel = FillViewModel(resultDb.Value);
+        ViewModel = await FillViewModel(resultDb.Value);
         await RefreshUI();
     }
 
@@ -98,7 +99,7 @@ public sealed class EventDetailViewService : ViewServiceBase, IEventDetailViewSe
     /// </summary>
     /// <param name="value"></param>
     /// <returns></returns>
-    private EventDetailViewModel FillViewModel(EventDetailDb value)
+    private async Task<EventDetailViewModel> FillViewModel(EventDetailDb value)
     {
         // Infos équipe
         EquipeViewModel equipeViewModel = new()
@@ -126,18 +127,48 @@ public sealed class EventDetailViewService : ViewServiceBase, IEventDetailViewSe
             })
             .ToList();
 
-        // Masquer ou non les notes.
-        // Masquer les notes tant que tout le monde n'a pas voté.
-        bool haveOneNote = participantViewModels.Any(p => p.Note.HasValue);
-
-        if (haveOneNote 
-            && participantViewModels.Any(p => !p.Note.HasValue))
+        // Si une note globale n'est pas présente
+        // tout le monde n'a pas encore voté
+        if (!value.NoteGlobale.HasValue)
         {
-            foreach (ParticipantViewModel participant in participantViewModels)
+            // Masquer ou non les notes.
+            // Masquer les notes tant que tout le monde n'a pas voté.
+            bool haveOneNote = participantViewModels.Any(p => p.Note.HasValue);
+
+            if (haveOneNote
+                && participantViewModels.Any(p => !p.Note.HasValue))
             {
-                if(participant.Note.HasValue)
+                foreach (ParticipantViewModel participant in participantViewModels)
                 {
-                    participant.HideNote = true;
+                    if (participant.Note.HasValue)
+                    {
+                        participant.HideNote = true;
+                    }
+                }
+            }
+            else
+            {
+                // Tous les participants ont noté
+                bool allHaveNote = participantViewModels.All(p => p.Note.HasValue);
+                if (allHaveNote)
+                {
+                    // Calcul de la note globale
+                    decimal totalNotes = participantViewModels.Sum(p => p.Note ?? 0);
+                    value.NoteGlobale = Math.Round(totalNotes / participantViewModels.Count, 2);
+
+                    // sauvegarde de la note globale
+                    GlobalRatingCommand globalRatingCommand = new()
+                    {
+                        EventId = _idEvent,
+                        Rating = value.NoteGlobale.Value
+                    };
+
+                    ResultOf globalRatingResult = await _eventDetailRepository.UpdateGlobalRatingAsync(globalRatingCommand);
+
+                    if (globalRatingResult.HasError)
+                    {
+                        _snackbarService.ShowError("Erreur lors de la mise à jour de la note globale.");
+                    }
                 }
             }
         }
@@ -161,9 +192,11 @@ public sealed class EventDetailViewService : ViewServiceBase, IEventDetailViewSe
             ParticipantsInfo = participantViewModels,
             DateEvenement = value.DateEvenement,
             NomIniateur = value.Initiateur,
-            Photos = photos
+            Photos = photos,
+            NoteGlobale = value.NoteGlobale
         };
 
         return eventDetailViewModel;
     }
+
 }

@@ -31,4 +31,9 @@ public sealed record EventDetailViewModel
     /// Photos de l'événement.
     /// </summary>
     public required IEnumerable<string> Photos { get; init; }
+
+    /// <summary>
+    /// Note globale de l'événement.
+    /// </summary>
+    public required decimal? NoteGlobale { get; init; }
 }

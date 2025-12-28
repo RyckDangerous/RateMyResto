@@ -71,6 +71,74 @@
             </div>
         </div>
 
+        <!-- Note globale du restaurant -->
+        @if (viewModel.NoteGlobale.HasValue)
+        {
+            <div class="row mb-4">
+                <div class="col-12">
+                    <div class="card shadow-lg border-0 global-rating-card">
+                        <div class="card-body text-center py-4">
+                            <div class="row align-items-center">
+                                <div class="col-md-4">
+                                    <div class="global-rating-display">
+                                        <div class="rating-number">
+                                            @viewModel.NoteGlobale.Value.ToString("0.0")
+                                        </div>
+                                        <div class="rating-stars">
+                                            @for (int i = 1; i <= 5; i++)
+                                            {
+                                                @if (i <= Math.Floor((double)viewModel.NoteGlobale.Value))
+                                                {
+                                                    <i class="bi bi-star-fill text-warning"></i>
+                                                }
+                                                else if (i - 0.5 <= (double)viewModel.NoteGlobale.Value)
+                                                {
+                                                    <i class="bi bi-star-half text-warning"></i>
+                                                }
+                                                else
+                                                {
+                                                    <i class="bi bi-star text-warning"></i>
+                                                }
+                                            }
+                                        </div>
+                                        <div class="rating-label text-muted mt-2">
+                                            <small>Note globale de la sortie</small>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-8 text-start">
+                                    <h5 class="mb-3">
+                                        <i class="bi bi-trophy-fill text-warning me-2"></i>
+                                        @GetRatingQuality(viewModel.NoteGlobale.Value)
+                                    </h5>
+                                    <p class="text-muted mb-0">
+                                        <i class="bi bi-info-circle me-2"></i>
+                                        Cette note représente la moyenne des avis de tous les participants présents à cet événement.
+                                    </p>
+                                    <small class="text-muted">
+                                        Basée sur @viewModel.ParticipantsInfo.Count(p => p.Note.HasValue) 
+                                        @(viewModel.ParticipantsInfo.Count(p => p.Note.HasValue) > 1 ? "avis" : "avis")
+                                    </small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+        else if (isEventPastOrToday && viewModel.ParticipantsInfo.Any(p => p.Status == ParticipationStatus.Confirme))
+        {
+            <!-- Aucune note globale pour le moment -->
+            <div class="row mb-4">
+                <div class="col-12">
+                    <div class="alert alert-info text-center">
+                        <i class="bi bi-hourglass-split me-2"></i>
+                        <strong>En attente des notations</strong> - La note globale s'affichera une fois que tous les participants auront voté.
+                    </div>
+                </div>
+            </div>
+        }
+
         <!-- Informations du restaurant et Participants en colonnes -->
         <div class="row mb-4">
             <!-- Informations du restaurant (Gauche) -->

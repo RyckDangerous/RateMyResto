@@ -55,6 +55,7 @@ CREATE TABLE dbo.EventRepas
     InitiateurId INT NOT NULL, -- Référence à UserTeams.Id
     RestaurantId INT NOT NULL,
     DateEvenement DATE NOT NULL,
+    Note DECIMAL(2,1) NULL,
 
     CONSTRAINT FK_EventRepas_To_Teams
         FOREIGN KEY (TeamId) REFERENCES dbo.Teams(Id),

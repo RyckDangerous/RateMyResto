@@ -1,3 +1,5 @@
+using System.Text.Json.Serialization;
+
 namespace RateMyResto.Features.EventDetail.Models.DbModels;
 
 /// <summary>
@@ -47,4 +49,9 @@ public sealed record EventDetailDb
     /// Nom de la personne qui a initié l'événement.
     /// </summary>
     public required string Initiateur { get; init; }
+
+    /// <summary>
+    /// Note globale moyenne de l'événement.
+    /// </summary>
+    public decimal? NoteGlobale { get; set; }
 }

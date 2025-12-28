@@ -382,7 +382,8 @@ public sealed class EventViewService : ViewServiceBase, IEventViewService
                 IdEvent = item.IdEvent,
                 DateEvent = item.DateEvent,
                 NomDuRestaurant = item.RestaurantName,
-                Status = status
+                Status = status,
+                NoteEvenement = item.NoteGlobale
             };
 
             EventByTeamViewModel? currentEvent = eventByTeam.FirstOrDefault(x => x.IdEquipe == item.IdEquipe);
