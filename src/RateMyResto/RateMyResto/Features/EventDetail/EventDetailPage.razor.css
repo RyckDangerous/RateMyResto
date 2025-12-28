@@ -29,6 +29,24 @@
     max-width: 150px;
 }
 
+/* Styles pour les votes cachés */
+.vote-hidden {
+    animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+    0%, 100% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.7;
+    }
+}
+
+.vote-hidden .badge {
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
 /* Styles pour les photos */
 .photo-card {
     position: relative;
