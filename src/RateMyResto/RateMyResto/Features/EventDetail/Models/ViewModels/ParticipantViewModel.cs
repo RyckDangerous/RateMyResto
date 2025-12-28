@@ -28,4 +28,9 @@ public sealed record ParticipantViewModel
     /// Date de la revue.
     /// </summary>
     public required DateOnly? DateReview { get; init; }
+
+    /// <summary>
+    /// Indique si la note doit être masquée.
+    /// </summary>
+    public bool HideNote { get; set; }
 }

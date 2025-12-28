@@ -126,6 +126,22 @@ public sealed class EventDetailViewService : ViewServiceBase, IEventDetailViewSe
             })
             .ToList();
 
+        // Masquer ou non les notes.
+        // Masquer les notes tant que tout le monde n'a pas voté.
+        bool haveOneNote = participantViewModels.Any(p => p.Note.HasValue);
+
+        if (haveOneNote 
+            && participantViewModels.Any(p => !p.Note.HasValue))
+        {
+            foreach (ParticipantViewModel participant in participantViewModels)
+            {
+                if(participant.Note.HasValue)
+                {
+                    participant.HideNote = true;
+                }
+            }
+        }
+
         // TODO : Remplacer par la récupération réelle des photos
         // Récupération des photos de l'événement
         List<string> photos = new()
