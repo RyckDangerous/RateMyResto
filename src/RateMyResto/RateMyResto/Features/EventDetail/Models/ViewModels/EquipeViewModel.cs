@@ -1,4 +1,4 @@
-namespace RateMyResto.Features.EventDetail.Models;
+namespace RateMyResto.Features.EventDetail.Models.ViewModels;
 
 public sealed record EquipeViewModel
 {

@@ -1,4 +1,5 @@
-using RateMyResto.Features.EventDetail.Models;
+using RateMyResto.Features.EventDetail.Models.InputModels;
+using RateMyResto.Features.EventDetail.Models.ViewModels;
 
 namespace RateMyResto.Features.EventDetail.Services;
 
@@ -10,6 +11,11 @@ public interface IEventDetailViewService
     EventDetailViewModel? ViewModel { get; }
 
     /// <summary>
+    /// Les entrées de notation de l'événement par l'utilisateur.
+    /// </summary>
+    EventRatingInput RatingInput { get; }
+
+    /// <summary>
     /// Charge les détails de l'événement.
     /// </summary>
     /// <param name="idEvent"></param>
@@ -19,9 +25,5 @@ public interface IEventDetailViewService
     /// <summary>
     /// Soumet la notation d'un utilisateur pour l'événement.
     /// </summary>
-    /// <param name="eventId">ID de l'événement</param>
-    /// <param name="rating">Note entre 0 et 5</param>
-    /// <param name="comment">Commentaire optionnel</param>
-    /// <returns></returns>
-    Task SubmitRatingAsync(Guid eventId, decimal rating, string? comment);
+    Task SubmitRatingAsync();
 }

@@ -297,6 +297,31 @@ BEGIN
 END
 GO
 
+-- #################################################
+-- Permet de sauvegarder la revue
+-- d'un participant pour un évènement
+CREATE PROCEDURE sp_SaveParticipantReview
+    @EventId UNIQUEIDENTIFIER,
+    @UserId VARCHAR(450),
+    @Note DECIMAL(2,1),
+    @DateReview DATE,
+    @Commentaire NVARCHAR(1000) = NULL
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    UPDATE p
+    SET p.Note = @Note,
+        p.Commentaire = @Commentaire,
+        p.DateReview = @DateReview
+    FROM dbo.Participants p
+    INNER JOIN dbo.UserTeams ut
+       ON ut.Id = p.UserId
+    WHERE ut.UserId = @UserId
+      AND p.EventRepasId = @EventId;
+END
+GO
+
 -- #####################################################################################
 -- #################################################
 -- ## Gestion des restaurants

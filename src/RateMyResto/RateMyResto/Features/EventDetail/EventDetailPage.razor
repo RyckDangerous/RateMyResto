@@ -1,4 +1,5 @@
 @page "/event/detail/{EventId:guid}"
+
 @using RateMyResto.Features.EventDetail.Services
 @using RateMyResto.Features.EventDetail.Models
 @using RateMyResto.Features.Shared.Models
@@ -25,6 +26,8 @@
         var isEventPastOrToday = viewModel.DateEvenement <= DateOnly.FromDateTime(DateTime.Today);
         var currentUserParticipant = viewModel.ParticipantsInfo.FirstOrDefault(p => p.ParticipantName == _currentUserName);
         var hasUserRated = currentUserParticipant?.Note.HasValue ?? false;
+
+        var inputRating = _viewService.RatingInput;
 
         <!-- Header avec informations principales -->
         <div class="row mb-4">
@@ -197,7 +200,7 @@
                                             <input type="number" 
                                                    class="form-control" 
                                                    id="rating" 
-                                                   @bind="_userRating"
+                                                   @bind="inputRating.Rating"
                                                    min="0" 
                                                    max="5" 
                                                    step="0.5"
@@ -210,17 +213,17 @@
                                         <label for="comment" class="form-label">Commentaire</label>
                                         <textarea class="form-control" 
                                                   id="comment" 
-                                                  @bind="_userComment"
+                                                  @bind="inputRating.Comment"
                                                   rows="3"
                                                   placeholder="Partagez votre expérience..."
                                                   maxlength="500"></textarea>
-                                        <small class="text-muted">@(_userComment?.Length ?? 0) / 500 caractères</small>
+                                        <small class="text-muted">@(inputRating.Comment?.Length ?? 0) / 500 caractères</small>
                                     </div>
                                     
                                     <button type="button" 
                                             class="btn btn-primary" 
                                             @onclick="HandleSubmitRating"
-                                            disabled="@(!_userRating.HasValue || _userRating < 0 || _userRating > 5)">
+                                            disabled="@(!inputRating.Rating.HasValue || inputRating.Rating < 0 || inputRating.Rating > 5)">
                                         <i class="bi bi-send me-1"></i>Envoyer ma notation
                                     </button>
                                 </form>

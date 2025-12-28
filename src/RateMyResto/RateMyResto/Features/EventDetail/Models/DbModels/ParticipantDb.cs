@@ -1,4 +1,4 @@
-namespace RateMyResto.Features.EventDetail.Models;
+namespace RateMyResto.Features.EventDetail.Models.DbModels;
 
 /// <summary>
 /// Représente un participant à un événement avec ses informations et son éventuelle évaluation.

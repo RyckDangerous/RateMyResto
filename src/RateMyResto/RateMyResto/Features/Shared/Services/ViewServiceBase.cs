@@ -23,17 +23,24 @@ public abstract class ViewServiceBase
     /// Récupère l'ID de l'utilisateur actuellement authentifié.
     /// </summary>
     /// <returns></returns>
-    protected async Task<string?> GetCurrentUserIdAsync()
+    protected async Task<string> GetCurrentUserIdAsync()
     {
         AuthenticationState authState = await _authStateProvider.GetAuthenticationStateAsync();
         ClaimsPrincipal user = authState.User;
 
         if (!user.Identity?.IsAuthenticated ?? true)
         {
-            return null;
+            return string.Empty;
         }
 
-        return user.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+        string? userId = user.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+
+        if(string.IsNullOrEmpty(userId))
+        {
+            return string.Empty;
+        }
+
+        return userId;
     }
 
     /// <summary>

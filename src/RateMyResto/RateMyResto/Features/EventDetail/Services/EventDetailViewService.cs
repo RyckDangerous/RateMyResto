@@ -1,5 +1,9 @@
 using Microsoft.AspNetCore.Components.Authorization;
-using RateMyResto.Features.EventDetail.Models;
+using RateMyResto.Features.EventDetail.Converters;
+using RateMyResto.Features.EventDetail.Models.Commands;
+using RateMyResto.Features.EventDetail.Models.DbModels;
+using RateMyResto.Features.EventDetail.Models.InputModels;
+using RateMyResto.Features.EventDetail.Models.ViewModels;
 using RateMyResto.Features.EventDetail.Repositories;
 using RateMyResto.Features.Shared.Components.SnackbarComponent;
 using RateMyResto.Features.Shared.Converters;
@@ -12,7 +16,12 @@ public sealed class EventDetailViewService : ViewServiceBase, IEventDetailViewSe
     /// <summary>
     /// L'Id de l'utilisateur courant.
     /// </summary>
-    private string? _currentUserId = string.Empty;
+    private string _currentUserId = string.Empty;
+
+    /// <summary>
+    /// L'Id de l'événement courant.
+    /// </summary>
+    private Guid _idEvent;
 
     private readonly ISnackbarService _snackbarService;
     private readonly IEventDetailRepository _eventDetailRepository;
@@ -25,15 +34,21 @@ public sealed class EventDetailViewService : ViewServiceBase, IEventDetailViewSe
     {
         _snackbarService = snackbarService;
         _eventDetailRepository = eventDetailRepository;
+
+        RatingInput = new EventRatingInput();
     }
 
     /// <inheritdoc />
     public EventDetailViewModel? ViewModel { get; private set; }
 
+    /// <inheritdoc />
+    public EventRatingInput RatingInput { get; private set; }
+
 
     /// <inheritdoc />
     public async Task LoadEvent(Guid idEvent)
     {
+        _idEvent = idEvent;
         _currentUserId = await GetCurrentUserIdAsync();
 
         if (string.IsNullOrEmpty(_currentUserId))
@@ -55,42 +70,34 @@ public sealed class EventDetailViewService : ViewServiceBase, IEventDetailViewSe
     }
 
     /// <inheritdoc />
-    public async Task SubmitRatingAsync(Guid eventId, decimal rating, string? comment)
+    public async Task SubmitRatingAsync()
     {
-        if (string.IsNullOrEmpty(_currentUserId))
-        {
-            _snackbarService.ShowError("Utilisateur non authentifié.");
-            return;
-        }
-
-        if (rating < 0 || rating > 5)
+        if (RatingInput.Rating < 0 || RatingInput.Rating > 5)
         {
             _snackbarService.ShowError("La note doit être comprise entre 0 et 5.");
             return;
         }
 
-        // TODO: Implémenter la méthode dans le repository pour sauvegarder la notation
-        // ResultOf result = await _eventDetailRepository.SaveRatingAsync(eventId, _currentUserId, rating, comment);
-        // 
-        // if (result.HasError)
-        // {
-        //     _snackbarService.ShowError("Erreur lors de l'enregistrement de votre notation.");
-        //     return;
-        // }
+        RatingCommand ratingCommand = RatingInputConverters.ToCommand(RatingInput, _idEvent, _currentUserId);
+
+        ResultOf result = await _eventDetailRepository.SaveRatingAsync(ratingCommand);
+        if (result.HasError)
+        {
+            _snackbarService.ShowError("Erreur lors de l'enregistrement de votre notation.");
+            return;
+        }
 
         _snackbarService.ShowSuccess("Votre notation a été enregistrée avec succès !");
         
         // Recharger les données pour afficher la nouvelle notation
-        await LoadEvent(eventId);
+        await LoadEvent(_idEvent);
     }
-
 
     /// <summary>
     /// Remplit le ViewModel à partir du modèle de données.
     /// </summary>
     /// <param name="value"></param>
     /// <returns></returns>
-    /// <exception cref="NotImplementedException"></exception>
     private EventDetailViewModel FillViewModel(EventDetailDb value)
     {
         // Infos équipe

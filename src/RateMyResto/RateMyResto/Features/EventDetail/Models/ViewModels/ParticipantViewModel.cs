@@ -1,6 +1,6 @@
 using RateMyResto.Features.Shared.Models;
 
-namespace RateMyResto.Features.EventDetail.Models;
+namespace RateMyResto.Features.EventDetail.Models.ViewModels;
 
 public sealed record ParticipantViewModel
 {

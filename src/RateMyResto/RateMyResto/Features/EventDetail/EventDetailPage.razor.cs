@@ -16,8 +16,8 @@ public partial class EventDetailPage : ComponentBase
     [Inject]
     private Microsoft.AspNetCore.Components.Authorization.AuthenticationStateProvider AuthenticationStateProvider { get; set; } = default!;
 
-    private decimal? _userRating;
-    private string? _userComment;
+    //private decimal? _userRating;
+    //private string? _userComment;
     private string? _currentUserName;
 
     /// <summary>
@@ -47,18 +47,18 @@ public partial class EventDetailPage : ComponentBase
     /// <returns></returns>
     private async Task HandleSubmitRating()
     {
-        if (!_userRating.HasValue 
-            || _userRating < 0 
-            || _userRating > 5)
+        if (!_viewService.RatingInput.Rating.HasValue 
+            || _viewService.RatingInput.Rating < 0 
+            || _viewService.RatingInput.Rating > 5)
         {
             return;
         }
 
-        await _viewService.SubmitRatingAsync(EventId, _userRating.Value, _userComment);
-        
+        await _viewService.SubmitRatingAsync();
+
         // Réinitialiser les champs
-        _userRating = null;
-        _userComment = null;
+        _viewService.RatingInput.Rating = null;
+        _viewService.RatingInput.Comment = null;
         
         StateHasChanged();
     }

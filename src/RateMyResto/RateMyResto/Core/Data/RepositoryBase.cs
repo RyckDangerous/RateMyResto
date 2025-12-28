@@ -710,6 +710,20 @@ public abstract class RepositoryBase<T>
     }
 
     /// <summary>
+    /// Permet de retourner un SqlParameter de type NVarChar (pour les chaînes Unicode, notamment JSON)
+    /// </summary>
+    /// <param name="parameterName"></param>
+    /// <param name="value"></param>
+    /// <returns></returns>
+    protected SqlParameter GetSqlParameterNVarchar(string parameterName, string? value, int size)
+    {
+        return new SqlParameter(parameterName, SqlDbType.NVarChar, size) 
+        { 
+            Value = value
+        };
+    }
+
+    /// <summary>
     /// Permet de retourner un SqlParameter de type Bit (booléen)
     /// </summary>
     /// <param name="parameterName"></param>

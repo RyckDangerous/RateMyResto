@@ -65,7 +65,7 @@ public sealed class TeamViewService : ViewServiceBase, ITeamViewService
     {
         ViewModel.IsLoading = true;
 
-        string? userId = await GetCurrentUserIdAsync();
+        string userId = await GetCurrentUserIdAsync();
 
         if (string.IsNullOrEmpty(userId))
         {
@@ -127,7 +127,7 @@ public sealed class TeamViewService : ViewServiceBase, ITeamViewService
         if (ViewModel.SelectedTeam is null)
             return;
 
-        string? currentUserId = await GetCurrentUserIdAsync();
+        string currentUserId = await GetCurrentUserIdAsync();
 
         if (string.IsNullOrEmpty(currentUserId))
         {
@@ -349,7 +349,7 @@ public sealed class TeamViewService : ViewServiceBase, ITeamViewService
         ViewModel.IsLoading = true;
         ViewModel.ErrorMessage = null;
 
-        string? userId = await GetCurrentUserIdAsync();
+        string userId = await GetCurrentUserIdAsync();
 
         if (string.IsNullOrEmpty(userId))
         {
@@ -387,7 +387,7 @@ public sealed class TeamViewService : ViewServiceBase, ITeamViewService
     /// <returns></returns>
     private async Task LeaveTeamAsync(Guid teamId)
     {
-        string? userId = await GetCurrentUserIdAsync();
+        string userId = await GetCurrentUserIdAsync();
 
         if (string.IsNullOrEmpty(userId))
         {
@@ -435,7 +435,7 @@ public sealed class TeamViewService : ViewServiceBase, ITeamViewService
     {
         ViewModel.IsLoading = true;
 
-        string? userId = await GetCurrentUserIdAsync();
+        string userId = await GetCurrentUserIdAsync();
 
         if (string.IsNullOrEmpty(userId))
         {
