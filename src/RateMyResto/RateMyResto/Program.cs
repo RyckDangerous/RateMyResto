@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.FileProviders;
 using RateMyResto.Features;
 using RateMyResto.Features.Account;
 using RateMyResto.Features.Data;
@@ -106,6 +107,19 @@ try
     app.MapStaticAssets();
     app.MapRazorComponents<App>()
         .AddInteractiveServerRenderMode();
+
+    // Répertoire personnalisé pour les fichiers statiques (images)
+    string pathImages = Path.Combine(Directory.GetCurrentDirectory(), "img");
+    if (!Directory.Exists(pathImages))
+    {
+        Directory.CreateDirectory(pathImages);
+    }
+
+    app.UseStaticFiles(new StaticFileOptions
+    {
+        FileProvider = new PhysicalFileProvider(pathImages),
+        RequestPath = "/img"
+    });
 
     // Add additional endpoints required by the Identity /Account Razor components.
     app.MapAdditionalIdentityEndpoints();

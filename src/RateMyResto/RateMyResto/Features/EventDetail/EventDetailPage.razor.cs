@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Components.Forms;
 using RateMyResto.Features.EventDetail.Services;
 using RateMyResto.Features.Shared.Models;
 using RateMyResto.Features.Shared.Services;
@@ -16,8 +17,6 @@ public partial class EventDetailPage : ComponentBase
     [Inject]
     private Microsoft.AspNetCore.Components.Authorization.AuthenticationStateProvider AuthenticationStateProvider { get; set; } = default!;
 
-    //private decimal? _userRating;
-    //private string? _userComment;
     private string? _currentUserName;
 
     /// <summary>
@@ -60,6 +59,17 @@ public partial class EventDetailPage : ComponentBase
         _viewService.RatingInput.Rating = null;
         _viewService.RatingInput.Comment = null;
         
+        StateHasChanged();
+    }
+
+    /// <summary>
+    /// Gère l'upload d'une photo.
+    /// </summary>
+    /// <param name="photo">Photo sélectionnée</param>
+    /// <returns></returns>
+    private async Task HandlePhotoUpload(IBrowserFile photo)
+    {
+        await _viewService.UploadPhotoAsync(photo);
         StateHasChanged();
     }
 

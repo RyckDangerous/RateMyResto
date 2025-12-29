@@ -26,4 +26,10 @@ public interface IEventDetailViewService
     /// Soumet la notation d'un utilisateur pour l'événement.
     /// </summary>
     Task SubmitRatingAsync();
+
+    /// <summary>
+    /// Upload d'une photo pour l'événement.
+    /// </summary>
+    /// <param name="photo">Fichier photo à uploader</param>
+    Task UploadPhotoAsync(Microsoft.AspNetCore.Components.Forms.IBrowserFile photo);
 }

@@ -2,6 +2,7 @@
 
 @using RateMyResto.Features.EventDetail.Services
 @using RateMyResto.Features.EventDetail.Models
+@using RateMyResto.Features.EventDetail.Components
 @using RateMyResto.Features.Shared.Models
 @using Microsoft.AspNetCore.Authorization
 
@@ -339,8 +340,66 @@
         }
 
         <!-- Section photos -->
-        @if (viewModel.Photos.Any())
+        @if (isEventPastOrToday && currentUserParticipant?.Status is ParticipationStatus.Confirme)
         {
+            <div class="row mb-4">
+                <div class="col-12">
+                    <div class="card shadow-sm">
+                        <div class="card-header bg-warning text-dark">
+                            <h5 class="mb-0">
+                                <i class="bi bi-images me-2"></i>Photos de l'événement
+                                @if (viewModel.Photos.Any())
+                                {
+                                    <span>(@viewModel.Photos.Count())</span>
+                                }
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            
+                            @if (viewModel.Photos.Any())
+                            {
+                                <hr class="my-4" />
+                                
+                                <!-- Galerie de photos -->
+                                <h6 class="mb-3">
+                                    <i class="bi bi-images me-2"></i>Galerie
+                                </h6>
+                                <div class="row g-3">
+                                    @foreach (var photoUrl in viewModel.Photos)
+                                    {
+                                        <div class="col-md-4 col-lg-3">
+                                            <div class="photo-card">
+                                                <div class="ratio ratio-1x1">
+                                                    <img src="@photoUrl"
+                                                         alt="Photo de l'événement"
+                                                         class="img-fluid rounded object-fit-cover"
+                                                         loading="lazy" />
+                                                </div>
+                                            </div>
+                                        </div>
+                                    }
+                                </div>
+                            }
+                            else
+                            {
+                                <hr class="my-4" />
+                                
+                                <div class="text-center py-4">
+                                    <i class="bi bi-camera display-1 text-muted"></i>
+                                    <p class="text-muted mt-3">
+                                        Aucune photo n'a encore été ajoutée pour cet événement.<br />
+                                        Soyez le premier à partager vos souvenirs !
+                                    </p>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+        else if (viewModel.Photos.Any())
+        {
+            <!-- Affichage en lecture seule si l'événement est futur ou si l'utilisateur n'a pas confirmé -->
             <div class="row mb-4">
                 <div class="col-12">
                     <div class="card shadow-sm">
@@ -350,28 +409,14 @@
                             </h5>
                         </div>
                         <div class="card-body">
-                            @if (isEventPastOrToday 
-                                && currentUserParticipant?.Status is ParticipationStatus.Confirme)
-                            {
-                                <div class="alert alert-info mb-3">
-                                    <i class="bi bi-info-circle me-2"></i>
-                                    <strong>Fonctionnalité à venir :</strong> Vous pourrez bientôt ajouter vos propres photos de cette sortie !
-                                </div>
-                                
-                                <button class="btn btn-outline-primary mb-3" disabled>
-                                    <i class="bi bi-plus-circle me-1"></i>Ajouter une photo
-                                </button>
-                            }
-                            
-                            <!-- Galerie de photos -->
                             <div class="row g-3">
                                 @foreach (var photoUrl in viewModel.Photos)
                                 {
                                     <div class="col-md-4 col-lg-3">
                                         <div class="photo-card">
                                             <div class="ratio ratio-1x1">
-                                                <img src="@photoUrl" 
-                                                     alt="Photo de l'événement" 
+                                                <img src="@photoUrl"
+                                                     alt="Photo de l'événement"
                                                      class="img-fluid rounded object-fit-cover"
                                                      loading="lazy" />
                                             </div>
@@ -384,34 +429,18 @@
                 </div>
             </div>
         }
-        else if (isEventPastOrToday
-                && currentUserParticipant?.Status is ParticipationStatus.Confirme)
+
+        @* Possible d'ajouter des photos si l'événement est passé 
+        ou en cours et que l'utilisateur a confirmé sa participation' *@
+        @if (isEventPastOrToday && currentUserParticipant?.Status is ParticipationStatus.Confirme)
         {
-            <!-- Aucune photo pour le moment -->
-            <div class="row mb-4">
-                <div class="col-12">
-                    <div class="card shadow-sm">
-                        <div class="card-header bg-warning text-dark">
-                            <h5 class="mb-0">
-                                <i class="bi bi-images me-2"></i>Photos de l'événement
-                            </h5>
-                        </div>
-                        <div class="card-body text-center py-5">
-                            <i class="bi bi-camera fs-1 text-muted mb-3 d-block"></i>
-                            <p class="text-muted mb-3">Aucune photo n'a encore été ajoutée pour cet événement.</p>
-                            
-                            <div class="alert alert-info d-inline-block">
-                                <i class="bi bi-info-circle me-2"></i>
-                                <strong>Fonctionnalité à venir :</strong> Vous pourrez bientôt ajouter des photos !
-                            </div>
-                            
-                            <div class="mt-3">
-                                <button class="btn btn-outline-primary" disabled>
-                                    <i class="bi bi-plus-circle me-1"></i>Ajouter une photo
-                                </button>
-                            </div>
-                        </div>
-                    </div>
+            <div class="card-body">
+                <!-- Upload de photos -->
+                <div class="mb-4">
+                    <h6 class="mb-3">
+                        <i class="bi bi-cloud-upload me-2"></i>Ajouter une photo
+                    </h6>
+                    <PhotoUploader OnPhotoSelected="HandlePhotoUpload" />
                 </div>
             </div>
         }

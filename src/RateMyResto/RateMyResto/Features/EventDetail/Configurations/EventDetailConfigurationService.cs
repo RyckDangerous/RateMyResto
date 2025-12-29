@@ -1,4 +1,3 @@
-using Microsoft.Extensions.DependencyInjection;
 using RateMyResto.Features.EventDetail.Repositories;
 using RateMyResto.Features.EventDetail.Services;
 
@@ -13,6 +12,8 @@ public static class EventDetailConfigurationService
 
         // Enregistrement des services
         services.AddScoped<IEventDetailViewService, EventDetailViewService>();
+
+
 
         return services;
     }

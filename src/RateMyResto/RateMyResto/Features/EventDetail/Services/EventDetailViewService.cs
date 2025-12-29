@@ -1,19 +1,32 @@
 using Microsoft.AspNetCore.Components.Authorization;
+using Microsoft.AspNetCore.Components.Forms;
 using RateMyResto.Features.EventDetail.Converters;
 using RateMyResto.Features.EventDetail.Models.Commands;
 using RateMyResto.Features.EventDetail.Models.DbModels;
+using RateMyResto.Features.EventDetail.Models.Errors;
 using RateMyResto.Features.EventDetail.Models.InputModels;
 using RateMyResto.Features.EventDetail.Models.ViewModels;
 using RateMyResto.Features.EventDetail.Repositories;
 using RateMyResto.Features.Shared.Components.SnackbarComponent;
 using RateMyResto.Features.Shared.Converters;
 using RateMyResto.Features.Shared.Services;
-using System.Threading.Tasks;
 
 namespace RateMyResto.Features.EventDetail.Services;
 
 public sealed class EventDetailViewService : ViewServiceBase, IEventDetailViewService
 {
+    private const long MaxFileSize = 5 * 1024 * 1024; // 5 Mo
+
+    /// <summary>
+    /// Le chemin physique des images.
+    /// </summary>
+    private readonly string _pathImages;
+
+    /// <summary>
+    /// Le chemin de la requête pour accéder aux images.
+    /// </summary>
+    private string _pathRequest = "/img";
+
     /// <summary>
     /// L'Id de l'utilisateur courant.
     /// </summary>
@@ -26,13 +39,15 @@ public sealed class EventDetailViewService : ViewServiceBase, IEventDetailViewSe
 
     private readonly ISnackbarService _snackbarService;
     private readonly IEventDetailRepository _eventDetailRepository;
-
+    
 
     public EventDetailViewService(AuthenticationStateProvider authStateProvider,
                                   ISnackbarService snackbarService,
                                   IEventDetailRepository eventDetailRepository)
         : base(authStateProvider)
     {
+        _pathImages = Path.Combine(Directory.GetCurrentDirectory(), "img");
+
         _snackbarService = snackbarService;
         _eventDetailRepository = eventDetailRepository;
 
@@ -92,6 +107,56 @@ public sealed class EventDetailViewService : ViewServiceBase, IEventDetailViewSe
         
         // Recharger les données pour afficher la nouvelle notation
         await LoadEvent(_idEvent);
+    }
+
+    /// <inheritdoc />
+    /// <inheritdoc />
+    public async Task UploadPhotoAsync(IBrowserFile photo)
+    {
+        if (photo is null)
+        {
+            _snackbarService.ShowWarning("Aucune photo sélectionnée.");
+            return;
+        }
+
+        if (string.IsNullOrEmpty(_currentUserId))
+        {
+            _snackbarService.ShowError("Utilisateur non authentifié.");
+            return;
+        }
+
+        try
+        {
+            // Générer un nom de fichier sécurisé (bonne pratique Microsoft)
+            string trustedFileName = Path.GetRandomFileName();
+            string fileExtension = Path.GetExtension(photo.Name);
+            trustedFileName = Path.ChangeExtension(trustedFileName, fileExtension);
+
+            // Créer la commande avec le stream direct (pas de copie en mémoire)
+            UploadPhotoCommand photoCommand = new()
+            {
+                EventId = _idEvent,
+                FileName = trustedFileName,
+                ImageStream = photo.OpenReadStream(MaxFileSize)
+            };
+
+            // Sauvegarder la photo
+            ResultOf result = await SaveImageAsync(photoCommand);
+            if (result.HasError)
+            {
+                _snackbarService.ShowError($"Erreur lors de l'upload de la photo.");
+                return;
+            }
+
+            _snackbarService.ShowSuccess("Photo uploadée avec succès !");
+            
+            // Recharger l'événement pour afficher la nouvelle photo
+            await LoadEvent(_idEvent);
+        }
+        catch (Exception ex)
+        {
+            _snackbarService.ShowError($"Erreur lors de l'upload de la photo : {ex.Message}");
+        }
     }
 
     /// <summary>
@@ -173,16 +238,8 @@ public sealed class EventDetailViewService : ViewServiceBase, IEventDetailViewSe
             }
         }
 
-        // TODO : Remplacer par la récupération réelle des photos
         // Récupération des photos de l'événement
-        List<string> photos = new()
-        {
-            "https://woody.cloudly.space/app/uploads/bretagne-35/2020/06/thumbs/restaurant-jason-leung-unsplash-1920x960.jpg",
-            "https://woody.cloudly.space/app/uploads/bretagne-35/2020/06/thumbs/restaurant-jason-leung-unsplash-1920x960.jpg",
-            "https://woody.cloudly.space/app/uploads/bretagne-35/2020/06/thumbs/restaurant-jason-leung-unsplash-1920x960.jpg",
-            "https://woody.cloudly.space/app/uploads/bretagne-35/2020/06/thumbs/restaurant-jason-leung-unsplash-1920x960.jpg",
-            "https://woody.cloudly.space/app/uploads/bretagne-35/2020/06/thumbs/restaurant-jason-leung-unsplash-1920x960.jpg"
-        };
+        IEnumerable<string> photos = GetImagesByEvent(value.Id);
 
         // Création du ViewModel final
         EventDetailViewModel eventDetailViewModel = new()
@@ -197,6 +254,64 @@ public sealed class EventDetailViewService : ViewServiceBase, IEventDetailViewSe
         };
 
         return eventDetailViewModel;
+    }
+
+
+
+    private IEnumerable<string> GetImagesByEvent(Guid idEvent)
+    {
+        string eventImagePath = Path.Combine(_pathImages, idEvent.ToString());
+
+        List<string> imageUrls = new();
+
+        if (Directory.Exists(eventImagePath))
+        {
+            string[] imageFiles = Directory.GetFiles(eventImagePath);
+
+            foreach (string imageFile in imageFiles)
+            {
+                string fileName = Path.GetFileName(imageFile);
+                string imageUrl = $"{_pathRequest}/{idEvent}/{fileName}";
+
+                imageUrls.Add(imageUrl);
+            }
+        }
+
+        return imageUrls;
+    }
+
+    private async Task<ResultOf> SaveImageAsync(UploadPhotoCommand command)
+    {
+        string eventImagePath = Path.Combine(_pathImages, command.EventId.ToString());
+
+        if (!Directory.Exists(eventImagePath))
+        {
+            Directory.CreateDirectory(eventImagePath);
+        }
+
+        string filePath = Path.Combine(eventImagePath, command.FileName);
+
+        try
+        {
+            // Copier le stream DIRECTEMENT vers le fichier sans passer par la mémoire
+            // (Bonne pratique Microsoft pour éviter les problèmes de performance)
+            await using FileStream fileStream = new(filePath, FileMode.Create, FileAccess.Write);
+            await command.ImageStream.CopyToAsync(fileStream);
+            await fileStream.FlushAsync();
+
+            return ResultOf.Success();
+        }
+        catch (Exception ex)
+        {
+            FileError error = new("Erreur de sauvegarde d'une photo.", ex);
+
+            // Si erreur il faut supprimer le fichier "fantome".
+            if (File.Exists(filePath))
+                File.Delete(filePath);
+
+            return ResultOf.Failure(error);
+        }
+
     }
 
 }

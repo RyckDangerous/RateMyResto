@@ -1,0 +1,67 @@
+/* Photo Uploader Simple Component Styles */
+
+.photo-uploader-simple {
+    width: 100%;
+}
+
+.upload-zone-simple {
+    border: 2px dashed #cbd5e0;
+    border-radius: 12px;
+    padding: 2rem;
+    text-align: center;
+    background-color: #f8f9fa;
+    transition: all 0.3s ease;
+}
+
+.upload-zone-simple:hover {
+    border-color: #667eea;
+    background-color: #f0f4ff;
+}
+
+.upload-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.upload-icon-simple {
+    font-size: 3rem;
+    color: #667eea;
+}
+
+.upload-loading {
+    padding: 2rem;
+}
+
+.upload-loading .spinner-border {
+    width: 3rem;
+    height: 3rem;
+}
+
+
+/* Responsive */
+@media (max-width: 768px) {
+    .upload-zone {
+        padding: 2rem 1rem;
+    }
+
+    .upload-icon {
+        font-size: 3rem;
+    }
+
+    .photo-preview-image {
+        height: 120px;
+    }
+}
+
+/* Messages d'erreur */
+.alert ul {
+    padding-left: 1.5rem;
+    margin-bottom: 0;
+}
+
+.alert li {
+    margin-top: 0.25rem;
+}
+
