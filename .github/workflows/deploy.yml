@@ -21,11 +21,11 @@ jobs:
 
       - name: Restore
         working-directory: ./src/RateMyResto
-        run: dotnet restore RateMyResto.sln
+        run: dotnet restore RateMyResto.slnx
 
       - name: Build
         working-directory: ./src/RateMyResto
-        run: dotnet build RateMyResto.sln --configuration Release --no-restore
+        run: dotnet build RateMyResto.slnx --configuration Release --no-restore
         
   docker:
     name: Docker Build & Push
