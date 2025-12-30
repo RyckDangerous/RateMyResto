@@ -16,6 +16,7 @@ WORKDIR /app
 
 # Copie des artefacts publiés depuis l'étape buildapp
 COPY --from=buildapp /publish .
+RUN MKDIR img
 
 # Configuration du port
 ENV ASPNETCORE_URLS=http://+:8080
