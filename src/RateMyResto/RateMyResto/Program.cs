@@ -40,7 +40,7 @@ try
     builder.Configuration.Sources.Clear();
     builder.Configuration.SetBasePath(Directory.GetCurrentDirectory())
                         .AddJsonFile("appsettings.json")
-                        //.AddEnvironmentVariables(prefix: "ENV_")
+                        .AddEnvironmentVariables(prefix: "ENVRATE_")
                         .AddJsonFile($"appsettings.{builder.Environment.EnvironmentName}.json", optional: true);
 
     builder.Services.AddLogging();
