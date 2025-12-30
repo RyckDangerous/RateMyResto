@@ -13,10 +13,11 @@ RUN dotnet publish "RateMyResto/RateMyResto.csproj" -c Release -o /publish
 # Image finale runtime
 FROM mcr.microsoft.com/dotnet/aspnet:10.0 AS final
 WORKDIR /app
+# Crée le dossier img
+RUN mkdir -p img
 
 # Copie des artefacts publiés depuis l'étape buildapp
 COPY --from=buildapp /publish .
-RUN MKDIR img
 
 # Configuration du port
 ENV ASPNETCORE_URLS=http://+:8080
