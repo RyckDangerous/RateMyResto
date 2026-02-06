@@ -61,6 +61,37 @@ public sealed class EventDetailViewService : ViewServiceBase, IEventDetailViewSe
     /// <inheritdoc />
     public EventRatingInput RatingInput { get; private set; }
 
+    /// <inheritdoc />
+    public bool CanUploadPhotos
+    {
+        get
+        {
+            if (ViewModel is null) return false;
+            
+            var isEventPastOrToday = ViewModel.DateEvenement <= DateOnly.FromDateTime(DateTime.Today);
+            if (!isEventPastOrToday) return false;
+
+            var eventDate = ViewModel.DateEvenement.ToDateTime(TimeOnly.MinValue);
+            var hoursSinceEvent = (DateTime.Now - eventDate).TotalHours;
+            
+            return hoursSinceEvent <= 48;
+        }
+    }
+
+    /// <inheritdoc />
+    public double HoursRemainingForUpload
+    {
+        get
+        {
+            if (ViewModel is null) return 0;
+
+            var eventDate = ViewModel.DateEvenement.ToDateTime(TimeOnly.MinValue);
+            var hoursSinceEvent = (DateTime.Now - eventDate).TotalHours;
+            
+            return Math.Max(0, 48 - hoursSinceEvent);
+        }
+    }
+
 
     /// <inheritdoc />
     public async Task LoadEvent(Guid idEvent)

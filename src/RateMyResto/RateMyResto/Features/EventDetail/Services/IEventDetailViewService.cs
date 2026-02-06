@@ -16,6 +16,16 @@ public interface IEventDetailViewService
     EventRatingInput RatingInput { get; }
 
     /// <summary>
+    /// Indique si l'upload de photos est possible (dans les 48h suivant l'événement).
+    /// </summary>
+    bool CanUploadPhotos { get; }
+
+    /// <summary>
+    /// Nombre d'heures restantes pour uploader des photos (0 si dépassé).
+    /// </summary>
+    double HoursRemainingForUpload { get; }
+
+    /// <summary>
     /// Charge les détails de l'événement.
     /// </summary>
     /// <param name="idEvent"></param>
