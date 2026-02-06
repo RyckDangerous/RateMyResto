@@ -9,6 +9,7 @@ using RateMyResto.Features.EventDetail.Models.ViewModels;
 using RateMyResto.Features.EventDetail.Repositories;
 using RateMyResto.Features.Shared.Components.SnackbarComponent;
 using RateMyResto.Features.Shared.Converters;
+using RateMyResto.Features.Shared.Models;
 using RateMyResto.Features.Shared.Services;
 
 namespace RateMyResto.Features.EventDetail.Services;
@@ -196,12 +197,18 @@ public sealed class EventDetailViewService : ViewServiceBase, IEventDetailViewSe
         // tout le monde n'a pas encore voté
         if (!value.NoteGlobale.HasValue)
         {
+            // Filtrer les participants qui doivent voter (seulement les "Confirmé")
+            // Les participants "Absent" et "Decline" ne doivent pas voter
+            List<ParticipantViewModel> participantsQuiDoiventVoter = participantViewModels
+                .Where(p => p.Status == ParticipationStatus.Confirme)
+                .ToList();
+
             // Masquer ou non les notes.
             // Masquer les notes tant que tout le monde n'a pas voté.
-            bool haveOneNote = participantViewModels.Any(p => p.Note.HasValue);
+            bool haveOneNote = participantsQuiDoiventVoter.Any(p => p.Note.HasValue);
 
             if (haveOneNote
-                && participantViewModels.Any(p => !p.Note.HasValue))
+                && participantsQuiDoiventVoter.Any(p => !p.Note.HasValue))
             {
                 foreach (ParticipantViewModel participant in participantViewModels)
                 {
@@ -213,13 +220,13 @@ public sealed class EventDetailViewService : ViewServiceBase, IEventDetailViewSe
             }
             else
             {
-                // Tous les participants ont noté
-                bool allHaveNote = participantViewModels.All(p => p.Note.HasValue);
+                // Tous les participants confirmés ont noté
+                bool allHaveNote = participantsQuiDoiventVoter.All(p => p.Note.HasValue);
                 if (allHaveNote)
                 {
-                    // Calcul de la note globale
-                    decimal totalNotes = participantViewModels.Sum(p => p.Note ?? 0);
-                    value.NoteGlobale = Math.Round(totalNotes / participantViewModels.Count, 2);
+                    // Calcul de la note globale (uniquement avec les participants confirmés)
+                    decimal totalNotes = participantsQuiDoiventVoter.Sum(p => p.Note ?? 0);
+                    value.NoteGlobale = Math.Round(totalNotes / participantsQuiDoiventVoter.Count, 2);
 
                     // sauvegarde de la note globale
                     GlobalRatingCommand globalRatingCommand = new()
