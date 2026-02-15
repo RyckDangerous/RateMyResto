@@ -1,3 +1,4 @@
+
 namespace RateMyResto.Features.Shared.Configurations;
 
 public interface IApplicationSettings
@@ -21,6 +22,11 @@ public interface IApplicationSettings
     /// Mot de passe SQL pour la base de données
     /// </summary>
     string UserPassword { get; }
+
+    /// <summary>
+    /// Mot de passe pour le compte administrateur créé à l'initialisation de l'application
+    /// </summary>
+    string AdminPassword { get; }
 
     /// <summary>
     /// Obtient la chaîne de connexion pour SQL Server.

@@ -15,6 +15,9 @@ public struct ApplicationSettings : IApplicationSettings
     public required string UserPassword { get; init; }
 
     /// <inheritdoc/>
+    public required string AdminPassword { get; init; }
+
+    /// <inheritdoc/>
     public string GetSqlServerConnection()
     {
         return $"Server={SqlServer};Database={Dbname};User Id={UserLogin};Password={UserPassword};TrustServerCertificate=True;MultipleActiveResultSets=true;";

@@ -35,12 +35,16 @@ public static class ApplicationSettingsConfiguration
         string? password = configuration.GetConnectionString("Password");
         ArgumentNullException.ThrowIfNullOrEmpty(password);
 
+        string? adminPassword = configuration["AdminAccount:Password"];
+        ArgumentNullException.ThrowIfNullOrEmpty(adminPassword);
+
         IApplicationSettings config = new ApplicationSettings()
         {
             Dbname = dbName,
             SqlServer = server,
             UserLogin = login,
-            UserPassword = password
+            UserPassword = password,
+            AdminPassword = adminPassword
         };
 
         return config;

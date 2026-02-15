@@ -4,6 +4,8 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.FileProviders;
 using RateMyResto.Features;
 using RateMyResto.Features.Account;
+using RateMyResto.Features.Account.Configurations;
+using RateMyResto.Features.Account.Services;
 using RateMyResto.Features.Data;
 using RateMyResto.Features.DbMigration.Configurations;
 using RateMyResto.Features.DbMigration.Services;
@@ -63,11 +65,12 @@ try
 
     builder.Services.AddSingleton<IEmailSender<ApplicationUser>, IdentityNoOpEmailSender>();
 
-    builder.Services.AddSharedServices();
-    builder.Services.AddDbMigrationServices();
-    builder.Services.AddTeamFeatures();
-    builder.Services.AddEventFeatures();
-    builder.Services.AddEventDetailFeatures();
+    builder.Services.AddSharedServices()
+                    .AddDbMigrationServices()
+                    .AddTeamFeatures()
+                    .AddEventFeatures()
+                    .AddEventDetailFeatures()
+                    .AddAccountFeatures();
 
     WebApplication app = builder.Build();
 
@@ -96,6 +99,13 @@ try
         else
         {
             throw new Exception("Erreur lors de la migration de la base de données");
+        }
+
+        // Créer le compte administrateur s'il n'existe pas déjà
+        ICreateAdminService createAdminService = scope.ServiceProvider.GetRequiredService<ICreateAdminService>();
+        if (!await createAdminService.IsAdminExist())
+        {
+            await createAdminService.CreateAdminAsync();
         }
     }
 

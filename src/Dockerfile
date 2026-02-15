@@ -26,6 +26,7 @@ ENV ASPNETCORE_URLS=http://+:8080
 ENV ENVRATE_ConnectionStrings__Server=""
 ENV ENVRATE_ConnectionStrings__Login=""
 ENV ENVRATE_ConnectionStrings__Password=""
+ENV ENVRATE_AdminAccount__Password=""
 
 EXPOSE 8080
 

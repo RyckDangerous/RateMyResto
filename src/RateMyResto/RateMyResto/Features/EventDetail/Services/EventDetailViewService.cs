@@ -66,10 +66,12 @@ public sealed class EventDetailViewService : ViewServiceBase, IEventDetailViewSe
     {
         get
         {
-            if (ViewModel is null) return false;
+            if (ViewModel is null) 
+                return false;
             
-            var isEventPastOrToday = ViewModel.DateEvenement <= DateOnly.FromDateTime(DateTime.Today);
-            if (!isEventPastOrToday) return false;
+            bool isEventPastOrToday = ViewModel.DateEvenement <= DateOnly.FromDateTime(DateTime.Today);
+            if (!isEventPastOrToday) 
+                return false;
 
             var eventDate = ViewModel.DateEvenement.ToDateTime(TimeOnly.MinValue);
             var hoursSinceEvent = (DateTime.Now - eventDate).TotalHours;
@@ -83,7 +85,8 @@ public sealed class EventDetailViewService : ViewServiceBase, IEventDetailViewSe
     {
         get
         {
-            if (ViewModel is null) return 0;
+            if (ViewModel is null)
+                return 0;
 
             var eventDate = ViewModel.DateEvenement.ToDateTime(TimeOnly.MinValue);
             var hoursSinceEvent = (DateTime.Now - eventDate).TotalHours;
