@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
+using RateMyResto.Features.Account.Shared.Constantes;
 using RateMyResto.Features.Data;
 using RateMyResto.Features.Shared.Configurations;
 
@@ -14,8 +15,6 @@ public sealed class CreateAdminService : ICreateAdminService
     private readonly IUserStore<ApplicationUser> _userStore;
     private readonly UserManager<ApplicationUser> _userManager;
     private readonly ILogger<CreateAdminService> _logger;
-
-    private const string AdminUserName = "admin";
 
     public CreateAdminService(IApplicationSettings applicationSettings,
                             ApplicationDbContext dbContext,
@@ -37,10 +36,10 @@ public sealed class CreateAdminService : ICreateAdminService
         {
             ApplicationUser userAdmin = new ApplicationUser
             {
-                UserName = AdminUserName,
+                UserName = UserConstantes.AdminUserName,
                 Email = "admin@example.com"
             };
-            await _userStore.SetUserNameAsync(userAdmin, AdminUserName, CancellationToken.None);
+            await _userStore.SetUserNameAsync(userAdmin, UserConstantes.AdminUserName, CancellationToken.None);
 
             IUserEmailStore<ApplicationUser>? emailStore = (IUserEmailStore<ApplicationUser>)_userStore;
             await emailStore.SetEmailAsync(userAdmin, userAdmin.Email, CancellationToken.None);
@@ -65,7 +64,7 @@ public sealed class CreateAdminService : ICreateAdminService
     {
         try
         {
-            return await _dbContext.Users.AnyAsync(u => u.UserName == AdminUserName);
+            return await _dbContext.Users.AnyAsync(u => u.UserName == UserConstantes.AdminUserName);
         }
         catch (Exception ex)
         {

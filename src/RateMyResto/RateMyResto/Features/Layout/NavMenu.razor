@@ -30,6 +30,14 @@
                         <span class="bi bi-calendar-event-fill-nav-menu" aria-hidden="true"></span> Événements
                     </NavLink>
                 </div>
+                @if (_isAdmin)
+                {
+                    <div class="nav-item px-3">
+                        <NavLink class="nav-link" href="account/manage-users">
+                            <span class="bi bi-person-gear-nav-menu" aria-hidden="true"></span> Gestion des comptes
+                        </NavLink>
+                    </div>
+                }
             </Authorized>
         </AuthorizeView>
 
@@ -66,13 +74,20 @@
     </nav>
 </div>
 
+@using RateMyResto.Features.Account.Shared.Constantes
+@inject Microsoft.AspNetCore.Components.Authorization.AuthenticationStateProvider AuthStateProvider
+
 @code {
     private string? currentUrl;
+    private bool _isAdmin;
 
-    protected override void OnInitialized()
+    protected override async Task OnInitializedAsync()
     {
         currentUrl = NavigationManager.ToBaseRelativePath(NavigationManager.Uri);
         NavigationManager.LocationChanged += OnLocationChanged;
+
+        var authState = await AuthStateProvider.GetAuthenticationStateAsync();
+        _isAdmin = authState.User.Identity?.Name?.Equals(UserConstantes.AdminUserName, StringComparison.OrdinalIgnoreCase) ?? false;
     }
 
     private void OnLocationChanged(object? sender, LocationChangedEventArgs e)

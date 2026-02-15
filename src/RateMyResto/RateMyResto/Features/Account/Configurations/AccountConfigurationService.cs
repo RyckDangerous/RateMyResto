@@ -1,3 +1,5 @@
+using RateMyResto.Features.Account.ManageAccountFeature.Repositories;
+using RateMyResto.Features.Account.ManageAccountFeature.Services;
 using RateMyResto.Features.Account.Services;
 
 namespace RateMyResto.Features.Account.Configurations;
@@ -12,6 +14,8 @@ public static class AccountConfigurationService
     public static IServiceCollection AddAccountFeatures(this IServiceCollection services)
     {
         services.AddTransient<ICreateAdminService, CreateAdminService>();
+        services.AddScoped<IManageAccountRepository, ManageAccountRepository>();
+        services.AddScoped<IManageAccountViewService, ManageAccountViewService>();
 
         return services;
     }

@@ -44,6 +44,23 @@ public abstract class ViewServiceBase
     }
 
     /// <summary>
+    /// Récupère le nom d'utilisateur actuellement authentifié.
+    /// </summary>
+    /// <returns></returns>
+    protected async Task<string?> GetCurrentUserNameAsync()
+    {
+        AuthenticationState authState = await _authStateProvider.GetAuthenticationStateAsync();
+        ClaimsPrincipal user = authState.User;
+
+        if (!user.Identity?.IsAuthenticated ?? true)
+        {
+            return null;
+        }
+
+        return user.FindFirst(ClaimTypes.Name)?.Value ?? user.Identity?.Name;
+    }
+
+    /// <summary>
     /// Enregistre la fonction de rafraîchissement de l'interface utilisateur.
     /// </summary>
     /// <param name="refreshUi"></param>

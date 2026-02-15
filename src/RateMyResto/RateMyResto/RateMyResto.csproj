@@ -21,4 +21,10 @@
         <EmbeddedResource Include="Features/DbMigration/Scripts/**/*.sql" />
     </ItemGroup>
 
+
+    <ItemGroup>
+      <Folder Include="Features\Account\ManageAccountFeature\Repositories\" />
+      <Folder Include="Features\Account\ManageAccountFeature\Services\" />
+    </ItemGroup>
+
 </Project>
