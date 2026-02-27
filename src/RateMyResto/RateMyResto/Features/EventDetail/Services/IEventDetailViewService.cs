@@ -16,7 +16,7 @@ public interface IEventDetailViewService
     EventRatingInput RatingInput { get; }
 
     /// <summary>
-    /// Indique si l'upload de photos est possible (dans les 48h suivant l'événement).
+    /// Indique si l'upload de photos est possible (dans les 4 jours suivant l'événement).
     /// </summary>
     bool CanUploadPhotos { get; }
 

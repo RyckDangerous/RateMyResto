@@ -390,7 +390,7 @@
                                         }
                                         else
                                         {
-                                            <span>Le délai de 48h pour ajouter des photos est écoulé.</span>
+                                            <span>Le délai de 4 jours pour ajouter des photos est écoulé.</span>
                                         }
                                     </p>
                                 </div>
@@ -434,7 +434,7 @@
         }
 
         @* Possible d'ajouter des photos si l'événement est passé 
-        ou en cours et que l'utilisateur a confirmé sa participation ET dans les 48h suivant l'événement *@
+        ou en cours et que l'utilisateur a confirmé sa participation ET dans les 4 jours suivant l'événement *@
         @if (currentUserParticipant?.Status is ParticipationStatus.Confirme && isEventPastOrToday)
         {
             <div class="row mb-4">
@@ -460,7 +460,7 @@
                                         <span>@Math.Floor(_viewService.HoursRemainingForUpload * 60)min</span>
                                     }
                                     <br />
-                                    <small class="text-muted">L'upload de photos est possible pendant 48h après l'événement.</small>
+                                    <small class="text-muted">L'upload de photos est possible pendant 4 jours après l'événement.</small>
                                 </div>
                                 <PhotoUploader OnPhotoSelected="HandlePhotoUpload" />
                             }
@@ -470,7 +470,7 @@
                                     <i class="bi bi-exclamation-triangle me-2"></i>
                                     <strong>Délai dépassé</strong>
                                     <p class="mb-0 mt-2">
-                                        Le délai de 48 heures pour ajouter des photos est écoulé. 
+                                        Le délai de 4 jours pour ajouter des photos est écoulé. 
                                         L'upload de photos n'est plus possible pour cet événement.
                                     </p>
                                 </div>

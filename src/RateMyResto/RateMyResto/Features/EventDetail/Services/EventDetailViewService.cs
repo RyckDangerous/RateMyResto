@@ -61,6 +61,8 @@ public sealed class EventDetailViewService : ViewServiceBase, IEventDetailViewSe
     /// <inheritdoc />
     public EventRatingInput RatingInput { get; private set; }
 
+    private const int PhotoUploadDeadlineHours = 96; // 4 jours
+
     /// <inheritdoc />
     public bool CanUploadPhotos
     {
@@ -76,7 +78,7 @@ public sealed class EventDetailViewService : ViewServiceBase, IEventDetailViewSe
             var eventDate = ViewModel.DateEvenement.ToDateTime(TimeOnly.MinValue);
             var hoursSinceEvent = (DateTime.Now - eventDate).TotalHours;
             
-            return hoursSinceEvent <= 48;
+            return hoursSinceEvent <= PhotoUploadDeadlineHours;
         }
     }
 
@@ -91,7 +93,7 @@ public sealed class EventDetailViewService : ViewServiceBase, IEventDetailViewSe
             var eventDate = ViewModel.DateEvenement.ToDateTime(TimeOnly.MinValue);
             var hoursSinceEvent = (DateTime.Now - eventDate).TotalHours;
             
-            return Math.Max(0, 48 - hoursSinceEvent);
+            return Math.Max(0, PhotoUploadDeadlineHours - hoursSinceEvent);
         }
     }
 
