@@ -14,6 +14,11 @@ public sealed record ParticipantDb
     /// Nom d'utilisateur affiché pour le participant.
     /// </summary>
     public required string UserName { get; init; }
+
+    /// <summary>
+    /// Nom d'affichage du participant.
+    /// </summary>
+    public required string? DisplayName { get; init; }
            
     /// <summary>
     /// Note attribuée par le participant (si disponible).

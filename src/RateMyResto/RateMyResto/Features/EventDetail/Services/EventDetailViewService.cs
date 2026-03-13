@@ -221,7 +221,7 @@ public sealed class EventDetailViewService : ViewServiceBase, IEventDetailViewSe
         List<ParticipantViewModel> participantViewModels = value.InfoParticipants
             .Select(participantDb => new ParticipantViewModel
             {
-                ParticipantName = participantDb.UserName,
+                ParticipantName = participantDb.DisplayName ?? participantDb.UserName,
                 Status = StatusConverters.ToStatus(participantDb.StatusId),
                 Note = participantDb.Note,
                 Commentaire = participantDb.Commentaire,

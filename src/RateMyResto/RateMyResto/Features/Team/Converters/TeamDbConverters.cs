@@ -33,7 +33,7 @@ public static class TeamDbConverters
         return new Membre()
         {
             Id = memberDb.IdUser,
-            Nom = memberDb.UserName
+            Nom = memberDb.DisplayName ?? memberDb.UserName
         };
     }
 

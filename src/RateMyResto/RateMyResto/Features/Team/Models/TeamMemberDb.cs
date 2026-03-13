@@ -11,4 +11,9 @@ public sealed record TeamMemberDb
     /// Nom d'utilisateur du membre de l'équipe
     /// </summary>
     public required string UserName { get; set; }
+
+    /// <summary>
+    /// Nom d'affichage du membre de l'équipe
+    /// </summary>
+    public required string? DisplayName { get; set; }
 }
