@@ -61,6 +61,22 @@ public interface ITeamViewService : IViewServiceBase
     Task RemoveMemberAsync(Guid teamId, string userId);
 
     /// <summary>
+    /// Désactive un membre de l'équipe (définit une date de fin de présence à aujourd'hui)
+    /// </summary>
+    /// <param name="teamId">ID de l'équipe</param>
+    /// <param name="userId">ID de l'utilisateur à désactiver</param>
+    /// <returns></returns>
+    Task DeactivateMemberAsync(Guid teamId, string userId);
+
+    /// <summary>
+    /// Réactive un membre de l'équipe (efface la date de fin de présence)
+    /// </summary>
+    /// <param name="teamId">ID de l'équipe</param>
+    /// <param name="userId">ID de l'utilisateur à réactiver</param>
+    /// <returns></returns>
+    Task ReactivateMemberAsync(Guid teamId, string userId);
+
+    /// <summary>
     /// Ouvre la modale de création d'équipe
     /// </summary>
     void OpenCreateModal();

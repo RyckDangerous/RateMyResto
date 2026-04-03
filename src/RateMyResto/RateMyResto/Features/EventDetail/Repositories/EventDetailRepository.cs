@@ -54,4 +54,18 @@ public sealed class EventDetailRepository : RepositoryBase<EventDetailRepository
         return await ExecuteStoredProcedureAsync(procName: "sp_UpdateEventGlobalRating",
                                                 parameters: sqlParameters);
     }
+
+    /// <inheritdoc />
+    public async Task<ResultOf> ChangeParticipantStatusAsync(ChangeParticipantStatusCommand command)
+    {
+        SqlParameter[] sqlParameters =
+        {
+            GetSqlParameterVarchar("@UserId", command.ParticipantUserId),
+            GetSqlParameterUniqueIdentifier("@EventId", command.EventId),
+            GetSqlParameterTinyInt("@StatusParticipationId", command.NewStatus)
+        };
+
+        return await ExecuteNonQueryStoredProcedureAsync(procName: "sp_UpdateParticipationStatus",
+                                                        parameters: sqlParameters);
+    }
 }

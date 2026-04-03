@@ -40,4 +40,12 @@ public interface ITeamRepository
     /// <param name="userId"></param>
     /// <returns></returns>
     Task<ResultOf> JoinTeamAsync(Guid teamId, string userId);
+
+    /// <summary>
+    /// Définit ou efface la date de fin de présence d'un membre.
+    /// EndDate = null pour réactiver, une date pour désactiver.
+    /// </summary>
+    /// <param name="command"></param>
+    /// <returns></returns>
+    Task<ResultOf> SetMemberEndDateAsync(SetMemberEndDateCommand command);
 }

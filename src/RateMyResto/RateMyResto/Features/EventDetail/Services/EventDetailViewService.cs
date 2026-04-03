@@ -217,15 +217,25 @@ public sealed class EventDetailViewService : ViewServiceBase, IEventDetailViewSe
             LienGoogleMaps = value.LienGoogleMaps
         };
 
+        // Droits de gestion des statuts
+        bool canManage = _currentUserId == value.InitiateurAspNetUserId
+                      || _currentUserId == value.OwnerAspNetUserId;
+
+        // Aucun vote n'a encore eu lieu
+        bool noVotesYet = !value.InfoParticipants.Any(p => p.Note.HasValue);
+
         // Infos participants
         List<ParticipantViewModel> participantViewModels = value.InfoParticipants
             .Select(participantDb => new ParticipantViewModel
             {
+                UserId = participantDb.AspNetUserId,
                 ParticipantName = participantDb.DisplayName ?? participantDb.UserName,
                 Status = StatusConverters.ToStatus(participantDb.StatusId),
                 Note = participantDb.Note,
                 Commentaire = participantDb.Commentaire,
-                DateReview = participantDb.DateReview
+                DateReview = participantDb.DateReview,
+                CanChangeStatus = canManage
+                               && (noVotesYet || (value.NoteGlobale.HasValue && !participantDb.Note.HasValue))
             })
             .ToList();
 
@@ -293,13 +303,56 @@ public sealed class EventDetailViewService : ViewServiceBase, IEventDetailViewSe
             DateEvenement = value.DateEvenement,
             NomIniateur = value.Initiateur,
             Photos = photos,
-            NoteGlobale = value.NoteGlobale
+            NoteGlobale = value.NoteGlobale,
+            CanManageParticipants = canManage
         };
 
         return eventDetailViewModel;
     }
 
 
+
+    /// <inheritdoc />
+    public async Task ChangeParticipantStatusAsync(string participantUserId, short newStatus)
+    {
+        if (string.IsNullOrEmpty(_currentUserId))
+        {
+            _snackbarService.ShowError("Utilisateur non authentifié.");
+            return;
+        }
+
+        if (ViewModel is null || !ViewModel.CanManageParticipants)
+        {
+            _snackbarService.ShowError("Vous n'avez pas les droits pour modifier ce statut.");
+            return;
+        }
+
+        ParticipantViewModel? participant = ViewModel.ParticipantsInfo
+            .FirstOrDefault(p => p.UserId == participantUserId);
+
+        if (participant is null || !participant.CanChangeStatus)
+        {
+            _snackbarService.ShowError("Le statut de ce participant ne peut pas être modifié.");
+            return;
+        }
+
+        ChangeParticipantStatusCommand command = new()
+        {
+            EventId = _idEvent,
+            ParticipantUserId = participantUserId,
+            NewStatus = newStatus
+        };
+
+        ResultOf result = await _eventDetailRepository.ChangeParticipantStatusAsync(command);
+        if (result.HasError)
+        {
+            _snackbarService.ShowError("Erreur lors du changement de statut.");
+            return;
+        }
+
+        _snackbarService.ShowSuccess("Statut modifié avec succès.");
+        await LoadEvent(_idEvent);
+    }
 
     private IEnumerable<string> GetImagesByEvent(Guid idEvent)
     {

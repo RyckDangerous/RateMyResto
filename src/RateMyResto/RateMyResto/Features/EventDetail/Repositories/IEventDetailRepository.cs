@@ -25,4 +25,12 @@ public interface IEventDetailRepository
     /// <param name="globalRatingCommand"></param>
     /// <returns></returns>
     Task<ResultOf> UpdateGlobalRatingAsync(GlobalRatingCommand globalRatingCommand);
+
+    /// <summary>
+    /// Modifie le statut de participation d'un participant par un gestionnaire
+    /// (initiateur de l'événement ou responsable de l'équipe).
+    /// </summary>
+    /// <param name="command"></param>
+    /// <returns></returns>
+    Task<ResultOf> ChangeParticipantStatusAsync(ChangeParticipantStatusCommand command);
 }

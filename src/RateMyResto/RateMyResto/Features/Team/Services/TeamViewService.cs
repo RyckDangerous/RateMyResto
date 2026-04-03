@@ -156,8 +156,67 @@ public sealed class TeamViewService : ViewServiceBase, ITeamViewService
         }
 
         _snackbarService.ShowSuccess("Le membre a été retiré de l'équipe avec succès.");
-        
+
         // Recharge les équipes pour mettre à jour la liste des membres
+        await LoadViewModelAsync();
+    }
+
+    /// <inheritdoc />
+    public async Task DeactivateMemberAsync(Guid teamId, string userId)
+    {
+        if (ViewModel.SelectedTeam is null)
+            return;
+
+        if (ViewModel.SelectedTeam.IdOwner == userId)
+        {
+            _snackbarService.ShowWarning("Le propriétaire ne peut pas être désactivé.");
+            return;
+        }
+
+        ViewModel.IsLoading = true;
+
+        SetMemberEndDateCommand command = new()
+        {
+            TeamId = teamId,
+            UserId = userId,
+            EndDate = DateOnly.FromDateTime(DateTime.Today)
+        };
+
+        ResultOf result = await _teamRepository.SetMemberEndDateAsync(command);
+
+        if (result.HasError)
+        {
+            _snackbarService.ShowError("Une erreur est survenue lors de la désactivation du membre.");
+            ViewModel.IsLoading = false;
+            return;
+        }
+
+        _snackbarService.ShowSuccess("Le membre a été désactivé.");
+        await LoadViewModelAsync();
+    }
+
+    /// <inheritdoc />
+    public async Task ReactivateMemberAsync(Guid teamId, string userId)
+    {
+        ViewModel.IsLoading = true;
+
+        SetMemberEndDateCommand command = new()
+        {
+            TeamId = teamId,
+            UserId = userId,
+            EndDate = null
+        };
+
+        ResultOf result = await _teamRepository.SetMemberEndDateAsync(command);
+
+        if (result.HasError)
+        {
+            _snackbarService.ShowError("Une erreur est survenue lors de la réactivation du membre.");
+            ViewModel.IsLoading = false;
+            return;
+        }
+
+        _snackbarService.ShowSuccess("Le membre a été réactivé.");
         await LoadViewModelAsync();
     }
 
@@ -218,6 +277,8 @@ public sealed class TeamViewService : ViewServiceBase, ITeamViewService
             builder.AddAttribute(2, "OnDeleteTeam", EventCallback.Factory.Create<Guid>(this, HandleDeleteTeam));
             builder.AddAttribute(3, "OnRemoveMember", EventCallback.Factory.Create<string>(this, HandleRemoveMember));
             builder.AddAttribute(4, "IsOwner", true);
+            builder.AddAttribute(5, "OnDeactivateMember", EventCallback.Factory.Create<string>(this, HandleDeactivateMember));
+            builder.AddAttribute(6, "OnReactivateMember", EventCallback.Factory.Create<string>(this, HandleReactivateMember));
             builder.CloseComponent();
         };
 
@@ -315,25 +376,60 @@ public sealed class TeamViewService : ViewServiceBase, ITeamViewService
     /// <param name="userId">ID de l'utilisateur à retirer</param>
     private async Task HandleRemoveMember(string userId)
     {
-        if (ViewModel.SelectedTeam is null) 
+        if (ViewModel.SelectedTeam is null)
             return;
 
-        // Appeler le service pour retirer le membre
         await RemoveMemberAsync(ViewModel.SelectedTeam.Id, userId);
 
-        // Recharger l'équipe dans le drawer
         ViewModel.SelectedTeam = ViewModel.OwnerEquipes
             .FirstOrDefault(e => e.Id == ViewModel.SelectedTeam.Id);
 
         if (ViewModel.SelectedTeam is not null)
-        {
-            // Rouvrir le drawer avec les données mises à jour
             OpenTeamDrawer(ViewModel.SelectedTeam.Id);
-        }
         else
-        {
             _drawerService.Close();
-        }
+
+        await RefreshUI();
+    }
+
+    /// <summary>
+    /// Gère la désactivation d'un membre de l'équipe.
+    /// </summary>
+    private async Task HandleDeactivateMember(string userId)
+    {
+        if (ViewModel.SelectedTeam is null)
+            return;
+
+        await DeactivateMemberAsync(ViewModel.SelectedTeam.Id, userId);
+
+        ViewModel.SelectedTeam = ViewModel.OwnerEquipes
+            .FirstOrDefault(e => e.Id == ViewModel.SelectedTeam.Id);
+
+        if (ViewModel.SelectedTeam is not null)
+            OpenTeamDrawer(ViewModel.SelectedTeam.Id);
+        else
+            _drawerService.Close();
+
+        await RefreshUI();
+    }
+
+    /// <summary>
+    /// Gère la réactivation d'un membre de l'équipe.
+    /// </summary>
+    private async Task HandleReactivateMember(string userId)
+    {
+        if (ViewModel.SelectedTeam is null)
+            return;
+
+        await ReactivateMemberAsync(ViewModel.SelectedTeam.Id, userId);
+
+        ViewModel.SelectedTeam = ViewModel.OwnerEquipes
+            .FirstOrDefault(e => e.Id == ViewModel.SelectedTeam.Id);
+
+        if (ViewModel.SelectedTeam is not null)
+            OpenTeamDrawer(ViewModel.SelectedTeam.Id);
+        else
+            _drawerService.Close();
 
         await RefreshUI();
     }

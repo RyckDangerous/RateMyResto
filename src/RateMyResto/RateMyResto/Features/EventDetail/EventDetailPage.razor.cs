@@ -74,6 +74,17 @@ public partial class EventDetailPage : ComponentBase
     }
 
     /// <summary>
+    /// Gère le changement de statut d'un participant par le gestionnaire.
+    /// </summary>
+    /// <param name="participantUserId">Identifiant ASP.NET Identity du participant</param>
+    /// <param name="newStatus">Nouveau statut sélectionné</param>
+    private async Task HandleChangeParticipantStatus(string participantUserId, short newStatus)
+    {
+        await _viewService.ChangeParticipantStatusAsync(participantUserId, newStatus);
+        StateHasChanged();
+    }
+
+    /// <summary>
     /// Obtient la classe d'icône pour un statut de participation donné.
     /// </summary>
     /// <param name="status"></param>

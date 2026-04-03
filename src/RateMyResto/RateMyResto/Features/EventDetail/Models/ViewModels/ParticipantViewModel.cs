@@ -5,6 +5,11 @@ namespace RateMyResto.Features.EventDetail.Models.ViewModels;
 public sealed record ParticipantViewModel
 {
     /// <summary>
+    /// Identifiant ASP.NET Identity du participant.
+    /// </summary>
+    public required string UserId { get; init; }
+
+    /// <summary>
     /// Nom du participant.
     /// </summary>
     public required string ParticipantName { get; init; }
@@ -33,4 +38,10 @@ public sealed record ParticipantViewModel
     /// Indique si la note doit être masquée.
     /// </summary>
     public bool HideNote { get; set; }
+
+    /// <summary>
+    /// Indique si un gestionnaire peut modifier le statut de ce participant.
+    /// Vrai si aucun vote n'a encore eu lieu, ou si l'événement est terminé et que ce participant n'a pas voté.
+    /// </summary>
+    public bool CanChangeStatus { get; set; }
 }

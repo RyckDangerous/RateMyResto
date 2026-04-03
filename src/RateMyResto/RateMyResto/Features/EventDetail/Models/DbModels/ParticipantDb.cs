@@ -6,10 +6,16 @@ namespace RateMyResto.Features.EventDetail.Models.DbModels;
 public sealed record ParticipantDb
 {
     /// <summary>
-    /// Identifiant unique de l'utilisateur participant.
+    /// Identifiant interne UserTeams du participant.
     /// </summary>
     public required int IdUser { get; init; }
-           
+
+    /// <summary>
+    /// Identifiant ASP.NET Identity (AspNetUsers.Id) du participant.
+    /// Utilisé pour les mises à jour de statut par un gestionnaire.
+    /// </summary>
+    public required string AspNetUserId { get; init; }
+
     /// <summary>
     /// Nom d'utilisateur affiché pour le participant.
     /// </summary>

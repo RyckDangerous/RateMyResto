@@ -11,4 +11,10 @@ public sealed record Membre
     /// Nom du membre
     /// </summary>
     public required string Nom { get; set; }
+
+    /// <summary>
+    /// Indique si le membre est actif dans l'équipe (DateFinPresence IS NULL).
+    /// Un membre inactif n'est plus invité aux nouveaux événements mais son historique est conservé.
+    /// </summary>
+    public bool IsActive { get; set; } = true;
 }

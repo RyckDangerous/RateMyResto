@@ -16,4 +16,10 @@ public sealed record TeamMemberDb
     /// Nom d'affichage du membre de l'équipe
     /// </summary>
     public required string? DisplayName { get; set; }
+
+    /// <summary>
+    /// Date de fin de présence dans l'équipe.
+    /// Null = membre actif. Renseignée = membre inactif depuis cette date.
+    /// </summary>
+    public required DateOnly? DateFinPresence { get; set; }
 }

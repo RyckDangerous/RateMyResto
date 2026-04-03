@@ -193,9 +193,39 @@
                                                         @participant.ParticipantName
                                                     </h6>
                                                     <small class="text-muted">@GetStatusText(participant.Status)</small>
+
+                                                    @if (participant.CanChangeStatus)
+                                                    {
+                                                        <div class="mt-1 d-flex gap-1 flex-wrap">
+                                                            @if (participant.Status is not ParticipationStatus.Confirme)
+                                                            {
+                                                                <button class="btn btn-outline-success btn-sm py-0"
+                                                                        @onclick="() => HandleChangeParticipantStatus(participant.UserId, (short)ParticipationStatus.Confirme)"
+                                                                        title="Marquer comme présent">
+                                                                    <i class="bi bi-check-circle me-1"></i>Présent
+                                                                </button>
+                                                            }
+                                                            @if (participant.Status is not ParticipationStatus.Decline)
+                                                            {
+                                                                <button class="btn btn-outline-danger btn-sm py-0"
+                                                                        @onclick="() => HandleChangeParticipantStatus(participant.UserId, (short)ParticipationStatus.Decline)"
+                                                                        title="Marquer comme décliné">
+                                                                    <i class="bi bi-x-circle me-1"></i>Décliné
+                                                                </button>
+                                                            }
+                                                            @if (participant.Status is not ParticipationStatus.Absent)
+                                                            {
+                                                                <button class="btn btn-outline-secondary btn-sm py-0"
+                                                                        @onclick="() => HandleChangeParticipantStatus(participant.UserId, (short)ParticipationStatus.Absent)"
+                                                                        title="Marquer comme absent">
+                                                                    <i class="bi bi-dash-circle me-1"></i>Absent
+                                                                </button>
+                                                            }
+                                                        </div>
+                                                    }
                                                 </div>
                                             </div>
-                                            
+
                                             @if (participant.Note.HasValue)
                                             {
                                                 <div class="text-end">

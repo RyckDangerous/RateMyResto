@@ -36,4 +36,10 @@ public sealed record EventDetailViewModel
     /// Note globale de l'événement.
     /// </summary>
     public required decimal? NoteGlobale { get; init; }
+
+    /// <summary>
+    /// Indique si l'utilisateur courant peut gérer les statuts des participants
+    /// (initiateur de l'événement ou responsable de l'équipe).
+    /// </summary>
+    public required bool CanManageParticipants { get; init; }
 }

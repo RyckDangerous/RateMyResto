@@ -99,4 +99,22 @@ public sealed class TeamRepository : RepositoryBase<TeamRepository>, ITeamReposi
         return await ExecuteNonQueryStoredProcedureAsync("sp_RemoveUserFromTeam", parameters);
     }
 
+    /// <inheritdoc />
+    public async Task<ResultOf> SetMemberEndDateAsync(SetMemberEndDateCommand command)
+    {
+        SqlParameter endDateParam = new SqlParameter("@DateFinPresence", System.Data.SqlDbType.Date)
+        {
+            Value = command.EndDate.HasValue ? (object)command.EndDate.Value : DBNull.Value
+        };
+
+        SqlParameter[] parameters =
+        {
+            GetSqlParameterNVarchar("@UserId", command.UserId),
+            GetSqlParameterUniqueIdentifier("@TeamId", command.TeamId),
+            endDateParam
+        };
+
+        return await ExecuteNonQueryStoredProcedureAsync("sp_SetMemberEndDate", parameters);
+    }
+
 }

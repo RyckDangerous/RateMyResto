@@ -51,6 +51,16 @@ public sealed record EventDetailDb
     public required string Initiateur { get; init; }
 
     /// <summary>
+    /// Identifiant ASP.NET Identity de l'initiateur de l'événement.
+    /// </summary>
+    public required string InitiateurAspNetUserId { get; init; }
+
+    /// <summary>
+    /// Identifiant ASP.NET Identity du responsable de l'équipe.
+    /// </summary>
+    public required string OwnerAspNetUserId { get; init; }
+
+    /// <summary>
     /// Note globale moyenne de l'événement.
     /// </summary>
     public decimal? NoteGlobale { get; set; }

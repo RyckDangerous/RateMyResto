@@ -42,4 +42,12 @@ public interface IEventDetailViewService
     /// </summary>
     /// <param name="photo">Fichier photo à uploader</param>
     Task UploadPhotoAsync(Microsoft.AspNetCore.Components.Forms.IBrowserFile photo);
+
+    /// <summary>
+    /// Modifie le statut d'un participant par l'initiateur ou le responsable d'équipe.
+    /// Autorisé uniquement si aucun vote n'a eu lieu, ou si l'événement est terminé et que le participant n'a pas voté.
+    /// </summary>
+    /// <param name="participantUserId">Identifiant ASP.NET Identity du participant</param>
+    /// <param name="newStatus">Nouveau statut (valeur de <see cref="RateMyResto.Features.Shared.Models.ParticipationStatus"/>)</param>
+    Task ChangeParticipantStatusAsync(string participantUserId, short newStatus);
 }

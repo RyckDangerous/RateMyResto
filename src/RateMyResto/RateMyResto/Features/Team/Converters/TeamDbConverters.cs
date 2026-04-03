@@ -33,7 +33,8 @@ public static class TeamDbConverters
         return new Membre()
         {
             Id = memberDb.IdUser,
-            Nom = memberDb.DisplayName ?? memberDb.UserName
+            Nom = memberDb.DisplayName ?? memberDb.UserName,
+            IsActive = memberDb.DateFinPresence is null
         };
     }
 
