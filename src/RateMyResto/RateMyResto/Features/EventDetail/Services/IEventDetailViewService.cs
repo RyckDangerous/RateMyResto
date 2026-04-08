@@ -16,14 +16,24 @@ public interface IEventDetailViewService
     EventRatingInput RatingInput { get; }
 
     /// <summary>
-    /// Indique si l'upload de photos est possible (dans les 4 jours suivant l'événement).
+    /// Indique si l'upload de photos est possible (dans les 3 semaines suivant l'événement).
     /// </summary>
     bool CanUploadPhotos { get; }
 
     /// <summary>
-    /// Nombre d'heures restantes pour uploader des photos (0 si dépassé).
+    /// Nombre de jours restants pour uploader des photos (0 si dépassé).
     /// </summary>
-    double HoursRemainingForUpload { get; }
+    int DaysRemainingForUpload { get; }
+
+    /// <summary>
+    /// Indique si la notation est possible (dans les 3 semaines suivant l'événement).
+    /// </summary>
+    bool CanRate { get; }
+
+    /// <summary>
+    /// Nombre de jours restants pour noter l'événement (0 si dépassé).
+    /// </summary>
+    int DaysRemainingForRating { get; }
 
     /// <summary>
     /// Charge les détails de l'événement.

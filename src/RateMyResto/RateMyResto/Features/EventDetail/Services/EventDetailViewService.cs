@@ -61,29 +61,29 @@ public sealed class EventDetailViewService : ViewServiceBase, IEventDetailViewSe
     /// <inheritdoc />
     public EventRatingInput RatingInput { get; private set; }
 
-    private const int PhotoUploadDeadlineHours = 96; // 4 jours
+    private const int DeadlineDays = 21; // 3 semaines
 
     /// <inheritdoc />
     public bool CanUploadPhotos
     {
         get
         {
-            if (ViewModel is null) 
+            if (ViewModel is null)
                 return false;
-            
+
             bool isEventPastOrToday = ViewModel.DateEvenement <= DateOnly.FromDateTime(DateTime.Today);
-            if (!isEventPastOrToday) 
+            if (!isEventPastOrToday)
                 return false;
 
             var eventDate = ViewModel.DateEvenement.ToDateTime(TimeOnly.MinValue);
-            var hoursSinceEvent = (DateTime.Now - eventDate).TotalHours;
-            
-            return hoursSinceEvent <= PhotoUploadDeadlineHours;
+            var daysSinceEvent = (DateTime.Now - eventDate).TotalDays;
+
+            return daysSinceEvent <= DeadlineDays;
         }
     }
 
     /// <inheritdoc />
-    public double HoursRemainingForUpload
+    public int DaysRemainingForUpload
     {
         get
         {
@@ -91,9 +91,43 @@ public sealed class EventDetailViewService : ViewServiceBase, IEventDetailViewSe
                 return 0;
 
             var eventDate = ViewModel.DateEvenement.ToDateTime(TimeOnly.MinValue);
-            var hoursSinceEvent = (DateTime.Now - eventDate).TotalHours;
-            
-            return Math.Max(0, PhotoUploadDeadlineHours - hoursSinceEvent);
+            var daysSinceEvent = (DateTime.Now - eventDate).TotalDays;
+
+            return Math.Max(0, (int)Math.Ceiling(DeadlineDays - daysSinceEvent));
+        }
+    }
+
+    /// <inheritdoc />
+    public bool CanRate
+    {
+        get
+        {
+            if (ViewModel is null)
+                return false;
+
+            bool isEventPastOrToday = ViewModel.DateEvenement <= DateOnly.FromDateTime(DateTime.Today);
+            if (!isEventPastOrToday)
+                return false;
+
+            var eventDate = ViewModel.DateEvenement.ToDateTime(TimeOnly.MinValue);
+            var daysSinceEvent = (DateTime.Now - eventDate).TotalDays;
+
+            return daysSinceEvent <= DeadlineDays;
+        }
+    }
+
+    /// <inheritdoc />
+    public int DaysRemainingForRating
+    {
+        get
+        {
+            if (ViewModel is null)
+                return 0;
+
+            var eventDate = ViewModel.DateEvenement.ToDateTime(TimeOnly.MinValue);
+            var daysSinceEvent = (DateTime.Now - eventDate).TotalDays;
+
+            return Math.Max(0, (int)Math.Ceiling(DeadlineDays - daysSinceEvent));
         }
     }
 
@@ -125,6 +159,12 @@ public sealed class EventDetailViewService : ViewServiceBase, IEventDetailViewSe
     /// <inheritdoc />
     public async Task SubmitRatingAsync()
     {
+        if (!CanRate)
+        {
+            _snackbarService.ShowError("Le délai de 3 semaines pour noter cet événement est écoulé.");
+            return;
+        }
+
         if (RatingInput.Rating < 0 || RatingInput.Rating > 5)
         {
             _snackbarService.ShowError("La note doit être comprise entre 0 et 5.");

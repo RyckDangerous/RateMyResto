@@ -317,6 +317,16 @@
                                     Vous pourrez noter ce restaurant une fois l'événement passé ou en cours.
                                 </div>
                             }
+                            else if (!_viewService.CanRate)
+                            {
+                                <div class="alert alert-warning mb-0">
+                                    <i class="bi bi-exclamation-triangle me-2"></i>
+                                    <strong>Délai dépassé</strong>
+                                    <p class="mb-0 mt-2">
+                                        Le délai de 3 semaines pour noter cet événement est écoulé.
+                                    </p>
+                                </div>
+                            }
                             else if (hasUserRated)
                             {
                                 <div class="alert alert-success mb-0">
@@ -328,35 +338,41 @@
                             }
                             else
                             {
+                                <div class="alert alert-info mb-3">
+                                    <i class="bi bi-clock-history me-2"></i>
+                                    <strong>Il reste @_viewService.DaysRemainingForRating jour@(_viewService.DaysRemainingForRating > 1 ? "s" : "") pour noter cet événement.</strong>
+                                    <br />
+                                    <small class="text-muted">La notation est possible pendant 3 semaines après l'événement.</small>
+                                </div>
                                 <form>
                                     <div class="mb-3">
                                         <label for="rating" class="form-label">Note <span class="text-danger">*</span></label>
                                         <div class="rating-input">
-                                            <input type="number" 
-                                                   class="form-control" 
-                                                   id="rating" 
+                                            <input type="number"
+                                                   class="form-control"
+                                                   id="rating"
                                                    @bind="inputRating.Rating"
-                                                   min="0" 
-                                                   max="5" 
+                                                   min="0"
+                                                   max="5"
                                                    step="0.5"
                                                    placeholder="Ex: 4.5" />
                                             <small class="form-text text-muted">Note entre 0 et 5 (par demi-point)</small>
                                         </div>
                                     </div>
-                                    
+
                                     <div class="mb-3">
                                         <label for="comment" class="form-label">Commentaire</label>
-                                        <textarea class="form-control" 
-                                                  id="comment" 
+                                        <textarea class="form-control"
+                                                  id="comment"
                                                   @bind="inputRating.Comment"
                                                   rows="3"
                                                   placeholder="Partagez votre expérience..."
                                                   maxlength="500"></textarea>
                                         <small class="text-muted">@(inputRating.Comment?.Length ?? 0) / 500 caractères</small>
                                     </div>
-                                    
-                                    <button type="button" 
-                                            class="btn btn-primary" 
+
+                                    <button type="button"
+                                            class="btn btn-primary"
                                             @onclick="HandleSubmitRating"
                                             disabled="@(!inputRating.Rating.HasValue || inputRating.Rating < 0 || inputRating.Rating > 5)">
                                         <i class="bi bi-send me-1"></i>Envoyer ma notation
@@ -420,7 +436,7 @@
                                         }
                                         else
                                         {
-                                            <span>Le délai de 4 jours pour ajouter des photos est écoulé.</span>
+                                            <span>Le délai de 3 semaines pour ajouter des photos est écoulé.</span>
                                         }
                                     </p>
                                 </div>
@@ -463,8 +479,8 @@
             </div>
         }
 
-        @* Possible d'ajouter des photos si l'événement est passé 
-        ou en cours et que l'utilisateur a confirmé sa participation ET dans les 4 jours suivant l'événement *@
+        @* Possible d'ajouter des photos si l'événement est passé
+        ou en cours et que l'utilisateur a confirmé sa participation ET dans les 3 semaines suivant l'événement *@
         @if (currentUserParticipant?.Status is ParticipationStatus.Confirme && isEventPastOrToday)
         {
             <div class="row mb-4">
@@ -480,17 +496,9 @@
                             {
                                 <div class="alert alert-info mb-3">
                                     <i class="bi bi-clock-history me-2"></i>
-                                    <strong>Temps restant pour ajouter des photos :</strong>
-                                    @if (_viewService.HoursRemainingForUpload >= 1)
-                                    {
-                                        <span>@Math.Floor(_viewService.HoursRemainingForUpload)h @Math.Floor((_viewService.HoursRemainingForUpload % 1) * 60)min</span>
-                                    }
-                                    else
-                                    {
-                                        <span>@Math.Floor(_viewService.HoursRemainingForUpload * 60)min</span>
-                                    }
+                                    <strong>Il reste @_viewService.DaysRemainingForUpload jour@(_viewService.DaysRemainingForUpload > 1 ? "s" : "") pour ajouter des photos.</strong>
                                     <br />
-                                    <small class="text-muted">L'upload de photos est possible pendant 4 jours après l'événement.</small>
+                                    <small class="text-muted">L'upload de photos est possible pendant 3 semaines après l'événement.</small>
                                 </div>
                                 <PhotoUploader OnPhotoSelected="HandlePhotoUpload" />
                             }
@@ -500,7 +508,7 @@
                                     <i class="bi bi-exclamation-triangle me-2"></i>
                                     <strong>Délai dépassé</strong>
                                     <p class="mb-0 mt-2">
-                                        Le délai de 4 jours pour ajouter des photos est écoulé. 
+                                        Le délai de 3 semaines pour ajouter des photos est écoulé.
                                         L'upload de photos n'est plus possible pour cet événement.
                                     </p>
                                 </div>
