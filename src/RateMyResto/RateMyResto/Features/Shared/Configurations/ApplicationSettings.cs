@@ -1,3 +1,5 @@
+using Microsoft.Data.SqlClient;
+
 namespace RateMyResto.Features.Shared.Configurations;
 
 public struct ApplicationSettings : IApplicationSettings
@@ -20,7 +22,20 @@ public struct ApplicationSettings : IApplicationSettings
     /// <inheritdoc/>
     public string GetSqlServerConnection()
     {
-        return $"Server={SqlServer};Database={Dbname};User Id={UserLogin};Password={UserPassword};TrustServerCertificate=True;MultipleActiveResultSets=true;";
+        SqlConnectionStringBuilder builder = new ()
+        {
+            DataSource = $"{SqlServer}",
+            InitialCatalog = Dbname,
+            UserID = UserLogin,
+            Password = UserPassword,
+            TrustServerCertificate = true,
+            MultipleActiveResultSets = true,
+            Encrypt = true,
+            ConnectTimeout = 30
+        };
+
+
+        return builder.ConnectionString;
     }
 
 }

@@ -6,7 +6,7 @@
 @using RateMyResto.Features.Shared.Models
 @using Microsoft.AspNetCore.Authorization
 
-@rendermode InteractiveServer
+@rendermode @(new InteractiveServerRenderMode(prerender: false))
 @attribute [Authorize]
 
 <PageTitle>Détail de l'événement</PageTitle>
@@ -25,7 +25,7 @@
     {
         var viewModel = _viewService.ViewModel;
         var isEventPastOrToday = viewModel.DateEvenement <= DateOnly.FromDateTime(DateTime.Today);
-        var currentUserParticipant = viewModel.ParticipantsInfo.FirstOrDefault(p => p.ParticipantName == _currentUserName);
+        var currentUserParticipant = viewModel.ParticipantsInfo.FirstOrDefault(p => p.IsCurrentUser);
         var hasUserRated = currentUserParticipant?.Note.HasValue ?? false;
 
         var inputRating = _viewService.RatingInput;

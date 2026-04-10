@@ -47,10 +47,10 @@ try
 
     builder.Services.AddLogging();
 
-    string connectionString = builder.Services.ConfigureSettings(builder.Configuration);
+    string sqlConnection = builder.Services.ConfigureSettings(builder.Configuration);
 
     builder.Services.AddDbContext<ApplicationDbContext>(options =>
-        options.UseSqlServer(connectionString));
+        options.UseSqlServer(sqlConnection));
     builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
     builder.Services.AddIdentityCore<ApplicationUser>(options =>
@@ -87,6 +87,7 @@ try
     {
         // Appliquer les migrations EF Core en attente
         ApplicationDbContext? db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+
         await db.Database.MigrateAsync();
 
         // Appliquer les migrations DbUp

@@ -275,7 +275,8 @@ public sealed class EventDetailViewService : ViewServiceBase, IEventDetailViewSe
                 Commentaire = participantDb.Commentaire,
                 DateReview = participantDb.DateReview,
                 CanChangeStatus = canManage
-                               && (noVotesYet || (value.NoteGlobale.HasValue && !participantDb.Note.HasValue))
+                               && (noVotesYet || (value.NoteGlobale.HasValue && !participantDb.Note.HasValue)),
+                IsCurrentUser = participantDb.AspNetUserId == _currentUserId
             })
             .ToList();
 

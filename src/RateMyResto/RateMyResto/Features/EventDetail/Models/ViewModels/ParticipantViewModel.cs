@@ -44,4 +44,9 @@ public sealed record ParticipantViewModel
     /// Vrai si aucun vote n'a encore eu lieu, ou si l'événement est terminé et que ce participant n'a pas voté.
     /// </summary>
     public bool CanChangeStatus { get; set; }
+
+    /// <summary>
+    /// Indique si ce participant est l'utilisateur actuellement connecté.
+    /// </summary>
+    public bool IsCurrentUser { get; set; }
 }

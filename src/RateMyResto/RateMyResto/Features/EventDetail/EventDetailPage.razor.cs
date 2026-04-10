@@ -14,11 +14,6 @@ public partial class EventDetailPage : ComponentBase
     [Inject]
     private IEventDetailViewService _viewService { get; set; } = default!;
 
-    [Inject]
-    private Microsoft.AspNetCore.Components.Authorization.AuthenticationStateProvider AuthenticationStateProvider { get; set; } = default!;
-
-    private string? _currentUserName;
-
     /// <summary>
     /// Initialisation du composant.
     /// </summary>
@@ -31,13 +26,9 @@ public partial class EventDetailPage : ComponentBase
             viewServiceBase.RegisterUiRefresh(() => InvokeAsync(StateHasChanged));
         }
 
-        // Récupérer le nom de l'utilisateur connecté
-        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
-        _currentUserName = authState.User.Identity?.Name;
-
         // Charger les détails de l'événement
+        // RefreshUI() dans LoadEvent déclenche déjà StateHasChanged via le callback enregistré ci-dessus
         await _viewService.LoadEvent(EventId);
-        StateHasChanged();
     }
 
     /// <summary>

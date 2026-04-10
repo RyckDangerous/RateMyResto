@@ -4,7 +4,7 @@
 @using RateMyResto.Features.Event.Services
 @using RateMyResto.Features.Shared.Models
 
-@rendermode InteractiveServer
+@rendermode @(new InteractiveServerRenderMode(prerender: false))
 @attribute [Authorize]
 
 <PageTitle>Événements</PageTitle>

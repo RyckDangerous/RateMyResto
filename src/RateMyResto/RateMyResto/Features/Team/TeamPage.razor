@@ -3,7 +3,7 @@
 @using RateMyResto.Features.Team.Components
 @using Microsoft.AspNetCore.Authorization
 
-@rendermode InteractiveServer
+@rendermode @(new InteractiveServerRenderMode(prerender: false))
 @attribute [Authorize]
 
 <PageTitle>Équipes</PageTitle>
