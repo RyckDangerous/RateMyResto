@@ -22,6 +22,11 @@ public sealed record PendingReminderDb
     public required string NomRestaurant { get; init; }
 
     /// <summary>
+    /// Nom de l'équipe organisatrice de l'évènement.
+    /// </summary>
+    public required string NomEquipe { get; init; }
+
+    /// <summary>
     /// Identifiant du lien utilisateur-équipe (dbo.UserTeams.Id).
     /// </summary>
     public required int UserTeamsId { get; init; }

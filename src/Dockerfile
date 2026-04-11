@@ -33,6 +33,9 @@ ENV ENVRATE_Smtp__Host=""
 ENV ENVRATE_Smtp__Port="587"
 ENV ENVRATE_Smtp__From=""
 
+# URL publique de l'application — utilisée dans les liens des emails
+ENV ENVRATE_Mailing__AppBaseUrl=""
+
 EXPOSE 8080
 
 # Démarrage

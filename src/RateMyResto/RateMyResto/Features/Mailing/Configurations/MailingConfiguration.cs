@@ -12,7 +12,8 @@ public static class MailingConfiguration
 {
     /// <summary>
     /// Ajoute les services de la feature Mailing au conteneur DI :
-    /// binding SmtpSettings, rendu BlazorMail, envoi SMTP MailKit et service de rappel.
+    /// binding SmtpSettings et MailingAppSettings, rendu BlazorMail,
+    /// envoi SMTP MailKit et service de rappel.
     /// </summary>
     /// <param name="services">Collection de services.</param>
     /// <param name="configuration">Configuration de l'application.</param>
@@ -20,6 +21,7 @@ public static class MailingConfiguration
                                                          IConfiguration configuration)
     {
         services.Configure<SmtpSettings>(configuration.GetSection("Smtp"));
+        services.Configure<MailingAppSettings>(configuration.GetSection("Mailing"));
 
         services.AddBlazorMail();
 

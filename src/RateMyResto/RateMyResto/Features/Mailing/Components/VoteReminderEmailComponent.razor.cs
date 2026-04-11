@@ -10,10 +10,16 @@ namespace RateMyResto.Features.Mailing.Components;
 public sealed partial class VoteReminderEmailComponent : ComponentBase
 {
     /// <summary>
-    /// Nom d'affichage du destinataire.
+    /// Nom d'affichage du destinataire (DisplayName ou UserName en fallback).
     /// </summary>
     [Parameter]
     public required string DisplayName { get; set; }
+
+    /// <summary>
+    /// Nom de l'équipe organisatrice de l'évènement.
+    /// </summary>
+    [Parameter]
+    public required string NomEquipe { get; set; }
 
     /// <summary>
     /// Nom du restaurant de l'évènement à noter.
@@ -26,6 +32,13 @@ public sealed partial class VoteReminderEmailComponent : ComponentBase
     /// </summary>
     [Parameter]
     public required DateOnly DateEvenement { get; set; }
+
+    /// <summary>
+    /// URL complète vers la page de détail de l'évènement.
+    /// Exemple : https://rate-my-resto.ctrl-alt-suppr.net/event/detail/{guid}
+    /// </summary>
+    [Parameter]
+    public required string EventDetailUrl { get; set; }
 
     /// <summary>
     /// Date formatée en français pour affichage dans le mail.

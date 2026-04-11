@@ -57,6 +57,7 @@ BEGIN
     SELECT evt.Id                                  AS EventId,
            evt.DateEvenement                       AS DateEvenement,
            r.Nom                                   AS NomRestaurant,
+           eq.Nom                                  AS NomEquipe,
            ut.Id                                   AS UserTeamsId,
            usr.Id                                  AS AspNetUserId,
            usr.Email                               AS Email,
@@ -70,6 +71,8 @@ BEGIN
         ON usr.Id = ut.UserId
     INNER JOIN dbo.Restaurants  AS r
         ON r.Id = evt.RestaurantId
+    INNER JOIN dbo.Teams        AS eq
+        ON eq.Id = evt.TeamId
     LEFT JOIN dbo.ReminderSent  AS rs
         ON rs.EventRepasId = evt.Id
        AND rs.UserTeamsId  = ut.Id
