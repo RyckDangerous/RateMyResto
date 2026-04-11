@@ -1,0 +1,75 @@
+@namespace RateMyResto.Features.Mailing.Components
+
+<html lang="fr">
+<head>
+    <meta charset="utf-8" />
+    <title>Rappel de vote RateMyResto</title>
+    <style>
+        .email-body {
+            font-family: Arial, Helvetica, sans-serif;
+            color: #222222;
+            background-color: #f5f5f5;
+            padding: 24px;
+        }
+
+        .email-card {
+            background-color: #ffffff;
+            max-width: 560px;
+            margin: 0 auto;
+            padding: 32px;
+            border-radius: 8px;
+            border: 1px solid #e0e0e0;
+        }
+
+        .email-title {
+            color: #c62828;
+            font-size: 22px;
+            margin: 0 0 16px 0;
+        }
+
+        .email-text {
+            font-size: 15px;
+            line-height: 1.5;
+            margin: 0 0 16px 0;
+        }
+
+        .email-highlight {
+            font-weight: bold;
+            color: #c62828;
+        }
+
+        .email-footer {
+            font-size: 12px;
+            color: #888888;
+            margin-top: 24px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body class="email-body">
+    <div class="email-card">
+        <h1 class="email-title">Bonjour @DisplayName,</h1>
+
+        <p class="email-text">
+            Vous avez participé à l'évènement au restaurant
+            <span class="email-highlight">@NomRestaurant</span>
+            du <span class="email-highlight">@FormattedDate</span>.
+        </p>
+
+        <p class="email-text">
+            Pensez à déposer votre note et vos impressions sur RateMyResto pour que
+            toute l'équipe puisse profiter de votre retour.
+        </p>
+
+        <p class="email-text">
+            À bientôt,<br />
+            L'équipe RateMyResto
+        </p>
+
+        <div class="email-footer">
+            Ce message est un rappel automatique. Si vous avez déjà voté,
+            merci d'ignorer cet email.
+        </div>
+    </div>
+</body>
+</html>

@@ -11,6 +11,9 @@ using RateMyResto.Features.DbMigration.Configurations;
 using RateMyResto.Features.DbMigration.Services;
 using RateMyResto.Features.Event.Configurations;
 using RateMyResto.Features.EventDetail.Configurations;
+using RateMyResto.Features.Mailing.Configurations;
+using RateMyResto.Features.Mailing.Services;
+using RateMyResto.Features.Shared.Cli;
 using RateMyResto.Features.Shared.Configurations;
 using RateMyResto.Features.Team.Configurations;
 
@@ -22,6 +25,16 @@ ILogger? logger = LoggerFactory.Create(builder =>
 
 try
 {
+    StartupOptions startupOptions = StartupOptions.Parse(args);
+
+    if (!startupOptions.IsValid)
+    {
+        logger?.LogCritical("Arguments invalides : {Error}", startupOptions.ParsingError);
+        return;
+    }
+
+    logger?.LogInformation("Mode de démarrage : {Mode}", startupOptions.Mode);
+
     WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
     // Add services to the container.
@@ -70,7 +83,8 @@ try
                     .AddTeamFeatures()
                     .AddEventFeatures()
                     .AddEventDetailFeatures()
-                    .AddAccountFeatures();
+                    .AddAccountFeatures()
+                    .AddMailingFeatures(builder.Configuration);
 
     WebApplication app = builder.Build();
 
@@ -108,6 +122,29 @@ try
         {
             await createAdminService.CreateAdminAsync();
         }
+    }
+
+    // Mode CLI : exécution d'une sous-commande puis arrêt immédiat,
+    // sans démarrer le pipeline HTTP.
+    if (startupOptions.Mode is StartupMode.Cli)
+    {
+        using IServiceScope cliScope = app.Services.CreateScope();
+
+        switch (startupOptions.Command)
+        {
+            case CliCommand.Reminder:
+                IReminderService reminderService =
+                    cliScope.ServiceProvider.GetRequiredService<IReminderService>();
+                int sent = await reminderService.SendPendingRemindersAsync();
+                logger?.LogInformation("CLI --reminder terminée. Rappels envoyés : {Count}", sent);
+                break;
+
+            default:
+                logger?.LogCritical("Sous-commande CLI inconnue : {Command}", startupOptions.Command);
+                break;
+        }
+
+        return;
     }
 
     app.UseStatusCodePagesWithReExecute("/not-found", createScopeForStatusCodePages: true);
