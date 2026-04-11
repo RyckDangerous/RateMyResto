@@ -28,7 +28,19 @@ ENV ENVRATE_ConnectionStrings__Login=""
 ENV ENVRATE_ConnectionStrings__Password=""
 ENV ENVRATE_AdminAccount__Password=""
 
+# Variables d'environnement pour le serveur SMTP (feature Mailing)
+ENV ENVRATE_Smtp__Host=""
+ENV ENVRATE_Smtp__Port="587"
+ENV ENVRATE_Smtp__From=""
+
+# URL publique de l'application — utilisée dans les liens des emails
+ENV ENVRATE_Mailing__AppBaseUrl=""
+
 EXPOSE 8080
 
 # Démarrage
+# - Par défaut (CMD "--mode=web") : lance le serveur web Blazor.
+# - Pour exécuter une commande CLI (ex: en CRON), surcharger le CMD :
+#     docker run --rm image --mode=cli --reminder
 ENTRYPOINT ["dotnet", "RateMyResto.dll"]
+CMD ["--mode=web"]
