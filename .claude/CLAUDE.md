@@ -36,20 +36,51 @@ docker run -e ENVRATE_ConnectionStrings__Server="..." \
 ```
 src/RateMyResto/RateMyResto/
 ├── Core/                    # Infrastructure transversale
-│   ├── Data/                # Repository de base
+│   ├── Data/                # Repository de base (RepositoryBase<T>)
 │   ├── Logging/             # Utilitaires de log
-│   └── Models/              # Result pattern, types d'erreurs
+│   └── Models/              # Result pattern (ResultOf<T>), types d'erreurs
 ├── Features/                # Vertical Slice Architecture
 │   ├── Account/             # Authentification, gestion des utilisateurs
 │   ├── Data/                # DbContext + migrations EF Core
-│   ├── DbMigration/         # Scripts DbUp
+│   ├── DbMigration/         # Scripts DbUp (.sql embarqués, ordre alphabétique)
 │   ├── Event/               # Gestion des événements de vote
 │   ├── EventDetail/         # Détails, avis, photos
+│   ├── Mailing/             # Envoi d'emails (BlazorMail + MailKit)
 │   ├── Team/                # Gestion des équipes
 │   ├── Shared/              # Services et composants partagés
 │   └── Layout/              # Composants de mise en page
 └── Program.cs
 ```
+
+### Routes de navigation
+
+| Page | Route |
+|------|-------|
+| Événements (liste équipe) | `/events` |
+| Détail d'un événement | `/event/detail/{guid}` |
+
+### Feature Mailing — points clés
+
+- **BlazorMail** : composants `.razor` autonomes (zéro `@inject`) rendus en HTML via `IBlazorMailRenderer.RenderAsync<TComponent>(Dictionary<string,object?>)`
+- **MailKit** : SMTP sans TLS (`SecureSocketOptions.None`) — prévu pour réseau Docker interne
+- **Configuration** : `SmtpSettings` (section `"Smtp"`) + `MailingAppSettings.AppBaseUrl` (section `"Mailing"`) — variables d'env `ENVRATE_Smtp__*` et `ENVRATE_Mailing__AppBaseUrl`
+- **CLI** : `--mode=cli --reminder` déclenche `IReminderService.SendPendingRemindersAsync()` (hors pipeline Web)
+- **Notification création** : `IEventNotificationService.SendNewEventNotificationsAsync(Guid eventId)` appelé depuis `EventViewService.CreateEventAsync()` après succès — échec SMTP non-bloquant
+
+### Feature Event — points clés
+
+- **Création** : `EventViewService.CreateEventAsync()` dans `Features/Event/Services/`
+  - Génère `Guid.CreateVersion7()` pour l'ID event **avant** d'appeler le repository
+  - `sp_CreateEvent` insère l'event ET ajoute automatiquement tous les membres de l'équipe comme participants (statut 1 = "Invité")
+- **Statuts de participation** : 1 = Invité, 2 = Confirmé, 3 = Décliné, 4 = Absent
+- **Restaurant** : table `dbo.Restaurants` avec `Nom`, `Adresse` (requis), `LienGoogleMaps` (optionnel)
+
+### Patterns de data access
+
+- Tous les repositories héritent de `RepositoryBase<T>` (`Core/Data/`)
+- Résultats JSON des procédures stockées → `ExecuteStoredProcedureWithJsonResultAsync<T>()`
+- `NotFoundError` = aucune ligne retournée (pas une erreur métier — convertir en liste vide si applicable)
+- Inserts/updates sans retour → `ExecuteNonQueryStoredProcedureAsync()`
 
 ---
 
@@ -337,83 +368,16 @@ public sealed record UpdateEventForm
 
 ## 🗄️ Standards SQL Server
 
-### Mots-clés SQL
-- **TOUJOURS** écrire les mots-clés SQL Server en MAJUSCULE
-- Exemples : `SELECT`, `FROM`, `WHERE`, `INSERT`, `UPDATE`, `DELETE`, `JOIN`, `INNER JOIN`, `LEFT JOIN`, `CREATE`, `ALTER`, `DROP`, etc.
+> Les règles SQL complètes sont dans [`.claude/rules/T-SQLRules.md`](.claude/rules/T-SQLRules.md).
 
-### Utilisation des crochets [ ]
-- **NE PAS** abuser des crochets sur tous les champs
-- **UNIQUEMENT** utiliser les crochets pour les noms qui sont des mots-clés SQL
-- Exemples : `[Description]`, `[Role]`, `[User]`, `[Group]`, `[Order]`, `[Key]`, `[Type]`
+Résumé des points clés :
 
-### Valeurs par défaut (DEFAULT)
-
-**INTERDICTION TOTALE** : Ne jamais utiliser de contraintes `DEFAULT` sur les colonnes.
-Les valeurs par défaut doivent être gérées au niveau de l'application.
-
-```sql
--- ❌ MAUVAIS
-CREATE TABLE dbo.Event
-(
-    Id INT IDENTITY(1,1) NOT NULL,
-    Name NVARCHAR(200) NOT NULL,
-    CreatedAt DATETIME2 NOT NULL DEFAULT GETUTCDATE(),
-    ...
-);
-
--- ✅ BON - Valeurs gérées par l'application
-CREATE TABLE dbo.Event
-(
-    Id INT IDENTITY(1,1) NOT NULL,
-    Name NVARCHAR(200) NOT NULL,
-    CreatedAt DATETIME2 NOT NULL,
-    ...
-);
-```
-
-### Schémas
-- **TOUJOURS** préfixer les noms de tables avec le schéma : `dbo.`
-
-### Convention de nommage des contraintes
-- **Primary Key** : `PK_{NomTable}`
-- **Foreign Key** : `FK_{NomTable}_{NomTableReferee}`
-- **Unique** : `UK_{NomTable}_{NomColonne}`
-- **Check** : `CK_{NomTable}_{NomColonne}`
-- **Index** : `IX_{NomTable}_{NomColonne}`
-
-```sql
--- ✅ BON
-CREATE TABLE dbo.Event
-(
-    Id INT IDENTITY(1,1) NOT NULL,
-    Name NVARCHAR(200) NOT NULL,
-    TeamId INT NOT NULL,
-
-    CONSTRAINT PK_Event
-        PRIMARY KEY (Id),
-
-    CONSTRAINT FK_Event_Team
-        FOREIGN KEY (TeamId) REFERENCES dbo.Team(Id)
-);
-```
-
-### Indentation et lisibilité
-
-```sql
--- ✅ BON - Conditions alignées
-SELECT e.Id,
-       e.Name,
-       t.Name AS TeamName
-FROM dbo.Event AS e
-INNER JOIN dbo.Team AS t
-    ON e.TeamId = t.Id
-WHERE e.TeamId = @TeamId
-  AND e.Date >= @DateStart
-  AND e.IsActive = 1;
-
--- ❌ MAUVAIS - Tout sur une ligne
-SELECT e.Id, e.Name FROM dbo.Event AS e WHERE e.TeamId = @TeamId AND e.IsActive = 1;
-```
+- Mots-clés en **MAJUSCULE** (`SELECT`, `FROM`, `WHERE`, etc.)
+- Crochets `[ ]` uniquement sur les mots-clés SQL réservés (`[Description]`, `[Role]`…)
+- **INTERDIT** : contraintes `DEFAULT` — valeurs gérées par l'application
+- Schéma obligatoire : `dbo.TableName`
+- Contraintes nommées : `PK_`, `FK_`, `UK_`, `CK_`, `IX_`
+- Conditions alignées sous `WHERE`, `AND` en début de ligne
 
 ---
 

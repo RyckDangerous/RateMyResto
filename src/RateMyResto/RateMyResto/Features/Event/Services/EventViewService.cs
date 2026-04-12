@@ -6,6 +6,7 @@ using RateMyResto.Features.Event.Models.Dbs;
 using RateMyResto.Features.Event.Models.Queries;
 using RateMyResto.Features.Event.Models.ViewModels;
 using RateMyResto.Features.Event.Repositories;
+using RateMyResto.Features.Mailing.Services;
 using RateMyResto.Features.Shared.Components.SnackbarComponent;
 using RateMyResto.Features.Shared.Converters;
 using RateMyResto.Features.Shared.Models;
@@ -21,6 +22,8 @@ public sealed class EventViewService : ViewServiceBase, IEventViewService
     private readonly IRestaurantRepository _restaurantRepository;
     private readonly ITeamRepository _teamRepository;
     private readonly NavigationManager _navigationManager;
+    private readonly IEventNotificationService _eventNotificationService;
+    private readonly ILogger<EventViewService> _logger;
 
     /// <summary>
     /// L'Id de l'équipe sélectionnée pour la création d'un événement.
@@ -55,7 +58,9 @@ public sealed class EventViewService : ViewServiceBase, IEventViewService
                             IRestaurantRepository restaurantRepository,
                             ITeamRepository teamRepository,
                             ISnackbarService snackbarService,
-                            NavigationManager navigationManager)
+                            NavigationManager navigationManager,
+                            IEventNotificationService eventNotificationService,
+                            ILogger<EventViewService> logger)
         : base(authStateProvider)
     {
         _eventRepository = eventRepository;
@@ -63,6 +68,8 @@ public sealed class EventViewService : ViewServiceBase, IEventViewService
         _teamRepository = teamRepository;
         _snackbarService = snackbarService;
         _navigationManager = navigationManager;
+        _eventNotificationService = eventNotificationService;
+        _logger = logger;
 
         ViewModel = new()
         {
@@ -282,8 +289,11 @@ public sealed class EventViewService : ViewServiceBase, IEventViewService
             return;
         }
 
+        Guid idEvent = Guid.CreateVersion7();
+
         NewEventCommand command = new()
         {
+            IdEvent = idEvent,
             IdTeam = _currentTeamIdSelected.Value,
             IdInitiateur = idUserResult.Value,
             IdRestaurant = idRestaurant.Value,
@@ -294,6 +304,18 @@ public sealed class EventViewService : ViewServiceBase, IEventViewService
         if (createResult.HasError)
         {
             _snackbarService.ShowError("Erreur lors de la création de l'événement.");
+            return;
+        }
+
+        try
+        {
+            int sent = await _eventNotificationService.SendNewEventNotificationsAsync(idEvent);
+            _logger.LogInformation("Notifications envoyées pour l'événement {EventId} : {Count}", idEvent, sent);
+        }
+        catch (Exception ex)
+        {
+            // La création a réussi — ne pas bloquer l'utilisateur pour un échec de notification
+            _logger.LogError(ex, "Erreur lors de l'envoi des notifications pour l'événement {EventId}", idEvent);
         }
     }
 

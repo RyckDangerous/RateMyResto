@@ -3,6 +3,7 @@ using RateMyResto.Features.Mailing.Models;
 using RateMyResto.Features.Mailing.Repositories;
 using RateMyResto.Features.Mailing.Services;
 
+
 namespace RateMyResto.Features.Mailing.Configurations;
 
 /// <summary>
@@ -26,8 +27,10 @@ public static class MailingConfiguration
         services.AddBlazorMail();
 
         services.AddScoped<IReminderRepository, ReminderRepository>();
+        services.AddScoped<IEventNotificationRepository, EventNotificationRepository>();
         services.AddTransient<IMailSender, MailSender>();
         services.AddScoped<IReminderService, ReminderService>();
+        services.AddScoped<IEventNotificationService, EventNotificationService>();
 
         return services;
     }

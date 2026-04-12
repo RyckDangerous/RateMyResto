@@ -32,20 +32,29 @@
 
 ---
 
-## 📄 Structure des fichiers
+## 📄 Structure des fichiers — Règle fondamentale
 
-Chaque composant ou page doit être découpé en **3 fichiers** :
+**Chaque composant ou page est obligatoirement découpé en 3 fichiers distincts, sans exception :**
+
+| Fichier | Contenu | Interdit |
+|---|---|---|
+| `LaView.razor` | HTML + directives Razor uniquement | Tout bloc `@code { }`, toute logique C# |
+| `LaView.razor.cs` | Tout le code C# : `[Parameter]`, `[Inject]`, constructeur, méthodes | Markup HTML |
+| `LaView.razor.css` | Styles CSS scopés à ce composant | Styles inline dans le `.razor` |
 
 ```
-EventPage.razor         ← markup uniquement, aucune logique
-EventPage.razor.cs      ← toute la logique C#
-EventPage.razor.css     ← styles scoped à ce composant
+EventPage.razor         ← HTML uniquement (markup, @if, @foreach, appels de handlers)
+EventPage.razor.cs      ← tout le C# (paramètres, injections, constructeur, méthodes)
+EventPage.razor.css     ← CSS scopé à ce composant
 ```
+
+> ❌ **JAMAIS de bloc `@code { }` dans un fichier `.razor`** dès lors qu'un `.razor.cs` existe.
+> Le `.razor` ne doit contenir aucune déclaration de variable, de méthode ou de logique.
 
 ### Règles du fichier `.razor`
 
 - **Uniquement du markup** : HTML, directives Razor (`@if`, `@foreach`, `@bind-Value`), appels de handlers
-- **AUCUN bloc `@code { }`** sauf pour les composants simples sans `.razor.cs`
+- **AUCUN bloc `@code { }`** — tout le code va dans le `.razor.cs`
 - **AUCUN calcul** dans le markup — extraire dans une propriété du code-behind
 
 ```razor
@@ -366,16 +375,18 @@ private async Task HandleButtonClick()
 
 ## 📌 Résumé : Les règles d'or du front
 
-1. ✅ **Markup = affichage uniquement** — aucune logique, aucun calcul dans `.razor`
-2. ✅ **Pages** : `@inject` OK, charge les données depuis les services
-3. ✅ **Components** : zéro `@inject`, tout via `[Parameter]`
-4. ✅ **`EventCallback<T>`** — communication enfant → parent, toujours avec `InvokeAsync`
-5. ✅ **Formulaires** : objet `Form` dédié, jamais binder sur ViewModel/entité DB
-6. ✅ **`sealed partial`** sur toutes les classes code-behind
-7. ✅ **`IDisposable`** — désabonner tous les événements de service dans `Dispose()`
-8. ✅ **`InvokeAsync(StateHasChanged)`** — pour les mises à jour depuis des threads externes
-9. ✅ **Styles scoped** — `.razor.css`, jamais de styles inline
-10. ✅ **`HasDelegate`** — vérifier avant d'invoquer un `EventCallback` optionnel
+1. ✅ **3 fichiers obligatoires** — `.razor` (HTML), `.razor.cs` (tout le C#), `.razor.css` (CSS scopé)
+2. ✅ **Jamais de `@code { }`** dans un `.razor` qui possède un `.razor.cs`
+3. ✅ **Markup = affichage uniquement** — aucune logique, aucun calcul dans `.razor`
+4. ✅ **Pages** : `@inject` OK, charge les données depuis les services
+5. ✅ **Components** : zéro `@inject`, tout via `[Parameter]`
+6. ✅ **`EventCallback<T>`** — communication enfant → parent, toujours avec `InvokeAsync`
+7. ✅ **Formulaires** : objet `Form` dédié, jamais binder sur ViewModel/entité DB
+8. ✅ **`sealed partial`** sur toutes les classes code-behind
+9. ✅ **`IDisposable`** — désabonner tous les événements de service dans `Dispose()`
+10. ✅ **`InvokeAsync(StateHasChanged)`** — pour les mises à jour depuis des threads externes
+11. ✅ **Styles scoped** — `.razor.css`, jamais de styles inline
+12. ✅ **`HasDelegate`** — vérifier avant d'invoquer un `EventCallback` optionnel
 
 ---
 
