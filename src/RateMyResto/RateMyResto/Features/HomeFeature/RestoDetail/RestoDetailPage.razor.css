@@ -1,0 +1,235 @@
+/* ── Wrapper ─────────────────────────────────────────── */
+.page-wrapper {
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 32px 24px 64px;
+    background-color: #f4f4f5;
+    min-height: 100vh;
+}
+
+/* ── Back bar ────────────────────────────────────────── */
+.back-bar {
+    margin-bottom: 24px;
+}
+
+.back-link {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #c62828;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    transition: opacity 0.15s ease;
+}
+
+    .back-link:hover {
+        opacity: 0.75;
+    }
+
+/* ── Restaurant header ───────────────────────────────── */
+.resto-header {
+    background-color: #ffffff;
+    border: 1px solid #e4e4e7;
+    border-radius: 12px;
+    padding: 28px 32px;
+    margin-bottom: 32px;
+}
+
+.resto-header-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    flex-wrap: wrap;
+    gap: 20px;
+    margin-bottom: 16px;
+}
+
+.resto-name {
+    font-size: 1.75rem;
+    font-weight: 800;
+    color: #111111;
+    margin-bottom: 8px;
+}
+
+.resto-address {
+    font-size: 0.95rem;
+    color: #555555;
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.maps-link {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: #1565c0;
+    text-decoration: none;
+    transition: opacity 0.15s ease;
+}
+
+    .maps-link:hover {
+        opacity: 0.75;
+    }
+
+.resto-meta {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 12px;
+}
+
+.event-date {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+}
+
+.meta-label {
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: #c62828;
+}
+
+.meta-value {
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: #222222;
+    text-transform: capitalize;
+}
+
+/* ── Global rating ───────────────────────────────────── */
+.global-rating {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.rating-value {
+    font-size: 1.5rem;
+    font-weight: 800;
+    color: #111111;
+}
+
+.rating-stars {
+    display: flex;
+    gap: 1px;
+}
+
+.star {
+    font-size: 1.1rem;
+}
+
+.star-full {
+    color: #f59e0b;
+}
+
+.star-half {
+    color: #f59e0b;
+    opacity: 0.6;
+}
+
+.star-empty {
+    color: #d1d5db;
+}
+
+.rating-count {
+    font-size: 0.85rem;
+    color: #777777;
+}
+
+.team-badge {
+    font-size: 0.875rem;
+    color: #444444;
+    padding-top: 12px;
+    border-top: 1px solid #f0f0f0;
+}
+
+/* ── Section titles ──────────────────────────────────── */
+.section-title {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #111111;
+    margin-bottom: 18px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.avis-count {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #c62828;
+    color: #ffffff;
+    font-size: 0.75rem;
+    font-weight: 700;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+}
+
+/* ── Photos gallery ──────────────────────────────────── */
+.photos-section {
+    margin-bottom: 36px;
+}
+
+.photos-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 12px;
+}
+
+.photo-item {
+    border-radius: 8px;
+    overflow: hidden;
+    aspect-ratio: 4 / 3;
+    background-color: #e4e4e7;
+}
+
+    .photo-item img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform 0.2s ease;
+    }
+
+    .photo-item:hover img {
+        transform: scale(1.03);
+    }
+
+/* ── Avis section ────────────────────────────────────── */
+.avis-section {
+    margin-bottom: 32px;
+}
+
+.avis-list {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+.no-avis {
+    font-size: 0.95rem;
+    color: #777777;
+    font-style: italic;
+}
+
+/* ── Empty state ─────────────────────────────────────── */
+.empty-state {
+    text-align: center;
+    padding: 80px 24px;
+}
+
+.empty-icon {
+    font-size: 48px;
+    margin-bottom: 16px;
+}
+
+.empty-text {
+    font-size: 1rem;
+    color: #777777;
+}

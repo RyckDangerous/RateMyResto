@@ -1,0 +1,91 @@
+/* ── Avis card ───────────────────────────────────────── */
+.avis-card {
+    background-color: #ffffff;
+    border: 1px solid #e4e4e7;
+    border-radius: 10px;
+    padding: 18px 20px;
+}
+
+/* ── Avis header ─────────────────────────────────────── */
+.avis-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 10px;
+}
+
+.avis-author {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.author-icon {
+    font-size: 1.1rem;
+    background-color: #f4f4f5;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.author-label {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: #333333;
+}
+
+/* ── Meta (stars + date) ─────────────────────────────── */
+.avis-meta {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.avis-stars {
+    display: flex;
+    gap: 1px;
+}
+
+.star {
+    font-size: 0.95rem;
+}
+
+.star-full {
+    color: #f59e0b;
+}
+
+.star-half {
+    color: #f59e0b;
+    opacity: 0.55;
+}
+
+.star-empty {
+    color: #d1d5db;
+}
+
+.avis-note {
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: #111111;
+}
+
+.avis-date {
+    font-size: 0.78rem;
+    color: #999999;
+    white-space: nowrap;
+}
+
+/* ── Commentaire ─────────────────────────────────────── */
+.avis-commentaire {
+    font-size: 0.9rem;
+    color: #444444;
+    line-height: 1.6;
+    margin: 0;
+    padding-top: 8px;
+    border-top: 1px solid #f0f0f0;
+}

@@ -1,0 +1,47 @@
+@namespace RateMyResto.Features.HomeFeature.TeamsResto.Components
+@using RateMyResto.Features.HomeFeature.TeamsResto.Models
+@using System.Globalization
+
+<div class="event-card" @onclick="HandleClick">
+    <div class="card-date">
+        <span class="date-day">@Event.DateEvenement.Day</span>
+        <span class="date-month">@Event.DateEvenement.ToString("MMM", CultureInfo.GetCultureInfo("fr-FR")).ToUpper()</span>
+        <span class="date-year">@Event.DateEvenement.Year</span>
+    </div>
+    <div class="card-body">
+        <h3 class="resto-name">@Event.NomRestaurant</h3>
+        @if (!string.IsNullOrWhiteSpace(Event.Adresse))
+        {
+            <p class="resto-address">📍 @Event.Adresse</p>
+        }
+        @if (Event.NoteGlobale.HasValue)
+        {
+            <div class="rating-row">
+                <span class="rating-value">@Event.NoteGlobale.Value.ToString("0.0")</span>
+                <div class="rating-stars">
+                    @for (int i = 1; i <= 5; i++)
+                    {
+                        int star = i;
+                        @if (star <= Math.Floor((double)Event.NoteGlobale.Value))
+                        {
+                            <span class="star star-full">★</span>
+                        }
+                        else if (star - 0.5 <= (double)Event.NoteGlobale.Value)
+                        {
+                            <span class="star star-half">★</span>
+                        }
+                        else
+                        {
+                            <span class="star star-empty">★</span>
+                        }
+                    }
+                </div>
+            </div>
+        }
+        else
+        {
+            <p class="no-rating">Pas encore noté</p>
+        }
+    </div>
+    <div class="card-arrow">→</div>
+</div>

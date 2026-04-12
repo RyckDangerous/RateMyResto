@@ -1,0 +1,105 @@
+/* ── Wrapper ─────────────────────────────────────────── */
+.home-wrapper {
+    min-height: 100vh;
+    background-color: #f4f4f5;
+}
+
+/* ── Hero ────────────────────────────────────────────── */
+.hero {
+    background: linear-gradient(135deg, #b71c1c 0%, #c62828 50%, #d32f2f 100%);
+    color: #ffffff;
+    padding: 80px 24px 72px;
+    text-align: center;
+}
+
+.hero-content {
+    max-width: 640px;
+    margin: 0 auto;
+}
+
+.hero-icon {
+    font-size: 56px;
+    margin-bottom: 16px;
+    display: block;
+}
+
+.hero-title {
+    font-size: 3rem;
+    font-weight: 800;
+    letter-spacing: -0.5px;
+    margin-bottom: 12px;
+}
+
+.hero-tagline {
+    font-size: 1.15rem;
+    opacity: 0.88;
+    line-height: 1.6;
+    margin-bottom: 32px;
+}
+
+.btn-join {
+    display: inline-block;
+    background-color: #ffffff;
+    color: #c62828;
+    font-weight: 700;
+    font-size: 1rem;
+    padding: 14px 36px;
+    border-radius: 50px;
+    text-decoration: none;
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.2);
+}
+
+    .btn-join:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
+        color: #b71c1c;
+    }
+
+/* ── Teams Section ───────────────────────────────────── */
+.teams-section {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 56px 24px 64px;
+}
+
+.section-header {
+    text-align: center;
+    margin-bottom: 40px;
+}
+
+.section-title {
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: #111111;
+    margin-bottom: 8px;
+}
+
+.section-subtitle {
+    font-size: 1rem;
+    color: #666666;
+}
+
+/* ── Teams Grid ──────────────────────────────────────── */
+.teams-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 24px;
+}
+
+/* ── Empty State ─────────────────────────────────────── */
+.empty-state {
+    text-align: center;
+    padding: 64px 24px;
+}
+
+.empty-icon {
+    font-size: 48px;
+    margin-bottom: 16px;
+}
+
+.empty-text {
+    font-size: 1rem;
+    color: #666666;
+    margin-bottom: 24px;
+}

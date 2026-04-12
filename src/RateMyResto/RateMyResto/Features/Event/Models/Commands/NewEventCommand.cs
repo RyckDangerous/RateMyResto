@@ -6,6 +6,11 @@ namespace RateMyResto.Features.Event.Models.Commands;
 public sealed record NewEventCommand
 {
     /// <summary>
+    /// Identifiant unique de l'événement, généré par l'appelant avant la persistance.
+    /// </summary>
+    public required Guid IdEvent { get; init; }
+
+    /// <summary>
     /// Identifiant de l'équipe
     /// </summary>
     public required Guid IdTeam { get; init; }

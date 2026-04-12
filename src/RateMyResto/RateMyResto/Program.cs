@@ -15,6 +15,7 @@ using RateMyResto.Features.Mailing.Configurations;
 using RateMyResto.Features.Mailing.Services;
 using RateMyResto.Features.Shared.Cli;
 using RateMyResto.Features.Shared.Configurations;
+using RateMyResto.Features.HomeFeature.Configurations;
 using RateMyResto.Features.Team.Configurations;
 
 
@@ -80,6 +81,7 @@ try
 
     builder.Services.AddSharedServices()
                     .AddDbMigrationServices()
+                    .AddHomeFeature()
                     .AddTeamFeatures()
                     .AddEventFeatures()
                     .AddEventDetailFeatures()

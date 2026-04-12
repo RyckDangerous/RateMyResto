@@ -1,0 +1,59 @@
+@namespace RateMyResto.Features.HomeFeature.TeamsResto
+@page "/equipe/{TeamId:guid}"
+@using RateMyResto.Features.HomeFeature.TeamsResto.Components
+@using RateMyResto.Features.HomeFeature.TeamsResto.Models
+@using RateMyResto.Features.HomeFeature.TeamsResto.ViewServices
+
+@rendermode @(new InteractiveServerRenderMode(prerender: false))
+
+<PageTitle>@(_viewService.ViewModel?.NomEquipe ?? "Équipe") — RateMyResto</PageTitle>
+
+<div class="page-wrapper">
+
+    <!-- Back button -->
+    <div class="back-bar">
+        <a href="/" class="back-link">← Retour aux équipes</a>
+    </div>
+
+    @if (_viewService.ViewModel is not null)
+    {
+        <!-- Team header -->
+        <header class="team-header">
+            <h1 class="team-name">@_viewService.ViewModel.NomEquipe</h1>
+            @if (!string.IsNullOrWhiteSpace(_viewService.ViewModel.DescriptionEquipe))
+            {
+                <p class="team-description">@_viewService.ViewModel.DescriptionEquipe</p>
+            }
+            <span class="team-count">
+                @_viewService.ViewModel.Evenements.Count sortie@(_viewService.ViewModel.Evenements.Count > 1 ? "s" : "") restaurant
+            </span>
+        </header>
+
+        @if (_viewService.ViewModel.Evenements.Any())
+        {
+            <div class="events-grid">
+                @foreach (EventPublicDb evt in _viewService.ViewModel.Evenements)
+                {
+                    <EventCardComponent Event="evt"
+                                       TeamId="TeamId"
+                                       OnEventClicked="HandleEventClicked" />
+                }
+            </div>
+        }
+        else
+        {
+            <div class="empty-state">
+                <div class="empty-icon">🍴</div>
+                <p class="empty-text">Cette équipe n'a pas encore de sorties restaurant à afficher.</p>
+            </div>
+        }
+    }
+    else
+    {
+        <div class="empty-state">
+            <div class="empty-icon">❓</div>
+            <p class="empty-text">Équipe introuvable.</p>
+        </div>
+    }
+
+</div>
