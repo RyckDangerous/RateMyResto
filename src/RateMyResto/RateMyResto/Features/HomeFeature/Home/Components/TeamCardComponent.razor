@@ -1,0 +1,22 @@
+@namespace RateMyResto.Features.HomeFeature.Home.Components
+@using RateMyResto.Features.HomeFeature.Home.Models
+
+<div class="team-card" @onclick="HandleClick">
+    <div class="card-body">
+        <h3 class="team-name">@Team.Nom</h3>
+        @if (!string.IsNullOrWhiteSpace(Team.Description))
+        {
+            <p class="team-description">@Team.Description</p>
+        }
+    </div>
+    <div class="card-footer">
+        <span class="badge badge-members">
+            <span class="badge-icon">👤</span>
+            @Team.NombreMembres membre@(Team.NombreMembres > 1 ? "s" : "")
+        </span>
+        <span class="badge badge-events">
+            <span class="badge-icon">🍴</span>
+            @Team.NombreEvenements sortie@(Team.NombreEvenements > 1 ? "s" : "")
+        </span>
+    </div>
+</div>

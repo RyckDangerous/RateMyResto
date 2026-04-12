@@ -1,0 +1,38 @@
+@namespace RateMyResto.Features.HomeFeature.RestoDetail.Components
+@using RateMyResto.Features.HomeFeature.RestoDetail.Models
+@using System.Globalization
+
+<div class="avis-card">
+    <div class="avis-header">
+        <div class="avis-author">
+            <span class="author-icon">👤</span>
+            <span class="author-label">Un participant</span>
+        </div>
+        <div class="avis-meta">
+            <div class="avis-stars">
+                @for (int i = 1; i <= 5; i++)
+                {
+                    int star = i;
+                    @if (star <= Math.Floor((double)Avis.Note))
+                    {
+                        <span class="star star-full">★</span>
+                    }
+                    else if (star - 0.5 <= (double)Avis.Note)
+                    {
+                        <span class="star star-half">★</span>
+                    }
+                    else
+                    {
+                        <span class="star star-empty">★</span>
+                    }
+                }
+            </div>
+            <span class="avis-note">@Avis.Note.ToString("0.0")</span>
+            <span class="avis-date">@Avis.DateReview.ToString("d MMMM yyyy", CultureInfo.GetCultureInfo("fr-FR"))</span>
+        </div>
+    </div>
+    @if (!string.IsNullOrWhiteSpace(Avis.Commentaire))
+    {
+        <p class="avis-commentaire">@Avis.Commentaire</p>
+    }
+</div>

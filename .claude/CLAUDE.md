@@ -45,6 +45,11 @@ src/RateMyResto/RateMyResto/
 │   ├── DbMigration/         # Scripts DbUp (.sql embarqués, ordre alphabétique)
 │   ├── Event/               # Gestion des événements de vote
 │   ├── EventDetail/         # Détails, avis, photos
+│   ├── HomeFeature/         # Vitrine publique (sans authentification)
+│   │   ├── Configurations/  # HomeFeatureConfiguration (AddHomeFeature)
+│   │   ├── Home/            # Page d'accueil / — grille des équipes
+│   │   ├── TeamsResto/      # /equipe/{guid} — événements passés d'une équipe
+│   │   └── RestoDetail/     # /equipe/{guid}/evenement/{guid} — détail anonymisé
 │   ├── Mailing/             # Envoi d'emails (BlazorMail + MailKit)
 │   ├── Team/                # Gestion des équipes
 │   ├── Shared/              # Services et composants partagés
@@ -54,10 +59,22 @@ src/RateMyResto/RateMyResto/
 
 ### Routes de navigation
 
-| Page | Route |
-|------|-------|
-| Événements (liste équipe) | `/events` |
-| Détail d'un événement | `/event/detail/{guid}` |
+| Page | Route | Auth |
+| ---- | ----- | ---- |
+| Accueil — grille des équipes | `/` | Non |
+| Sorties d'une équipe | `/equipe/{teamId:guid}` | Non |
+| Détail d'un événement (public) | `/equipe/{teamId:guid}/evenement/{eventId:guid}` | Non |
+| Événements (liste équipe) | `/events` | Oui |
+| Détail d'un événement | `/event/detail/{guid}` | Oui |
+
+### Feature HomeFeature — points clés
+
+- **Vitrine publique** : 3 pages sans `[Authorize]`, `@rendermode @(new InteractiveServerRenderMode(prerender: false))`
+- **Anonymat** : `RestoDetailPage` affiche les avis sans aucun nom — uniquement Note, Commentaire, DateReview
+- **ViewServices sans ViewServiceBase** : `HomeViewService`, `TeamsRestoViewService`, `RestoDetailViewService` n'héritent pas de `ViewServiceBase` (pas d'auth nécessaire)
+- **Photos** : `RestoDetailViewService` énumère `{ContentRoot}/img/{eventId}/` et retourne des URLs `/img/{eventId}/{filename}` (même pattern que `EventDetailViewService.GetImagesByEvent()`)
+- **JSON imbriqué** : `sp_GetTeamEventsPublic` et `sp_GetEventDetailPublic` utilisent `FOR JSON PATH, WITHOUT_ARRAY_WRAPPER, INCLUDE_NULL_VALUES` — propriétés nullable sur les collections imbriquées (`Evenements?`, `Avis?`)
+- **Navigation** : `TeamCardComponent` → `/equipe/{teamId}` → `EventCardComponent` → `/equipe/{teamId}/evenement/{eventId}` → bouton retour à chaque niveau
 
 ### Feature Mailing — points clés
 

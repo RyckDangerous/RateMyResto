@@ -1,0 +1,123 @@
+@namespace RateMyResto.Features.HomeFeature.RestoDetail
+@page "/equipe/{TeamId:guid}/evenement/{EventId:guid}"
+@using RateMyResto.Features.HomeFeature.RestoDetail.Components
+@using RateMyResto.Features.HomeFeature.RestoDetail.Models
+@using RateMyResto.Features.HomeFeature.RestoDetail.ViewServices
+@using System.Globalization
+
+@rendermode @(new InteractiveServerRenderMode(prerender: false))
+
+<PageTitle>@(_viewService.ViewModel?.NomRestaurant ?? "Détail") — RateMyResto</PageTitle>
+
+<div class="page-wrapper">
+
+    <!-- Back button -->
+    <div class="back-bar">
+        <a href="/equipe/@TeamId" class="back-link">← Retour aux sorties de l'équipe</a>
+    </div>
+
+    @if (_viewService.ViewModel is not null)
+    {
+        <!-- Restaurant header -->
+        <header class="resto-header">
+            <div class="resto-header-top">
+                <div class="resto-info">
+                    <h1 class="resto-name">@_viewService.ViewModel.NomRestaurant</h1>
+                    <p class="resto-address">
+                        <span class="info-icon">📍</span> @_viewService.ViewModel.Adresse
+                    </p>
+                    @if (!string.IsNullOrWhiteSpace(_viewService.ViewModel.LienGoogleMaps))
+                    {
+                        <a href="@_viewService.ViewModel.LienGoogleMaps"
+                           target="_blank"
+                           rel="noopener noreferrer"
+                           class="maps-link">Voir sur Google Maps →</a>
+                    }
+                </div>
+                <div class="resto-meta">
+                    <div class="event-date">
+                        <span class="meta-label">Date</span>
+                        <span class="meta-value">@FormattedDate</span>
+                    </div>
+                    @if (_viewService.ViewModel.NoteGlobale.HasValue)
+                    {
+                        <div class="global-rating">
+                            <span class="rating-value">@_viewService.ViewModel.NoteGlobale.Value.ToString("0.0")</span>
+                            <div class="rating-stars">
+                                @for (int i = 1; i <= 5; i++)
+                                {
+                                    int star = i;
+                                    @if (star <= Math.Floor((double)_viewService.ViewModel.NoteGlobale.Value))
+                                    {
+                                        <span class="star star-full">★</span>
+                                    }
+                                    else if (star - 0.5 <= (double)_viewService.ViewModel.NoteGlobale.Value)
+                                    {
+                                        <span class="star star-half">★</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="star star-empty">★</span>
+                                    }
+                                }
+                            </div>
+                            <span class="rating-count">(@_viewService.ViewModel.Avis.Count avis)</span>
+                        </div>
+                    }
+                </div>
+            </div>
+            <div class="team-badge">
+                <span>👥</span> Équipe : <strong>@_viewService.ViewModel.NomEquipe</strong>
+            </div>
+        </header>
+
+        <!-- Photos gallery -->
+        @if (_viewService.ViewModel.Photos.Any())
+        {
+            <section class="photos-section">
+                <h2 class="section-title">Photos</h2>
+                <div class="photos-grid">
+                    @foreach (string photo in _viewService.ViewModel.Photos)
+                    {
+                        <div class="photo-item">
+                            <img src="@photo" alt="Photo de @_viewService.ViewModel.NomRestaurant" loading="lazy" />
+                        </div>
+                    }
+                </div>
+            </section>
+        }
+
+        <!-- Avis section -->
+        <section class="avis-section">
+            <h2 class="section-title">
+                Avis
+                @if (_viewService.ViewModel.Avis.Any())
+                {
+                    <span class="avis-count">@_viewService.ViewModel.Avis.Count</span>
+                }
+            </h2>
+
+            @if (_viewService.ViewModel.Avis.Any())
+            {
+                <div class="avis-list">
+                    @foreach (AvisPublicDb avis in _viewService.ViewModel.Avis)
+                    {
+                        <AvisComponent Avis="avis" />
+                    }
+                </div>
+            }
+            else
+            {
+                <p class="no-avis">Aucun avis pour le moment.</p>
+            }
+        </section>
+    }
+    else
+    {
+        <div class="empty-state">
+            <div class="empty-icon">❓</div>
+            <p class="empty-text">Événement introuvable.</p>
+        </div>
+    }
+
+</div>

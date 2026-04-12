@@ -1,0 +1,49 @@
+@namespace RateMyResto.Features.HomeFeature.Home
+@page "/"
+@using RateMyResto.Features.HomeFeature.Home.Components
+@using RateMyResto.Features.HomeFeature.Home.Models
+@using RateMyResto.Features.HomeFeature.Home.ViewServices
+
+@rendermode @(new InteractiveServerRenderMode(prerender: false))
+
+<PageTitle>RateMyResto — Découvrez nos équipes</PageTitle>
+
+<div class="home-wrapper">
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="hero-content">
+            <div class="hero-icon">🍽️</div>
+            <h1 class="hero-title">RateMyResto</h1>
+            <p class="hero-tagline">Notez vos expériences restaurant en équipe, partagez vos coups de cœur.</p>
+            <a href="/account/register" class="btn-join">Rejoindre l'aventure →</a>
+        </div>
+    </section>
+
+    <!-- Teams Section -->
+    <section class="teams-section">
+        <div class="section-header">
+            <h2 class="section-title">Nos équipes</h2>
+            <p class="section-subtitle">Découvrez les équipes qui partagent leurs meilleures adresses.</p>
+        </div>
+
+        @if (_viewService.Teams.Any())
+        {
+            <div class="teams-grid">
+                @foreach (TeamPublicViewModel team in _viewService.Teams)
+                {
+                    <TeamCardComponent Team="team" OnTeamClicked="HandleTeamClicked" />
+                }
+            </div>
+        }
+        else
+        {
+            <div class="empty-state">
+                <div class="empty-icon">👥</div>
+                <p class="empty-text">Aucune équipe pour le moment. Soyez les premiers !</p>
+                <a href="/account/register" class="btn-join">Créer un compte</a>
+            </div>
+        }
+    </section>
+
+</div>
