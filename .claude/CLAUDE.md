@@ -337,90 +337,11 @@ public sealed record UpdateEventForm
 
 ## 🗄️ Standards SQL Server
 
-### Mots-clés SQL
-- **TOUJOURS** écrire les mots-clés SQL Server en MAJUSCULE
-- Exemples : `SELECT`, `FROM`, `WHERE`, `INSERT`, `UPDATE`, `DELETE`, `JOIN`, `INNER JOIN`, `LEFT JOIN`, `CREATE`, `ALTER`, `DROP`, etc.
-
-<<<<<<< Updated upstream
-### Utilisation des crochets [ ]
-- **NE PAS** abuser des crochets sur tous les champs
-- **UNIQUEMENT** utiliser les crochets pour les noms qui sont des mots-clés SQL
-- Exemples : `[Description]`, `[Role]`, `[User]`, `[Group]`, `[Order]`, `[Key]`, `[Type]`
-=======
+> Toutes les règles T-SQL sont centralisées dans [`.claude/rules/T-SQLRules.md`](.claude/rules/T-SQLRules.md).
+> **Consulter ce fichier pour l'ensemble des règles** : mots-clés en MAJUSCULE, crochets, interdiction DEFAULT, schémas, contraintes nommées, indentation.
+>
 > Le schéma complet de la base de données (tables, colonnes, relations) est dans [`.claude/docs/RateMyRestoDb.md`](.claude/docs/RateMyRestoDb.md).
 > **Note importante** : à chaque modification du schéma de base de données (ajout/suppression de table, colonne, contrainte), mettre à jour ce fichier pour maintenir la documentation à jour.
-
-Résumé des points clés :
->>>>>>> Stashed changes
-
-### Valeurs par défaut (DEFAULT)
-
-**INTERDICTION TOTALE** : Ne jamais utiliser de contraintes `DEFAULT` sur les colonnes.
-Les valeurs par défaut doivent être gérées au niveau de l'application.
-
-```sql
--- ❌ MAUVAIS
-CREATE TABLE dbo.Event
-(
-    Id INT IDENTITY(1,1) NOT NULL,
-    Name NVARCHAR(200) NOT NULL,
-    CreatedAt DATETIME2 NOT NULL DEFAULT GETUTCDATE(),
-    ...
-);
-
--- ✅ BON - Valeurs gérées par l'application
-CREATE TABLE dbo.Event
-(
-    Id INT IDENTITY(1,1) NOT NULL,
-    Name NVARCHAR(200) NOT NULL,
-    CreatedAt DATETIME2 NOT NULL,
-    ...
-);
-```
-
-### Schémas
-- **TOUJOURS** préfixer les noms de tables avec le schéma : `dbo.`
-
-### Convention de nommage des contraintes
-- **Primary Key** : `PK_{NomTable}`
-- **Foreign Key** : `FK_{NomTable}_{NomTableReferee}`
-- **Unique** : `UK_{NomTable}_{NomColonne}`
-- **Check** : `CK_{NomTable}_{NomColonne}`
-- **Index** : `IX_{NomTable}_{NomColonne}`
-
-```sql
--- ✅ BON
-CREATE TABLE dbo.Event
-(
-    Id INT IDENTITY(1,1) NOT NULL,
-    Name NVARCHAR(200) NOT NULL,
-    TeamId INT NOT NULL,
-
-    CONSTRAINT PK_Event
-        PRIMARY KEY (Id),
-
-    CONSTRAINT FK_Event_Team
-        FOREIGN KEY (TeamId) REFERENCES dbo.Team(Id)
-);
-```
-
-### Indentation et lisibilité
-
-```sql
--- ✅ BON - Conditions alignées
-SELECT e.Id,
-       e.Name,
-       t.Name AS TeamName
-FROM dbo.Event AS e
-INNER JOIN dbo.Team AS t
-    ON e.TeamId = t.Id
-WHERE e.TeamId = @TeamId
-  AND e.Date >= @DateStart
-  AND e.IsActive = 1;
-
--- ❌ MAUVAIS - Tout sur une ligne
-SELECT e.Id, e.Name FROM dbo.Event AS e WHERE e.TeamId = @TeamId AND e.IsActive = 1;
-```
 
 ---
 
@@ -663,13 +584,8 @@ Task CreateEventAsync(CreateEventCommand command);
 31. ✅ **Component** - composant Blazor autonome
 
 ### Standards SQL Server
-32. ✅ **Mots-clés en MAJUSCULE** - SELECT, FROM, WHERE, etc.
-33. ✅ **Crochets [ ] uniquement sur mots-clés SQL** - [Description], [Role]
-34. ✅ **Schéma obligatoire** - dbo.TableName
-35. ✅ **INTERDICTION DEFAULT** - pas de contraintes DEFAULT sur les colonnes
-36. ✅ **Indentation claire** - aligner WHERE et AND
-37. ✅ **Contraintes nommées** - PK_, FK_, UK_, CK_, IX_
-38. ✅ **Alias significatifs** - courts mais compréhensibles
+
+> Voir [`.claude/rules/T-SQLRules.md`](.claude/rules/T-SQLRules.md) pour toutes les règles T-SQL.
 
 ---
 
