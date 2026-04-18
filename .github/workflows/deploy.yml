@@ -6,6 +6,7 @@ on:
       - main
     paths-ignore:
       - '.claude/**'
+      - '**/*.md'
   workflow_dispatch:
 
 jobs:
@@ -80,5 +81,5 @@ jobs:
             docker compose -f /opt/docker-compose.yml stop rate-my-resto
             docker rm rate-my-resto || true
             docker rmi anthonyryck/ratemyresto:latest || true
-            docker compose -f /opt/docker-compose.yml up -d rate-my-resto
+            docker compose -f /opt/docker-compose.yml up -d sqlserver-db postfix rate-my-resto
             echo "Deploiement termine."
