@@ -80,5 +80,5 @@ jobs:
             docker compose -f /opt/docker-compose.yml stop rate-my-resto
             docker rm rate-my-resto || true
             docker rmi anthonyryck/ratemyresto:latest || true
-            docker compose -f /opt/docker-compose.yml up -d
+            docker compose -f /opt/docker-compose.yml up -d rate-my-resto
             echo "Deploiement termine."

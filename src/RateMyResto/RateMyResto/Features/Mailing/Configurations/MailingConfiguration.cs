@@ -28,9 +28,12 @@ public static class MailingConfiguration
 
         services.AddScoped<IReminderRepository, ReminderRepository>();
         services.AddScoped<IEventNotificationRepository, EventNotificationRepository>();
+        services.AddScoped<IFinalScoreNotificationRepository, FinalScoreNotificationRepository>();
+        
         services.AddTransient<IMailSender, MailSender>();
         services.AddScoped<IReminderService, ReminderService>();
         services.AddScoped<IEventNotificationService, EventNotificationService>();
+        services.AddScoped<IFinalScoreNotificationService, FinalScoreNotificationService>();
 
         return services;
     }

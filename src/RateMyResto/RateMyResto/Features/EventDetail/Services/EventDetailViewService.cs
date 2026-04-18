@@ -7,6 +7,8 @@ using RateMyResto.Features.EventDetail.Models.Errors;
 using RateMyResto.Features.EventDetail.Models.InputModels;
 using RateMyResto.Features.EventDetail.Models.ViewModels;
 using RateMyResto.Features.EventDetail.Repositories;
+using RateMyResto.Features.Mailing.Models;
+using RateMyResto.Features.Mailing.Services;
 using RateMyResto.Features.Shared.Components.SnackbarComponent;
 using RateMyResto.Features.Shared.Converters;
 using RateMyResto.Features.Shared.Models;
@@ -40,17 +42,22 @@ public sealed class EventDetailViewService : ViewServiceBase, IEventDetailViewSe
 
     private readonly ISnackbarService _snackbarService;
     private readonly IEventDetailRepository _eventDetailRepository;
-    
+    private readonly IFinalScoreNotificationService _finalScoreNotificationService;
+    private readonly ILogger<EventDetailViewService> _logger;
 
     public EventDetailViewService(AuthenticationStateProvider authStateProvider,
                                   ISnackbarService snackbarService,
-                                  IEventDetailRepository eventDetailRepository)
+                                  IEventDetailRepository eventDetailRepository,
+                                  IFinalScoreNotificationService finalScoreNotificationService,
+                                  ILogger<EventDetailViewService> logger)
         : base(authStateProvider)
     {
         _pathImages = Path.Combine(Directory.GetCurrentDirectory(), "img");
 
         _snackbarService = snackbarService;
         _eventDetailRepository = eventDetailRepository;
+        _finalScoreNotificationService = finalScoreNotificationService;
+        _logger = logger;
 
         RatingInput = new EventRatingInput();
     }
@@ -309,13 +316,16 @@ public sealed class EventDetailViewService : ViewServiceBase, IEventDetailViewSe
             {
                 // Tous les participants confirmés ont noté
                 bool allHaveNote = participantsQuiDoiventVoter.All(p => p.Note.HasValue);
-                if (allHaveNote)
+
+                // Guard : exécuter uniquement si la note n'est pas encore enregistrée en base,
+                // ce qui garantit le calcul et l'envoi d'email une seule fois par événement.
+                if (allHaveNote && !value.NoteGlobale.HasValue)
                 {
                     // Calcul de la note globale (uniquement avec les participants confirmés)
                     decimal totalNotes = participantsQuiDoiventVoter.Sum(p => p.Note ?? 0);
                     value.NoteGlobale = Math.Round(totalNotes / participantsQuiDoiventVoter.Count, 2);
 
-                    // sauvegarde de la note globale
+                    // Sauvegarde de la note globale
                     GlobalRatingCommand globalRatingCommand = new()
                     {
                         EventId = _idEvent,
@@ -327,6 +337,27 @@ public sealed class EventDetailViewService : ViewServiceBase, IEventDetailViewSe
                     if (globalRatingResult.HasError)
                     {
                         _snackbarService.ShowError("Erreur lors de la mise à jour de la note globale.");
+                    }
+                    else
+                    {
+                        try
+                        {
+                            FinalScoreNotificationCommand notifCommand = new()
+                            {
+                                EventId       = _idEvent,
+                                NomRestaurant = value.NomRestaurant,
+                                NomEquipe     = value.NomEquipe,
+                                DateEvenement = value.DateEvenement,
+                                NoteGlobale   = value.NoteGlobale.Value
+                            };
+                            await _finalScoreNotificationService.SendNotificationsAsync(notifCommand);
+                        }
+                        catch (Exception ex)
+                        {
+                            _logger.LogError(ex,
+                                "Erreur lors de l'envoi de la notification de note finale pour l'événement {EventId}",
+                                _idEvent);
+                        }
                     }
                 }
             }
@@ -362,7 +393,8 @@ public sealed class EventDetailViewService : ViewServiceBase, IEventDetailViewSe
             return;
         }
 
-        if (ViewModel is null || !ViewModel.CanManageParticipants)
+        if (ViewModel is null 
+            || !ViewModel.CanManageParticipants)
         {
             _snackbarService.ShowError("Vous n'avez pas les droits pour modifier ce statut.");
             return;
@@ -371,7 +403,8 @@ public sealed class EventDetailViewService : ViewServiceBase, IEventDetailViewSe
         ParticipantViewModel? participant = ViewModel.ParticipantsInfo
             .FirstOrDefault(p => p.UserId == participantUserId);
 
-        if (participant is null || !participant.CanChangeStatus)
+        if (participant is null 
+            || !participant.CanChangeStatus)
         {
             _snackbarService.ShowError("Le statut de ce participant ne peut pas être modifié.");
             return;
@@ -395,6 +428,11 @@ public sealed class EventDetailViewService : ViewServiceBase, IEventDetailViewSe
         await LoadEvent(_idEvent);
     }
 
+    /// <summary>
+    /// Récupère les URLs des images associées à un événement.
+    /// </summary>
+    /// <param name="idEvent"></param>
+    /// <returns></returns>
     private IEnumerable<string> GetImagesByEvent(Guid idEvent)
     {
         string eventImagePath = Path.Combine(_pathImages, idEvent.ToString());
@@ -417,6 +455,10 @@ public sealed class EventDetailViewService : ViewServiceBase, IEventDetailViewSe
         return imageUrls;
     }
 
+    /// <summary>
+    /// Sauvegarde l'image sur le serveur de fichiers.
+    /// </summary>
+    /// <param name="command"></param>
     private async Task<ResultOf> SaveImageAsync(UploadPhotoCommand command)
     {
         string eventImagePath = Path.Combine(_pathImages, command.EventId.ToString());
